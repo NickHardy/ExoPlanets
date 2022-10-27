@@ -27,8 +27,8 @@ using System.Runtime.InteropServices;
 
 //The assembly versioning
 //Should be incremented for each new release build of a plugin
-[assembly: AssemblyVersion("1.1.7.1")]
-[assembly: AssemblyFileVersion("1.1.7.1")]
+[assembly: AssemblyVersion("1.1.7.2")]
+[assembly: AssemblyFileVersion("1.1.7.2")]
 
 //The minimum Version of N.I.N.A. that this plugin is compatible with
 [assembly: AssemblyMetadata("MinimumApplicationVersion", "2.0.0.9001")]
@@ -40,17 +40,17 @@ using System.Runtime.InteropServices;
 //The url to the license
 [assembly: AssemblyMetadata("LicenseURL", "https://www.mozilla.org/en-US/MPL/2.0/")]
 //The repository where your pluggin is hosted
-[assembly: AssemblyMetadata("Repository", "https://bitbucket.org/NickHardy/nina/src/plugins/NINA.Plugin.ExoPlanets/")]
+[assembly: AssemblyMetadata("Repository", "https://bitbucket.org/NickHardy/exoplanets/src/main/")]
 
 //Common tags that quickly describe your plugin
 [assembly: AssemblyMetadata("Tags", "ExoPlanet,Sequencer")]
 
 //The featured logo that will be displayed in the plugin list next to the name
-[assembly: AssemblyMetadata("FeaturedImageURL", "https://bitbucket.org/NickHardy/nina/downloads/FinalLightCurve_TrES-2b.png")]
+[assembly: AssemblyMetadata("FeaturedImageURL", "https://bitbucket.org/NickHardy/exoplanets/downloads/FinalLightCurve_TrES-2b.png")]
 //An example screenshot of your plugin in action
-[assembly: AssemblyMetadata("ScreenshotURL", "https://bitbucket.org/NickHardy/nina/downloads/TransitDSOcontainerScreenShot.png")]
+[assembly: AssemblyMetadata("ScreenshotURL", "https://bitbucket.org/NickHardy/exoplanets/downloads/TransitDSOcontainerScreenShot.png")]
 //An additional example screenshot of your plugin in action
-[assembly: AssemblyMetadata("AltScreenshotURL", "https://bitbucket.org/NickHardy/nina/downloads/Tres-1b-fov.png")]
+[assembly: AssemblyMetadata("AltScreenshotURL", "https://bitbucket.org/NickHardy/exoplanets/downloads/Tres-1b-fov.png")]
 [assembly: AssemblyMetadata("LongDescription", @"# N.I.N.A. - Nighttime Imaging 'N' Astronomy ExoPlanet Plugin#
 
 [https://nighttime-imaging.eu/](https://nighttime-imaging.eu/)
@@ -70,13 +70,14 @@ using System.Runtime.InteropServices;
   This instruction can calculate the proper exposure time for the given target and target ADU percentage.
   Enter the exposure time for the first and second image. It will take the first image and platesolve it. Then it will try to find the star in the image and check the MaxPixelValue.
   Next it will take the second image and repeat the process.
+  There is also the option to only select exposuretimes from preselected values. That way you will be able to use a dark library.
   It will then calculate the exposure time to get the star to the given target ADU for the camera and take another image.
   This process will repeat until the MaxPixelValue for the target star is within 10 percent of the given target ADU
   This instruction will also check the image for comparison stars and variable stars and show their locations on the image and save the fov image to your imaging directory.
-  Make sure the coordinates for the target star are correct.
+  Make sure the coordinates for the target star are correct and that the correct pixel size and focal length are used in the Nina options.
 
 *Template*
-* [Example template](https://bitbucket.org/NickHardy/nina/downloads/TransitPlanetImagingSequence.json)
+* [Example template](https://bitbucket.org/NickHardy/exoplanets/downloads/TransitPlanetImagingSequence.json)
   This is an example template you could use or modify as you wish
 
 *More to read*
@@ -98,4 +99,4 @@ A big thank you goes out to Dominique(@DominiqueD84) for testing this plugin. :)
 Please report any issues in the [Nina discord server](https://discord.gg/rWRbVbw) and tag me: @NickHolland#5257 
 
 If you would like to buy me a whisky: [click here](https://www.paypal.com/paypalme/NickHardyHolland)
-")]
+")] 
