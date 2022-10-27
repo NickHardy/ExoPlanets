@@ -1,0 +1,444 @@
+﻿<!--
+    Copyright © 2016 - 2021 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
+
+    This file is part of N.I.N.A. - Nighttime Imaging 'N' Astronomy.
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.-->
+<ResourceDictionary
+    x:Class="NINA.Plugin.ExoPlanets.Sequencer.Utility.Datatemplates"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:enum="clr-namespace:NINA.Core.Enum;assembly=NINA.Core"
+    xmlns:local="clr-namespace:NINA.Plugin.ExoPlanets.Sequencer.Utility"
+    xmlns:mini="clr-namespace:NINA.View.Sequencer.MiniSequencer;assembly=NINA.Sequencer"
+    xmlns:ninactrl="clr-namespace:NINACustomControlLibrary;assembly=NINACustomControlLibrary"
+    xmlns:ns="clr-namespace:NINA.Core.Locale;assembly=NINA.Core"
+    xmlns:util="clr-namespace:NINA.Core.Utility;assembly=NINA.Core"
+    xmlns:rules="clr-namespace:NINA.Core.Utility.ValidationRules;assembly=NINA.Core"
+    xmlns:s="clr-namespace:System;assembly=mscorlib"
+    xmlns:view="clr-namespace:NINA.View.Sequencer;assembly=NINA.Sequencer">
+
+    <DataTemplate DataType="{x:Type local:WaitForTransit}">
+        <view:SequenceBlockView DataContext="{Binding}">
+            <view:SequenceBlockView.SequenceItemContent>
+                <StackPanel Orientation="Horizontal">
+
+                    <TextBlock VerticalAlignment="Center" Text="{ns:Loc LblSource}" />
+
+                    <ComboBox
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        DisplayMemberPath="Name"
+                        ItemsSource="{Binding DateTimeProviders}"
+                        SelectedItem="{Binding SelectedProvider}" />
+                    <TextBlock
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Center"
+                        Text="{ns:Loc LblTime}" />
+                    <TextBox
+                        MinWidth="40"
+                        Margin="5,0,0,0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        HorizontalContentAlignment="Right"
+                        IsEnabled="{Binding HasFixedTimeProvider, Converter={StaticResource InverseBooleanConverter}}">
+                        <TextBox.Text>
+                            <Binding Path="Hours">
+                                <Binding.ValidationRules>
+                                    <rules:IntRangeRule>
+                                        <rules:IntRangeRule.ValidRange>
+                                            <rules:IntRangeChecker Maximum="23" Minimum="0" />
+                                        </rules:IntRangeRule.ValidRange>
+                                    </rules:IntRangeRule>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <TextBlock VerticalAlignment="Center" Text=":" />
+                    <TextBox
+                        MinWidth="40"
+                        Margin="5,0,0,0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        HorizontalContentAlignment="Right"
+                        IsEnabled="{Binding HasFixedTimeProvider, Converter={StaticResource InverseBooleanConverter}}">
+                        <TextBox.Text>
+                            <Binding Path="Minutes">
+                                <Binding.ValidationRules>
+                                    <rules:IntRangeRule>
+                                        <rules:IntRangeRule.ValidRange>
+                                            <rules:IntRangeChecker Maximum="59" Minimum="0" />
+                                        </rules:IntRangeRule.ValidRange>
+                                    </rules:IntRangeRule>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <TextBlock VerticalAlignment="Center" Text=":" />
+                    <TextBox
+                        MinWidth="40"
+                        Margin="5,0,0,0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        HorizontalContentAlignment="Right"
+                        IsEnabled="{Binding HasFixedTimeProvider, Converter={StaticResource InverseBooleanConverter}}">
+                        <TextBox.Text>
+                            <Binding Path="Seconds">
+                                <Binding.ValidationRules>
+                                    <rules:IntRangeRule>
+                                        <rules:IntRangeRule.ValidRange>
+                                            <rules:IntRangeChecker Maximum="59" Minimum="0" />
+                                        </rules:IntRangeRule.ValidRange>
+                                    </rules:IntRangeRule>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding HasFixedTimeProvider, Converter={StaticResource VisibilityConverter}}">
+                        <TextBlock
+                            Margin="5,0,0,0"
+                            VerticalAlignment="Center"
+                            Text="{ns:Loc LblTimeOffset}"
+                            ToolTip="{ns:Loc LblTimeOffsetTooltip}" />
+                        <TextBox
+                            MinWidth="40"
+                            Margin="5,0,0,0"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            HorizontalContentAlignment="Right"
+                            Text="{Binding MinutesOffset}" />
+                        <TextBlock VerticalAlignment="Center">m</TextBlock>
+                    </StackPanel>
+                </StackPanel>
+            </view:SequenceBlockView.SequenceItemContent>
+        </view:SequenceBlockView>
+    </DataTemplate>
+
+    <WrapPanel
+        x:Key="TakeExposureDetails"
+        x:Shared="false"
+        Orientation="Horizontal">
+        <WrapPanel.Resources>
+            <util:BindingProxy x:Key="CameraInfo" Data="{Binding CameraInfo}" />
+        </WrapPanel.Resources>
+
+        <TextBlock VerticalAlignment="Center" Text="Exposures: #1" />
+        <ninactrl:UnitTextBox
+            MinWidth="40"
+            Margin="5,0,0,0"
+            VerticalAlignment="Center"
+            VerticalContentAlignment="Center"
+            Text="{Binding ExposureTimeFirst}"
+            TextAlignment="Right"
+            Unit="s" />
+
+        <TextBlock
+            Margin="7.5,0,7.5,0"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Text="&lt;" />
+
+        <TextBlock VerticalAlignment="Center" Text="#2" />
+        <ninactrl:UnitTextBox
+            MinWidth="40"
+            Margin="5,0,0,0"
+            VerticalAlignment="Center"
+            VerticalContentAlignment="Center"
+            Text="{Binding ExposureTimeSecond}"
+            TextAlignment="Right"
+            Unit="s" />
+
+        <TextBlock
+            Margin="7.5,0,7.5,0"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Text="&lt;" />
+
+        <TextBlock VerticalAlignment="Center" Text="Max" />
+        <ninactrl:UnitTextBox
+            MinWidth="40"
+            Margin="5,0,0,0"
+            VerticalAlignment="Center"
+            VerticalContentAlignment="Center"
+            Text="{Binding ExposureTimeMax}"
+            TextAlignment="Right"
+            Unit="s" />
+
+        <TextBlock
+            Margin="7.5,0,7.5,0"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Text="|" />
+
+        <TextBlock VerticalAlignment="Center" Text="{ns:Loc LblBinning}" />
+        <ComboBox
+            Margin="5,0,0,0"
+            VerticalAlignment="Center"
+            DisplayMemberPath="Name"
+            ItemsSource="{Binding Source={StaticResource CameraInfo}, Path=Data.BinningModes, Converter={StaticResource DefaultBinningModesConverter}}"
+            SelectedItem="{Binding Binning, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            SelectedValuePath="Name" />
+
+        <!--  List of Gain  -->
+        <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <WrapPanel.Visibility>
+                <PriorityBinding>
+                    <Binding
+                        Converter="{StaticResource CollectionContainsItemsToVisibilityConverter}"
+                        Path="Data.Gains"
+                        Source="{StaticResource CameraInfo}" />
+                    <Binding
+                        Converter="{StaticResource BooleanToVisibilityCollapsedConverter}"
+                        Path="Data.Connected"
+                        Source="{StaticResource CameraInfo}" />
+                </PriorityBinding>
+            </WrapPanel.Visibility>
+            <TextBlock
+                Margin="7.5,0,7.5,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Text="|" />
+            <TextBlock VerticalAlignment="Center" Text="{ns:Loc LblGain}" />
+            <ComboBox
+                Margin="5,0,0,0"
+                DisplayMemberPath="Text"
+                IsSynchronizedWithCurrentItem="True"
+                SelectedValuePath="Text">
+                <ComboBox.ItemsSource>
+                    <CompositeCollection>
+                        <TextBlock Text="{Binding Source={StaticResource CameraInfo}, Path=Data.DefaultGain, UpdateSourceTrigger=PropertyChanged, StringFormat=({0})}" />
+                        <CollectionContainer Collection="{Binding Source={StaticResource CameraInfo}, Path=Data.Gains, Converter={StaticResource IntListToTextBlockListConverter}}" />
+                    </CompositeCollection>
+                </ComboBox.ItemsSource>
+                <ComboBox.SelectedValue>
+                    <MultiBinding
+                        Converter="{StaticResource MinusOneToBaseValueConverter}"
+                        Mode="TwoWay"
+                        UpdateSourceTrigger="PropertyChanged">
+                        <Binding
+                            Mode="TwoWay"
+                            Path="Gain"
+                            UpdateSourceTrigger="PropertyChanged" />
+                        <Binding
+                            Mode="OneWay"
+                            Path="Data.DefaultGain"
+                            Source="{StaticResource CameraInfo}"
+                            UpdateSourceTrigger="PropertyChanged" />
+                    </MultiBinding>
+                </ComboBox.SelectedValue>
+            </ComboBox>
+        </WrapPanel>
+
+        <!--  Free Gain  -->
+        <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <WrapPanel.Visibility>
+                <PriorityBinding FallbackValue="Visible">
+                    <Binding
+                        Converter="{StaticResource InverseCollectionContainsItemsToVisibilityConverter}"
+                        Path="Data.Gains"
+                        Source="{StaticResource CameraInfo}" />
+                </PriorityBinding>
+            </WrapPanel.Visibility>
+            <TextBlock
+                Margin="7.5,0,7.5,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Text="|" />
+            <TextBlock VerticalAlignment="Center" Text="{ns:Loc LblGain}" />
+            <ninactrl:HintTextBox
+                MinWidth="40"
+                Margin="5,0,0,0"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Right"
+                VerticalContentAlignment="Center"
+                Foreground="{StaticResource PrimaryBrush}"
+                TextAlignment="Right">
+                <ninactrl:HintTextBox.HintText>
+                    <Binding
+                        Converter="{StaticResource CameraDefaultValueConverter}"
+                        Mode="OneWay"
+                        Path="Data.DefaultGain"
+                        Source="{StaticResource CameraInfo}"
+                        UpdateSourceTrigger="PropertyChanged" />
+                </ninactrl:HintTextBox.HintText>
+                <ninactrl:HintTextBox.Text>
+                    <Binding
+                        Converter="{StaticResource MinusOneToEmptyStringConverter}"
+                        Mode="TwoWay"
+                        Path="Gain"
+                        UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <util:ShortRangeRule>
+                                <util:ShortRangeRule.ValidRange>
+                                    <util:ShortRangeChecker Maximum="32767" Minimum="-1" />
+                                </util:ShortRangeRule.ValidRange>
+                            </util:ShortRangeRule>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </ninactrl:HintTextBox.Text>
+            </ninactrl:HintTextBox>
+        </WrapPanel>
+
+        <!--  Offset  -->
+        <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <WrapPanel.Visibility>
+                <MultiBinding Converter="{StaticResource BooleanOrToVisibilityCollapsedMultiConverter}" FallbackValue="Visible">
+                    <Binding
+                        Converter="{StaticResource InverseBooleanConverter}"
+                        Path="Data.Connected"
+                        Source="{StaticResource CameraInfo}" />
+                    <Binding Path="Data.CanSetOffset" Source="{StaticResource CameraInfo}" />
+                </MultiBinding>
+            </WrapPanel.Visibility>
+            <TextBlock
+                Margin="7.5,0,7.5,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Text="|" />
+            <TextBlock VerticalAlignment="Center" Text="{ns:Loc LblOffset}" />
+            <ninactrl:HintTextBox
+                MinWidth="40"
+                Margin="5,0,0,0"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Right"
+                VerticalContentAlignment="Center"
+                Foreground="{StaticResource PrimaryBrush}"
+                TextAlignment="Right">
+                <ninactrl:HintTextBox.HintText>
+                    <Binding
+                        Converter="{StaticResource CameraDefaultValueConverter}"
+                        Mode="OneWay"
+                        Path="Data.DefaultOffset"
+                        Source="{StaticResource CameraInfo}"
+                        UpdateSourceTrigger="PropertyChanged" />
+                </ninactrl:HintTextBox.HintText>
+                <ninactrl:HintTextBox.Text>
+                    <Binding
+                        Converter="{StaticResource MinusOneToEmptyStringConverter}"
+                        Mode="TwoWay"
+                        Path="Offset"
+                        UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <util:ShortRangeRule>
+                                <util:ShortRangeRule.ValidRange>
+                                    <util:ShortRangeChecker Maximum="32767" Minimum="-1" />
+                                </util:ShortRangeRule.ValidRange>
+                            </util:ShortRangeRule>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </ninactrl:HintTextBox.Text>
+            </ninactrl:HintTextBox>
+        </WrapPanel>
+
+        <!--  Settings  -->
+        <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBlock
+                Margin="7.5,0,7.5,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Text="|" />
+            <TextBlock VerticalAlignment="Center" Text="Target ADU" />
+            <Slider 
+                    VerticalAlignment="Center"
+                    IsSnapToTickEnabled="True"
+                    Maximum="0.9"
+                    Minimum="0.1"
+                    TickFrequency="0.05"
+                    Value="{Binding TargetADU, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock
+                Margin="5,0,0,0"    
+                VerticalAlignment="Center"
+                Text="{Binding TargetADU, Mode=OneWay, Converter={StaticResource PercentageConverter}}" />
+            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="%" />
+            <TextBlock
+            Margin="7.5,0,7.5,0"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Text="|" />
+            <TextBlock VerticalAlignment="Center" Text="{ns:Loc LblSave}" />
+            <CheckBox
+                        MinWidth="40"
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Center"
+                        IsChecked="{Binding SaveImages}" />
+            <TextBlock
+            Margin="7.5,0,7.5,0"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Text="|" />
+            <TextBlock VerticalAlignment="Center" Text="Update exposuretime" />
+            <CheckBox
+                        MinWidth="40"
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Center"
+                        IsChecked="{Binding UpdateExposureTime}" />
+            <TextBlock
+            Margin="7.5,0,7.5,0"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Text="|" />
+        </WrapPanel>
+
+        <!--  Target star  -->
+        <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBlock VerticalAlignment="Center" Text="{ns:Loc LblTime}" />
+            <TextBlock
+                Margin="5,0,0,0"    
+                VerticalAlignment="Center"
+                Text="{Binding ExposureTime, Mode=OneWay}" />
+            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="s" />
+            <TextBlock
+                Margin="7.5,0,7.5,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Text="|" />
+            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="Max pixel" />
+            <TextBlock
+                Margin="5,0,0,0"    
+                VerticalAlignment="Center"
+                Text="{Binding TargetStar.MaxBrightness, Mode=OneWay}" />
+            <TextBlock
+                Margin="7.5,0,7.5,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Text="|" />
+            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="Position" />
+            <TextBlock
+                Margin="5,0,0,0"    
+                VerticalAlignment="Center"
+                Text="{Binding TargetStarPosition, Mode=OneWay}" />
+            <TextBlock
+                Margin="7.5,0,7.5,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Text="|" />
+            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="Comparison stars" />
+            <TextBlock
+                Margin="5,0,0,0"    
+                VerticalAlignment="Center"
+                Text="{Binding CompStarCount, Mode=OneWay}" />
+        </WrapPanel>
+    </WrapPanel>
+
+    <DataTemplate x:Key="NINA.Plugin.ExoPlanets.Sequencer.Utility.CalculateExposureTime_Mini">
+        <mini:MiniSequenceItem>
+            <mini:MiniSequenceItem.SequenceItemContent>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center" Text="{Binding ExposureTime}" />
+                    <TextBlock VerticalAlignment="Center" Text="s" />
+                </StackPanel>
+            </mini:MiniSequenceItem.SequenceItemContent>
+        </mini:MiniSequenceItem>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type local:CalculateExposureTime}">
+        <view:SequenceBlockView DataContext="{Binding}">
+            <view:SequenceBlockView.SequenceItemContent>
+                <ContentPresenter Content="{StaticResource TakeExposureDetails}" />
+            </view:SequenceBlockView.SequenceItemContent>
+        </view:SequenceBlockView>
+    </DataTemplate>
+</ResourceDictionary>
