@@ -55,7 +55,6 @@ using static NINA.Equipment.Model.CaptureSequence;
 using System.Xml;
 using System.Xml.XPath;
 using System.Collections.Specialized;
-using System.Web;
 using System.Data;
 using System.Reflection;
 using CsvHelper;
@@ -307,7 +306,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     if (SaveImages) {
                         imageData.MetaData.Target.Name = inputTarget.TargetName;
                         imageData.MetaData.Target.Coordinates = inputTarget.InputCoordinates.Coordinates;
-                        imageData.MetaData.Target.Rotation = inputTarget.Rotation;
+                        imageData.MetaData.Target.PositionAngle = inputTarget.PositionAngle;
 
                         await imageSaveMediator.Enqueue(imageData, prepareTask, progress, token);
                     }
@@ -700,9 +699,9 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
         private static void AppendUrlEncoded(StringBuilder sb, string name, string value) {
             if (sb.Length != 0)
                 sb.Append("&");
-            sb.Append(HttpUtility.UrlEncode(name));
+            sb.Append(WebUtility.UrlEncode(name));
             sb.Append("=");
-            sb.Append(HttpUtility.UrlEncode(value));
+            sb.Append(WebUtility.UrlEncode(value));
         }
 
         private string variableTarget = "";

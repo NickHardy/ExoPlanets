@@ -68,18 +68,19 @@ namespace NINA.Plugin.ExoPlanets.Model {
         }
 
         public void SetTransit(double StarttimeJD, double MidtimeJD, double EndtimeJD, double TransitDepth) {
-            Transit = new List<DataPoint>();
+            var newTransit = new List<DataPoint>();
             var transitHeight = TransitDepth + 5D;
             var slopePoint = (EndtimeJD - StarttimeJD) / 8;
             ObservationStart = JulianToDateTime(StarttimeJD).AddHours(-1D);
             ObservationEnd = JulianToDateTime(EndtimeJD).AddHours(1D);
-            Transit.Add(new DataPoint(DateTimeAxis.ToDouble(ObservationStart), transitHeight));
-            Transit.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(StarttimeJD)), transitHeight));
-            Transit.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(StarttimeJD + slopePoint)), transitHeight - TransitDepth));
-            Transit.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(MidtimeJD)), transitHeight - TransitDepth));
-            Transit.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(EndtimeJD - slopePoint)), transitHeight - TransitDepth));
-            Transit.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(EndtimeJD)), transitHeight));
-            Transit.Add(new DataPoint(DateTimeAxis.ToDouble(ObservationEnd), transitHeight));
+            newTransit.Add(new DataPoint(DateTimeAxis.ToDouble(ObservationStart), transitHeight));
+            newTransit.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(StarttimeJD)), transitHeight));
+            newTransit.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(StarttimeJD + slopePoint)), transitHeight - TransitDepth));
+            newTransit.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(MidtimeJD)), transitHeight - TransitDepth));
+            newTransit.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(EndtimeJD - slopePoint)), transitHeight - TransitDepth));
+            newTransit.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(EndtimeJD)), transitHeight));
+            newTransit.Add(new DataPoint(DateTimeAxis.ToDouble(ObservationEnd), transitHeight));
+            Transit = newTransit;
             RaisePropertyChanged();
         }
 

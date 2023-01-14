@@ -65,7 +65,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
         private readonly IPlanetariumFactory planetariumFactory;
         private readonly IApplicationMediator applicationMediator;
         private INighttimeCalculator nighttimeCalculator;
-        private ExoPlanetInputTarget target;
+        private ExoPlanetInputTarget _target;
         private ExoPlanets exoPlanetsPlugin;
 
         [ImportingConstructor]
@@ -116,6 +116,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 ExoPlanetDSO.Coordinates = SelectedExoPlanet.Coordinates();
                 ExoPlanetDSO.Magnitude = SelectedExoPlanet.V;
                 ExoPlanetDSO.SetTransit(SelectedExoPlanet.jd_start, SelectedExoPlanet.jd_mid, SelectedExoPlanet.jd_end, SelectedExoPlanet.depth);
+                RaiseAllPropertiesChanged();
                 AfterParentChanged();
             }
         }
@@ -130,7 +131,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                         this.Name = dropTarget.TargetName;
                         this.Target.TargetName = dropTarget.TargetName;
                         this.Target.InputCoordinates = dropTarget.InputCoordinates.Clone();
-                        this.Target.Rotation = dropTarget.Rotation;
+                        this.Target.PositionAngle = dropTarget.PositionAngle;
                     }
                 }
             }
@@ -485,13 +486,13 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
         [JsonProperty]
         public ExoPlanetInputTarget ExoPlanetInputTarget {
-            get => target;
+            get => _target;
             set {
                 if (ExoPlanetInputTarget != null) {
                     WeakEventManager<InputTarget, EventArgs>.RemoveHandler(ExoPlanetInputTarget, nameof(ExoPlanetInputTarget.CoordinatesChanged), Target_OnCoordinatesChanged);
                     // ExoPlanetInputTarget.CoordinatesChanged -= Target_OnCoordinatesChanged;
                 }
-                target = (ExoPlanetInputTarget)value;
+                _target = (ExoPlanetInputTarget)value;
                 if (ExoPlanetInputTarget != null) {
                     WeakEventManager<InputTarget, EventArgs>.AddHandler(ExoPlanetInputTarget, nameof(ExoPlanetInputTarget.CoordinatesChanged), Target_OnCoordinatesChanged);
                     // ExoPlanetInputTarget.CoordinatesChanged += Target_OnCoordinatesChanged;
@@ -506,7 +507,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             set {
                 ExoPlanetInputTarget.TargetName = value.TargetName;
                 ExoPlanetInputTarget.InputCoordinates = value.InputCoordinates;
-                ExoPlanetInputTarget.Rotation = value.Rotation;
+                ExoPlanetInputTarget.PositionAngle = value.PositionAngle;
                 ExoPlanetDSO.Coordinates = value.InputCoordinates.Coordinates;
             }
         }
@@ -521,7 +522,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
         private async Task<bool> CoordsToFraming() {
             if (Target.DeepSkyObject?.Coordinates != null) {
                 var dso = new DeepSkyObject(Target.DeepSkyObject.Name, Target.DeepSkyObject.Coordinates, profileService.ActiveProfile.ApplicationSettings.SkyAtlasImageRepository, profileService.ActiveProfile.AstrometrySettings.Horizon);
-                dso.Rotation = Target.Rotation;
+                dso.Rotation = Target.PositionAngle ;
                 applicationMediator.ChangeTab(ApplicationTab.FRAMINGASSISTANT);
                 return await framingAssistantVM.SetCoordinates(dso);
             }
@@ -542,7 +543,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
             clone.Target.TargetName = this.Target.TargetName;
             clone.Target.InputCoordinates.Coordinates = this.Target.InputCoordinates.Coordinates.Transform(Epoch.J2000);
-            clone.Target.Rotation = this.Target.Rotation;
+            clone.Target.PositionAngle = this.Target.PositionAngle;
 
             foreach (var item in clone.Items) {
                 item.AttachNewParent(clone);
@@ -561,7 +562,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
         public override string ToString() {
             var baseString = base.ToString();
-            return $"{baseString}, Target: {Target?.TargetName} {Target?.InputCoordinates?.Coordinates} {Target?.Rotation}";
+            return $"{baseString}, Target: {Target?.TargetName} {Target?.InputCoordinates?.Coordinates} {Target?.PositionAngle}";
         }
     }
 }
