@@ -30,10 +30,10 @@ using NINA.Plugin.ExoPlanets.Model;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
-    [ExportMetadata("Name", "Wait for transit observation time")]
+    [ExportMetadata("Name", "Wait for Transit Observation Time")]
     [ExportMetadata("Description", "Lbl_SequenceItem_Utility_WaitForTime_Description")]
     [ExportMetadata("Icon", "ClockSVG")]
-    [ExportMetadata("Category", "ExoPlanet")]
+    [ExportMetadata("Category", "ExoPlanets")]
     [Export(typeof(ISequenceItem))]
     [JsonObject(MemberSerialization.OptIn)]
     public class WaitForTransit : SequenceItem {
@@ -179,7 +179,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             
             ExoPlanetDeepSkyObject exoPlanetDSO = ItemUtility.RetrieveExoPlanetDSO(this.Parent);
             if (exoPlanetDSO == null) {
-                i.Add("This instruction must be used within the ExoPlanet object container.");
+                i.Add("This instruction must be used within the VariableStar object container.");
             } else {
                 if (exoPlanetDSO.ObservationStart == null) {
                     i.Add("You must select a target from the list.");

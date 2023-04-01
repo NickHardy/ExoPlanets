@@ -1,0 +1,190 @@
+{
+  "$id": "1",
+  "$type": "NINA.Plugin.ExoPlanets.Sequencer.Container.VariableStarObjectContainer, ExoPlanets",
+  "SelectedVariableStar": null,
+  "ExoPlanetDSO": {
+    "$id": "2",
+    "$type": "NINA.Plugin.ExoPlanets.Model.ExoPlanetDeepSkyObject, ExoPlanets",
+    "ObservationStart": "0001-01-01T00:00:00",
+    "ObservationEnd": "0001-01-01T00:00:00",
+    "LightCurve": {
+      "$id": "3",
+      "$type": "System.Collections.Generic.List`1[[OxyPlot.DataPoint, OxyPlot]], mscorlib",
+      "$values": []
+    }
+  },
+  "ExoPlanetInputTarget": {
+    "$id": "4",
+    "$type": "NINA.Plugin.ExoPlanets.Model.ExoPlanetInputTarget, ExoPlanets",
+    "Expanded": true,
+    "TargetName": "",
+    "Rotation": 0.0,
+    "InputCoordinates": {
+      "$id": "5",
+      "$type": "NINA.Astrometry.InputCoordinates, NINA.Astrometry",
+      "RAHours": 0,
+      "RAMinutes": 0,
+      "RASeconds": 0.0,
+      "NegativeDec": false,
+      "DecDegrees": 0,
+      "DecMinutes": 0,
+      "DecSeconds": 0.0
+    }
+  },
+  "Target": {
+    "$ref": "4"
+  },
+  "Strategy": {
+    "$type": "NINA.Sequencer.Container.ExecutionStrategy.SequentialStrategy, NINA.Sequencer"
+  },
+  "Name": "Variable Star object container",
+  "Conditions": {
+    "$id": "6",
+    "$type": "System.Collections.ObjectModel.ObservableCollection`1[[NINA.Sequencer.Conditions.ISequenceCondition, NINA.Sequencer]], System",
+    "$values": []
+  },
+  "IsExpanded": true,
+  "Items": {
+    "$id": "7",
+    "$type": "System.Collections.ObjectModel.ObservableCollection`1[[NINA.Sequencer.SequenceItem.ISequenceItem, NINA.Sequencer]], System",
+    "$values": [
+      {
+        "$id": "8",
+        "$type": "NINA.Plugin.ExoPlanets.Sequencer.Utility.WaitForTransit, ExoPlanets",
+        "Hours": 10,
+        "Minutes": 47,
+        "MinutesOffset": -10,
+        "Seconds": 15,
+        "SelectedProvider": {
+          "$id": "9",
+          "$type": "NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider.ObservationStartProvider, ExoPlanets"
+        },
+        "Parent": {
+          "$ref": "1"
+        },
+        "ErrorBehavior": 0,
+        "Attempts": 1
+      },
+      {
+        "$id": "10",
+        "$type": "NINA.Sequencer.SequenceItem.Platesolving.Center, NINA.Sequencer",
+        "Inherited": true,
+        "Coordinates": {
+          "$id": "11",
+          "$type": "NINA.Astrometry.InputCoordinates, NINA.Astrometry",
+          "RAHours": 0,
+          "RAMinutes": 0,
+          "RASeconds": 0.0,
+          "NegativeDec": false,
+          "DecDegrees": 0,
+          "DecMinutes": 0,
+          "DecSeconds": 0.0
+        },
+        "Parent": {
+          "$ref": "1"
+        },
+        "ErrorBehavior": 0,
+        "Attempts": 1
+      },
+      {
+        "$id": "12",
+        "$type": "NINA.Plugin.ExoPlanets.Sequencer.Utility.CalculateExposureTime, ExoPlanets",
+        "ExposureTime": 30.0,
+        "ExposureTimeFirst": 30.0,
+        "ExposureTimeSecond": 60.0,
+        "ExposureTimeMax": 300.0,
+        "Gain": -1,
+        "Offset": -1,
+        "Binning": {
+          "$id": "13",
+          "$type": "NINA.Core.Model.Equipment.BinningMode, NINA.Core",
+          "X": 1,
+          "Y": 1
+        },
+        "ExposureCount": 0,
+        "TargetADU": 0.66,
+        "SaveImages": true,
+        "UpdateExposureTime": true,
+        "Parent": {
+          "$ref": "1"
+        },
+        "ErrorBehavior": 0,
+        "Attempts": 1
+      },
+      {
+        "$id": "14",
+        "$type": "NINA.Sequencer.Container.SequentialContainer, NINA.Sequencer",
+        "Strategy": {
+          "$type": "NINA.Sequencer.Container.ExecutionStrategy.SequentialStrategy, NINA.Sequencer"
+        },
+        "Name": "Sequential Instruction Set",
+        "Conditions": {
+          "$id": "15",
+          "$type": "System.Collections.ObjectModel.ObservableCollection`1[[NINA.Sequencer.Conditions.ISequenceCondition, NINA.Sequencer]], System",
+          "$values": [
+            {
+              "$id": "16",
+              "$type": "NINA.Plugin.ExoPlanets.Sequencer.Conditions.TransitCondition, ExoPlanets",
+              "Hours": 10,
+              "Minutes": 57,
+              "MinutesOffset": 0,
+              "Seconds": 15,
+              "SelectedProvider": {
+                "$id": "17",
+                "$type": "NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider.ObservationEndProvider, ExoPlanets"
+              },
+              "Parent": {
+                "$ref": "14"
+              }
+            }
+          ]
+        },
+        "IsExpanded": true,
+        "Items": {
+          "$id": "18",
+          "$type": "System.Collections.ObjectModel.ObservableCollection`1[[NINA.Sequencer.SequenceItem.ISequenceItem, NINA.Sequencer]], System",
+          "$values": [
+            {
+              "$id": "19",
+              "$type": "NINA.Sequencer.SequenceItem.Imaging.TakeExposure, NINA.Sequencer",
+              "ExposureTime": 30.0,
+              "Gain": -1,
+              "Offset": -1,
+              "Binning": {
+                "$id": "20",
+                "$type": "NINA.Core.Model.Equipment.BinningMode, NINA.Core",
+                "X": 1,
+                "Y": 1
+              },
+              "ImageType": "LIGHT",
+              "ExposureCount": 0,
+              "Parent": {
+                "$ref": "14"
+              },
+              "ErrorBehavior": 0,
+              "Attempts": 1
+            }
+          ]
+        },
+        "Triggers": {
+          "$id": "21",
+          "$type": "System.Collections.ObjectModel.ObservableCollection`1[[NINA.Sequencer.Trigger.ISequenceTrigger, NINA.Sequencer]], System",
+          "$values": []
+        },
+        "Parent": {
+          "$ref": "1"
+        },
+        "ErrorBehavior": 0,
+        "Attempts": 1
+      }
+    ]
+  },
+  "Triggers": {
+    "$id": "22",
+    "$type": "System.Collections.ObjectModel.ObservableCollection`1[[NINA.Sequencer.Trigger.ISequenceTrigger, NINA.Sequencer]], System",
+    "$values": []
+  },
+  "Parent": null,
+  "ErrorBehavior": 0,
+  "Attempts": 1
+}

@@ -21,7 +21,7 @@ using System;
 namespace NINA.Plugin.ExoPlanets.Model {
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class ExoPlanet {
+    public class ExoPlanet{
         [JsonProperty]
         public string Name { get; set; }
         [JsonProperty]
@@ -50,12 +50,13 @@ namespace NINA.Plugin.ExoPlanets.Model {
         public int pbo { get; set; }
         [JsonProperty]
         public double pbto { get { return pto + pbo + depth; } }
-
+        
         public Coordinates Coordinates() {
             string RaString = this.coords.Split(' ')[0];
             string DecString = this.coords.Split(' ')[1];
             return new Coordinates(Angle.ByDegree(AstroUtil.HMSToDegrees(RaString)), Angle.ByDegree(AstroUtil.DMSToDegrees(DecString)), Epoch.J2000);
         }
+
 
         [JsonProperty]
         public double Altitude { get; set; }
