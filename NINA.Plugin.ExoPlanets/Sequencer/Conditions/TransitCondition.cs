@@ -31,7 +31,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Conditions {
     [ExportMetadata("Name", "Loop Until Transit Observation Time")]
     [ExportMetadata("Description", "Lbl_SequenceCondition_TimeCondition_Description")]
     [ExportMetadata("Icon", "ClockSVG")]
-    [ExportMetadata("Category", "ExoPlanets")]
+    [ExportMetadata("Category", "ExoPlanet")]
     [Export(typeof(ISequenceCondition))]
     [JsonObject(MemberSerialization.OptIn)]
     public class TransitCondition : SequenceCondition {
@@ -194,7 +194,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Conditions {
 
             ExoPlanetDeepSkyObject exoPlanetDSO = ItemUtility.RetrieveExoPlanetDSO(this.Parent);
             if (exoPlanetDSO == null) {
-                i.Add("This instruction must be used within the VariableStar object container.");
+                i.Add("This instruction must be used within the ExoPlanet or VariableStar object container.");
             } else {
                 if (exoPlanetDSO.ObservationEnd == null) {
                     i.Add("You must select a target from the list.");

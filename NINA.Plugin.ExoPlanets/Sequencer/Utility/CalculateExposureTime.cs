@@ -66,7 +66,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
     [ExportMetadata("Name", "Calculate exposure time")]
     [ExportMetadata("Description", "Lbl_SequenceItem_Imaging_TakeExposure_Description")]
     [ExportMetadata("Icon", "CameraSVG")]
-    [ExportMetadata("Category", "ExoPlanets")]
+    [ExportMetadata("Category", "ExoPlanet")]
     [Export(typeof(ISequenceItem))]
     [JsonObject(MemberSerialization.OptIn)]
     public class CalculateExposureTime : SequenceItem, IValidatable {
@@ -784,7 +784,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
             ExoPlanetDeepSkyObject exoPlanetDSO = ItemUtility.RetrieveExoPlanetDSO(this.Parent);
             if (exoPlanetDSO == null) {
-                i.Add("This instruction must be used within the VariableStar object container.");
+                i.Add("This instruction must be used within the ExoPlanet or VariableStar object container.");
             }
 
             Issues = i;
