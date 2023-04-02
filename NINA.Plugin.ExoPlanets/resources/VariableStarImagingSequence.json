@@ -4,7 +4,7 @@
   "Strategy": {
     "$type": "NINA.Sequencer.Container.ExecutionStrategy.SequentialStrategy, NINA.Sequencer"
   },
-  "Name": "TransitPlanetImagingSequenceCurrent",
+  "Name": "VariableStarImagingSequence",
   "Conditions": {
     "$id": "2",
     "$type": "System.Collections.ObjectModel.ObservableCollection`1[[NINA.Sequencer.Conditions.ISequenceCondition, NINA.Sequencer]], System",
@@ -63,14 +63,14 @@
           "$values": [
             {
               "$id": "11",
-              "$type": "NINA.Plugin.ExoPlanets.Sequencer.Container.ExoPlanetObjectContainer, ExoPlanets",
-              "SelectedExoPlanet": null,
+              "$type": "NINA.Plugin.ExoPlanets.Sequencer.Container.VariableStarObjectContainer, ExoPlanets",
+              "SelectedVariableStar": null,
               "ExoPlanetDSO": {
                 "$id": "12",
                 "$type": "NINA.Plugin.ExoPlanets.Model.ExoPlanetDeepSkyObject, ExoPlanets",
                 "ObservationStart": "0001-01-01T00:00:00",
                 "ObservationEnd": "0001-01-01T00:00:00",
-                "Transit": {
+                "LightCurve": {
                   "$id": "13",
                   "$type": "System.Collections.Generic.List`1[[OxyPlot.DataPoint, OxyPlot]], mscorlib",
                   "$values": []
@@ -80,7 +80,7 @@
                 "$id": "14",
                 "$type": "NINA.Plugin.ExoPlanets.Model.ExoPlanetInputTarget, ExoPlanets",
                 "Expanded": true,
-                "TargetName": "",
+                "TargetName": null,
                 "Rotation": 0.0,
                 "InputCoordinates": {
                   "$id": "15",
@@ -100,7 +100,7 @@
               "Strategy": {
                 "$type": "NINA.Sequencer.Container.ExecutionStrategy.SequentialStrategy, NINA.Sequencer"
               },
-              "Name": "ExoPlanet",
+              "Name": "Variable Star object container",
               "Conditions": {
                 "$id": "16",
                 "$type": "System.Collections.ObjectModel.ObservableCollection`1[[NINA.Sequencer.Conditions.ISequenceCondition, NINA.Sequencer]], System",
@@ -113,17 +113,38 @@
                 "$values": [
                   {
                     "$id": "18",
+                    "$type": "NINA.Sequencer.SequenceItem.Platesolving.Center, NINA.Sequencer",
+                    "Inherited": true,
+                    "Coordinates": {
+                      "$id": "19",
+                      "$type": "NINA.Astrometry.InputCoordinates, NINA.Astrometry",
+                      "RAHours": 0,
+                      "RAMinutes": 0,
+                      "RASeconds": 0.0,
+                      "NegativeDec": false,
+                      "DecDegrees": 0,
+                      "DecMinutes": 0,
+                      "DecSeconds": 0.0
+                    },
+                    "Parent": {
+                      "$ref": "11"
+                    },
+                    "ErrorBehavior": 0,
+                    "Attempts": 1
+                  },
+                  {
+                    "$id": "20",
                     "$type": "NINA.Sequencer.SequenceItem.FilterWheel.SwitchFilter, NINA.Sequencer",
                     "Filter": {
-                      "$id": "19",
+                      "$id": "21",
                       "$type": "NINA.Core.Model.Equipment.FilterInfo, NINA.Core",
-                      "_name": "R",
-                      "_focusOffset": 5212,
-                      "_position": 1,
+                      "_name": "Red",
+                      "_focusOffset": 853,
+                      "_position": 0,
                       "_autoFocusExposureTime": -1.0,
                       "_autoFocusFilter": false,
                       "FlatWizardFilterSettings": {
-                        "$id": "20",
+                        "$id": "22",
                         "$type": "NINA.Core.Model.Equipment.FlatWizardFilterSettings, NINA.Core",
                         "FlatWizardMode": 0,
                         "HistogramMeanTarget": 0.5,
@@ -136,34 +157,13 @@
                         "FlatDeviceAbsoluteStepSize": 1
                       },
                       "_autoFocusBinning": {
-                        "$id": "21",
+                        "$id": "23",
                         "$type": "NINA.Core.Model.Equipment.BinningMode, NINA.Core",
                         "X": 1,
                         "Y": 1
                       },
                       "_autoFocusGain": -1,
                       "_autoFocusOffset": -1
-                    },
-                    "Parent": {
-                      "$ref": "11"
-                    },
-                    "ErrorBehavior": 0,
-                    "Attempts": 1
-                  },
-                  {
-                    "$id": "22",
-                    "$type": "NINA.Sequencer.SequenceItem.Platesolving.Center, NINA.Sequencer",
-                    "Inherited": true,
-                    "Coordinates": {
-                      "$id": "23",
-                      "$type": "NINA.Astrometry.InputCoordinates, NINA.Astrometry",
-                      "RAHours": 0,
-                      "RAMinutes": 0,
-                      "RASeconds": 0.0,
-                      "NegativeDec": false,
-                      "DecDegrees": 0,
-                      "DecMinutes": 0,
-                      "DecSeconds": 0.0
                     },
                     "Parent": {
                       "$ref": "11"
@@ -199,10 +199,10 @@
                   {
                     "$id": "26",
                     "$type": "NINA.Plugin.ExoPlanets.Sequencer.Utility.WaitForTransit, ExoPlanets",
-                    "Hours": 19,
-                    "Minutes": 7,
+                    "Hours": 14,
+                    "Minutes": 20,
                     "MinutesOffset": 0,
-                    "Seconds": 5,
+                    "Seconds": 2,
                     "SelectedProvider": {
                       "$id": "27",
                       "$type": "NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider.ObservationStartProvider, ExoPlanets"
@@ -227,10 +227,10 @@
                         {
                           "$id": "30",
                           "$type": "NINA.Plugin.ExoPlanets.Sequencer.Conditions.TransitCondition, ExoPlanets",
-                          "Hours": 19,
-                          "Minutes": 7,
+                          "Hours": 14,
+                          "Minutes": 20,
                           "MinutesOffset": 0,
-                          "Seconds": 5,
+                          "Seconds": 10,
                           "SelectedProvider": {
                             "$id": "31",
                             "$type": "NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider.ObservationEndProvider, ExoPlanets"

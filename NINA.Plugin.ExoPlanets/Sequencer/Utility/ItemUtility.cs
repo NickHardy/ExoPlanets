@@ -66,7 +66,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                         continue;
                     }
                     var listSubItem = item as TakeSubframeExposure;
-                    if (listSubItem != null && listItem.ImageType == CaptureSequence.ImageTypes.LIGHT) {
+                    if (listSubItem != null && listSubItem.ImageType == CaptureSequence.ImageTypes.LIGHT) {
                         listSubItem.ExposureTime = exposureTime;
                         continue;
                     }

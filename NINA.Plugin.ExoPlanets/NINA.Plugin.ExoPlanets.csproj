@@ -341,7 +341,9 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="README.md" />
+    <None Include="resources\geos.csv" />
     <None Include="resources\TransitPlanetImagingSequence.json" />
+    <None Include="resources\VariableStarImagingSequence.json" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Options.xaml">
@@ -394,7 +396,7 @@ if not exist "%25localappdata%25\NINA\Plugins\$(TargetName)" (
     mkdir  "%25localappdata%25\NINA\Plugins\$(TargetName)"
 )
 
-copy "$(TargetDir)$(TargetFileName)" "%25localappdata%25\NINA\Plugins\$(TargetName)\$(TargetName).1.1.7.1.dll" /Y
+copy "$(TargetDir)$(TargetFileName)" "%25localappdata%25\NINA\Plugins\$(TargetName)\$(TargetName).dll" /Y
 </PostBuildEvent>
   </PropertyGroup>
   <Import Project="..\packages\Accord.3.8.0\build\Accord.targets" Condition="Exists('..\packages\Accord.3.8.0\build\Accord.targets')" />
