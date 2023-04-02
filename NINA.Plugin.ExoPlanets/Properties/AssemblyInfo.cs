@@ -82,7 +82,7 @@ using System.Runtime.InteropServices;
   Make sure the coordinates for the target star are correct and that the correct pixel size and focal length are used in the Nina options.
 
 *Variable Stars Catalog:*
-* This is a simple CSV file with the mandatory columns name,ra,dec,v,epoch and period
+* This is a simple [CSV file](https://bitbucket.org/NickHardy/exoplanets/downloads/geos.csv) with the mandatory columns name,ra,dec,v,epoch and period
   Optionally you can add:
 	- amplitude: if you want to show each variable with different variation height.
 	- ocrange: to compensate for variable O-C like on RRab with Blazhko effect.

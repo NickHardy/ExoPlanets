@@ -69,18 +69,19 @@ namespace NINA.Plugin.ExoPlanets.Model {
         }
 
         public void SetTransit(double StarttimeJD, double MidtimeJD, double EndtimeJD, double TransitDepth) {
-            LightCurve = new List<DataPoint>();
+            var lightCurve = new List<DataPoint>();
             var transitHeight = TransitDepth + 5D;
             var slopePoint = (EndtimeJD - StarttimeJD) / 8;
             ObservationStart = JulianToDateTime(StarttimeJD).AddHours(-1D);
             ObservationEnd = JulianToDateTime(EndtimeJD).AddHours(1D);
-            LightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(ObservationStart), transitHeight));
-            LightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(StarttimeJD)), transitHeight));
-            LightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(StarttimeJD + slopePoint)), transitHeight - TransitDepth));
-            LightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(MidtimeJD)), transitHeight - TransitDepth));
-            LightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(EndtimeJD - slopePoint)), transitHeight - TransitDepth));
-            LightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(EndtimeJD)), transitHeight));
-            LightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(ObservationEnd), transitHeight));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(ObservationStart), transitHeight));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(StarttimeJD)), transitHeight));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(StarttimeJD + slopePoint)), transitHeight - TransitDepth));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(MidtimeJD)), transitHeight - TransitDepth));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(EndtimeJD - slopePoint)), transitHeight - TransitDepth));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(EndtimeJD)), transitHeight));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(ObservationEnd), transitHeight));
+            LightCurve = lightCurve;
             RaisePropertyChanged();
         }
 
@@ -91,12 +92,12 @@ namespace NINA.Plugin.ExoPlanets.Model {
             var drift = OCDrift / 1440.0;
             var height = Amplitude * 40;
 
-            LightCurve = new List<DataPoint>();
-            LightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(StarttimeJD)), 5));
-            LightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(MidtimeJD - drift)), height));
-            LightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(MidtimeJD + drift)), height));
-            LightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(EndtimeJD)), 5));
-            
+            var lightCurve = new List<DataPoint>();
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(StarttimeJD)), 5));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(MidtimeJD - drift)), height));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(MidtimeJD + drift)), height));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(EndtimeJD)), 5));
+            LightCurve = lightCurve;
             RaisePropertyChanged();
         }
 
