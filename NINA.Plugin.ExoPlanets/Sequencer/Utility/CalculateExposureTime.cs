@@ -784,7 +784,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
             ExoPlanetDeepSkyObject exoPlanetDSO = ItemUtility.RetrieveExoPlanetDSO(this.Parent);
             if (exoPlanetDSO == null) {
-                i.Add("This instruction must be used within the ExoPlanet object container.");
+                i.Add("This instruction must be used within the ExoPlanet or VariableStar object container.");
             }
 
             Issues = i;

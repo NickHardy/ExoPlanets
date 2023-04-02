@@ -49,6 +49,7 @@ using NINA.Core.Model;
 using NINA.Core.Enum;
 using NINA.Plugin.ExoPlanets.RiseAndSet;
 using NINA.Sequencer;
+using NINA.Plugin.ExoPlanets.Interfaces;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
@@ -59,7 +60,8 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
     [Export(typeof(ISequenceItem))]
     [Export(typeof(ISequenceContainer))]
     [JsonObject(MemberSerialization.OptIn)]
-    public class ExoPlanetObjectContainer : SequenceContainer, IDeepSkyObjectContainer {
+    public class ExoPlanetObjectContainer : SequenceContainer, IDeepSkyObjectContainer, IVariableBrightnessTargetContainer
+    {
         private readonly IProfileService profileService;
         private readonly IFramingAssistantVM framingAssistantVM;
         private readonly IPlanetariumFactory planetariumFactory;

@@ -62,6 +62,11 @@ using System.Runtime.InteropServices;
   This is similar to the DSO container, but it has an added button to retrieve a list of exoplanet targets
   You can then select a target from the dropdownlist. They are sorted by observability and depth. The coordinates will be filled out.
   You can then create your sequence as you wish
+* VariableStar object container
+  This is similar to the DSO container also, but it has an added button to calculate the list of variable stars (from the user defined catalog), thay will be on a defined period phase tonight.
+  You can then select a target from the dropdownlist. They are sorted by the time of the event, so early events go first on the list.
+  When a target is selected, its coordinates will be filled out.
+  You can then create your secuence as you wish.
 * Wait for transit observation time
   Basically a wait for time instruction where you can choose the observation start time
 * Loop until transit observation time
@@ -75,6 +80,14 @@ using System.Runtime.InteropServices;
   This process will repeat until the MaxPixelValue for the target star is within 10 percent of the given target ADU
   This instruction will also check the image for comparison stars and variable stars and show their locations on the image and save the fov image to your imaging directory.
   Make sure the coordinates for the target star are correct and that the correct pixel size and focal length are used in the Nina options.
+
+*Variable Stars Catalog:*
+
+ * This is a simple CSV file with the mandatory columns name,ra,dec,v,epoch and period
+  Optionally you can add:
+	- amplitude: if you want to show each variable with different variation height.
+	- ocrange: to compensate for variable O-C like on RRab with Blazhko effect.
+	- phase: use a number between 0 and 1 to observe different portions of the light curve.
 
 *Template*
 * [Example template](https://bitbucket.org/NickHardy/exoplanets/downloads/TransitPlanetImagingSequence.json)
@@ -99,4 +112,4 @@ A big thank you goes out to Dominique(@DominiqueD84) for testing this plugin. :)
 Please report any issues in the [Nina discord server](https://discord.gg/rWRbVbw) and tag me: @NickHolland#5257 
 
 If you would like to buy me a whisky: [click here](https://www.paypal.com/paypalme/NickHardyHolland)
-")] 
+")]

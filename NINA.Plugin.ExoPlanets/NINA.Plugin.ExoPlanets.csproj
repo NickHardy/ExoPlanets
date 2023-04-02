@@ -270,6 +270,7 @@
       <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -287,6 +288,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Astrometry\MoonRiseAndSet.cs" />
+    <Compile Include="Interfaces\IVariableBrightnessTargetContainer.cs" />
     <Compile Include="Model\DetectedExoStar.cs" />
     <Compile Include="Model\ExoClockTarget.cs" />
     <Compile Include="Model\ComparisonStarChart.cs" />
@@ -294,6 +296,7 @@
     <Compile Include="Model\ExoPlanetDeepSkyObject.cs" />
     <Compile Include="Model\ExoPlanet.cs" />
     <Compile Include="Model\ExoPlanetInputTarget.cs" />
+    <Compile Include="Model\VariableStar.cs" />
     <Compile Include="Model\VoTable.cs" />
     <Compile Include="Model\VSXObjects.cs" />
     <Compile Include="Options.xaml.cs">
@@ -309,6 +312,7 @@
       <DependentUpon>Datatemplates.xaml</DependentUpon>
     </Compile>
     <Compile Include="Sequencer\Conditions\TransitCondition.cs" />
+    <Compile Include="Sequencer\Container\VariableStarObjectContainer.cs" />
     <Compile Include="Sequencer\Utility\Datatemplates.xaml.cs">
       <DependentUpon>Datatemplates.xaml</DependentUpon>
     </Compile>
@@ -365,6 +369,10 @@
     <Content Include="resources\FinalLightCurve_TrES-2b.png" />
     <Content Include="resources\TransitDSOcontainerScreenShot.png" />
     <Content Include="resources\TransitFeatureImage.png" />
+    <Page Include="resources\SVGDictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
