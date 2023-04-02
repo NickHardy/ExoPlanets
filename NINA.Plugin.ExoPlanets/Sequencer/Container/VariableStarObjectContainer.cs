@@ -241,7 +241,14 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container
 
             return Task.Run(() =>
             {
-                RetrieveTargetsFromFile(exoPlanetsPlugin.VarStarCatalog);
+                try
+                {
+                    RetrieveTargetsFromFile(exoPlanetsPlugin.VarStarCatalog);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                }
 
                 retrievedTargets = VariableStarTargets.Count();
                 PreFilterTargets();
@@ -392,7 +399,6 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 MissingFieldFound = null,
-                HeaderValidated = null
             };
             using (var reader = new StreamReader(fileName))
             using (var csv = new CsvReader(reader, config))
