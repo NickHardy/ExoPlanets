@@ -22,8 +22,11 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
+using System.Windows.Input;
 
 namespace NINA.Plugin.ExoPlanets {
 
@@ -35,14 +38,21 @@ namespace NINA.Plugin.ExoPlanets {
     [Export(typeof(IPluginManifest))]
     public class ExoPlanets : PluginBase, ISettings, INotifyPropertyChanged {
 
+        private CancellationTokenSource executeCTS;
+
         [ImportingConstructor]
         public ExoPlanets() {
+
             if (Properties.Settings.Default.UpgradeSettings) {
                 Properties.Settings.Default.Upgrade();
                 Properties.Settings.Default.UpgradeSettings = false;
                 CoreUtil.SaveSettings(Properties.Settings.Default);
             }
+
+            OpenFileCommand = new GalaSoft.MvvmLight.Command.RelayCommand<bool>((o) => { using (executeCTS = new CancellationTokenSource()) { OpenFile(); } });
+
         }
+        public ICommand OpenFileCommand { get; private set; }
 
         public int TargetList {
             get => Properties.Settings.Default.TargetList;
@@ -152,6 +162,27 @@ namespace NINA.Plugin.ExoPlanets {
             }
         }
 
+        public string VarStarCatalog
+        {
+            get => Properties.Settings.Default.VarStarCatalog;
+            set
+            {
+                Properties.Settings.Default.VarStarCatalog = value;
+                CoreUtil.SaveSettings(Properties.Settings.Default);
+                RaisePropertyChanged();
+            }
+        }
+        public int VarStarObservationSpan
+        {
+            get => Properties.Settings.Default.VarStarObservationSpan;
+            set
+            {
+                Properties.Settings.Default.VarStarObservationSpan = value;
+                CoreUtil.SaveSettings(Properties.Settings.Default);
+                RaisePropertyChanged();
+            }
+        }
+
         public bool UseExposureTimes {
             get => Properties.Settings.Default.UseExposureTimes;
             set {
@@ -167,6 +198,18 @@ namespace NINA.Plugin.ExoPlanets {
             return fvi.FileVersion;
         }
 
+        private void OpenFile()
+        {
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.DefaultExt = ".csv"; // Required file extension 
+            fileDialog.Filter = "Csv documents|*.csv"; // Optional file extensions
+
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                VarStarCatalog = fileDialog.FileName;
+            }
+        }
+        
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void RaisePropertyChanged([CallerMemberName] string propertyName = null) {

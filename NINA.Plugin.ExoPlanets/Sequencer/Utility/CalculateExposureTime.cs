@@ -413,7 +413,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                         }
                     }
                     // Check the Compstars are not variable
-                    SimbadStarList = SimbadStarList.Except(VStarList).ToList<DetectedStar>();
+                    SimbadStarList = SimbadStarList.Where(s => !VStarList.Any(v => v.Position == s.Position)).ToList<DetectedStar>();
                     SimbadStarList.ForEach(i => Logger.Info("Simbad Comparison star: " + JsonConvert.SerializeObject(i)));
                     
                     StarList = new List<DetectedStar>();
@@ -437,15 +437,16 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     }
 
                     // Check the Compstars are not variable
-                    StarList = StarList.Except(VStarList).ToList<DetectedStar>().Except(SimbadStarList).ToList<DetectedStar>();
+                    StarList = StarList.Where(s => !VStarList.Any(v => v.Position == s.Position)).ToList<DetectedStar>()
+                        .Where(s => !SimbadStarList.Any(v => v.Position == s.Position)).ToList<DetectedStar>();
                     CompStarCount = SimbadStarList.Count() + StarList.Count();
                     StarList.ForEach(i => Logger.Info("Comparison star: " + JsonConvert.SerializeObject(i)));
 
                     // Check for similar avarage stars
                     List<DetectedStar> avgStarList = starDetectionResult.StarList.Where(x => Math.Abs(x.AverageBrightness - TargetStar.AverageBrightness) < TargetStar.AverageBrightness * 0.05d).ToList<DetectedStar>()
-                        .Except(VStarList).ToList<DetectedStar>()
-                        .Except(StarList).ToList<DetectedStar>()
-                        .Except(SimbadStarList).ToList<DetectedStar>()
+                        .Where(s => !VStarList.Any(v => v.Position == s.Position)).ToList<DetectedStar>()
+                        .Where(s => !StarList.Any(v => v.Position == s.Position)).ToList<DetectedStar>()
+                        .Where(s => !SimbadStarList.Any(v => v.Position == s.Position)).ToList<DetectedStar>()
                         .Except(new List<DetectedStar>() { TargetStar }).ToList<DetectedStar>();
                     
                     var targetMax = TargetStar.MaxBrightness;
@@ -783,7 +784,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
             ExoPlanetDeepSkyObject exoPlanetDSO = ItemUtility.RetrieveExoPlanetDSO(this.Parent);
             if (exoPlanetDSO == null) {
-                i.Add("This instruction must be used within the ExoPlanet object container.");
+                i.Add("This instruction must be used within the ExoPlanet or VariableStar object container.");
             }
 
             Issues = i;

@@ -21,6 +21,7 @@ using OxyPlot;
 using OxyPlot.Axes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NINA.Plugin.ExoPlanets.Model {
 
@@ -29,7 +30,7 @@ namespace NINA.Plugin.ExoPlanets.Model {
         public ExoPlanetDeepSkyObject(string id, Coordinates coords, string imageRepository, CustomHorizon customHorizon) : base(id, coords, imageRepository, customHorizon) {
         }
 
-        private List<DataPoint> _transit;
+        private List<DataPoint> _lightCurve;
         private DateTime _observationStart;
 
         [JsonProperty]
@@ -54,33 +55,49 @@ namespace NINA.Plugin.ExoPlanets.Model {
 
 
         [JsonProperty]
-        public List<DataPoint> Transit {
+        public List<DataPoint> LightCurve {
             get {
-                if (_transit == null) {
-                    _transit = new List<DataPoint>();
+                if (_lightCurve == null) {
+                    _lightCurve = new List<DataPoint>();
                 }
-                return _transit;
+                return _lightCurve;
             }
             set {
-                _transit = value;
+                _lightCurve = value;
                 RaisePropertyChanged();
             }
         }
 
         public void SetTransit(double StarttimeJD, double MidtimeJD, double EndtimeJD, double TransitDepth) {
-            var newTransit = new List<DataPoint>();
+            var lightCurve = new List<DataPoint>();
             var transitHeight = TransitDepth + 5D;
             var slopePoint = (EndtimeJD - StarttimeJD) / 8;
             ObservationStart = JulianToDateTime(StarttimeJD).AddHours(-1D);
             ObservationEnd = JulianToDateTime(EndtimeJD).AddHours(1D);
-            newTransit.Add(new DataPoint(DateTimeAxis.ToDouble(ObservationStart), transitHeight));
-            newTransit.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(StarttimeJD)), transitHeight));
-            newTransit.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(StarttimeJD + slopePoint)), transitHeight - TransitDepth));
-            newTransit.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(MidtimeJD)), transitHeight - TransitDepth));
-            newTransit.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(EndtimeJD - slopePoint)), transitHeight - TransitDepth));
-            newTransit.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(EndtimeJD)), transitHeight));
-            newTransit.Add(new DataPoint(DateTimeAxis.ToDouble(ObservationEnd), transitHeight));
-            Transit = newTransit;
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(ObservationStart), transitHeight));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(StarttimeJD)), transitHeight));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(StarttimeJD + slopePoint)), transitHeight - TransitDepth));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(MidtimeJD)), transitHeight - TransitDepth));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(EndtimeJD - slopePoint)), transitHeight - TransitDepth));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(EndtimeJD)), transitHeight));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(ObservationEnd), transitHeight));
+            LightCurve = lightCurve;
+            RaisePropertyChanged();
+        }
+
+        public void SetMaximum(double StarttimeJD, double MidtimeJD, double EndtimeJD, double OCDrift, double Amplitude)
+        {
+            ObservationStart = JulianToDateTime(StarttimeJD);
+            ObservationEnd = JulianToDateTime(EndtimeJD);
+            var drift = OCDrift / 1440.0;
+            var height = Amplitude * 40;
+
+            var lightCurve = new List<DataPoint>();
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(StarttimeJD)), 5));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(MidtimeJD - drift)), height));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(MidtimeJD + drift)), height));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(JulianToDateTime(EndtimeJD)), 5));
+            LightCurve = lightCurve;
             RaisePropertyChanged();
         }
 

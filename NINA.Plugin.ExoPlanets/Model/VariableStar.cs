@@ -1,0 +1,139 @@
+﻿#region "copyright"
+
+/*
+    Copyright © 2016 - 2021 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
+
+    This file is part of N.I.N.A. - Nighttime Imaging 'N' Astronomy.
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+*/
+
+#endregion "copyright"
+
+using Newtonsoft.Json;
+using NINA.Core.Model;
+using NINA.Astrometry;
+using CsvHelper.Configuration;
+using System;
+
+namespace NINA.Plugin.ExoPlanets.Model
+{
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public class VariableStar
+    {
+        [JsonProperty]
+        public string Name { get; set; }
+        [JsonProperty]
+        public string Comments { get; set; }
+        [JsonProperty]
+        public double V { get; set; }
+        [JsonProperty]
+        public DateTime startTime { get; set; }
+        [JsonProperty]
+        public DateTime midTime { get; set; }
+        [JsonProperty]
+        public DateTime endTime { get; set; }
+        [JsonProperty]
+        public double jd_start { get; set; }
+        [JsonProperty]
+        public double jd_mid { get; set; }
+        [JsonProperty]
+        public double jd_end { get; set; }
+        [JsonProperty]
+        public string RA { get; set; }
+        [JsonProperty]
+        public string Dec { get; set; }
+        [JsonProperty]
+        public double epoch { get; set; }
+
+        [JsonProperty]
+        public double period { get; set; }
+
+        [JsonProperty]
+        public double OCRange { get; set; }
+
+        [JsonProperty]
+        public double amplitude { get; set; }
+
+        [JsonProperty]
+        public double observedPhase { get; set; }
+
+        [JsonProperty]
+        public double Altitude { get; set; }
+        [JsonProperty]
+        public double Azimuth { get; set; }
+
+
+        public string ephemerides { get { return String.Format("{0} + {1} * E", epoch, period); } }
+        public Coordinates Coordinates()
+        {
+            return new Coordinates(Angle.ByDegree(AstroUtil.HMSToDegrees(RA)), Angle.ByDegree(AstroUtil.DMSToDegrees(Dec)), Epoch.J2000);
+        }
+
+        public string formattedPeriod
+        {
+            get
+            {
+                return period < 1.0 ? String.Format("{0}d ({1:F2}h)", period, period * 24.0) : String.Format("{0}d", period);
+            }
+        }
+
+        
+        public void CalculateAltAz(double latitude, double longitude)
+        {
+            var siderealTime = AstroUtil.GetLocalSiderealTime(midTime, longitude);
+            var hourAngle = AstroUtil.GetHourAngle(siderealTime, Coordinates().RA);
+
+            var degAngle = AstroUtil.HoursToDegrees(hourAngle);
+            Altitude = AstroUtil.GetAltitude(degAngle, latitude, Coordinates().Dec);
+            Azimuth = AstroUtil.GetAzimuth(degAngle, Altitude, latitude, Coordinates().Dec);
+        }
+
+        public void NextEvent(double referenceJD, double span)
+        {
+            var shiftedEpoch = epoch + period * observedPhase;
+            var cycle = Math.Floor((referenceJD - shiftedEpoch) / period);
+            var nextEvent = shiftedEpoch + period * (cycle + 1);
+            var window = (span + OCRange) / 1440.0;
+            jd_start = nextEvent - window;
+            jd_mid = nextEvent;
+            jd_end = nextEvent + window;
+
+            startTime = JulianToDateTime(jd_start).ToLocalTime();
+            midTime = JulianToDateTime(jd_mid).ToLocalTime();
+            endTime = JulianToDateTime(jd_end).ToLocalTime();
+
+        }
+
+        public int CompareTo(VariableStar other)
+        {
+            return jd_start.CompareTo(other.jd_start);
+        }
+
+        private static DateTime JulianToDateTime(double julianDate)
+        {
+            return DateTime.FromOADate(julianDate - 2415018.5).ToLocalTime();
+        }
+    }
+
+
+    public sealed class VarStarMap : ClassMap<VariableStar>
+    {
+        public VarStarMap()
+        {
+            Map(m => m.Name).Name("name");
+            Map(m => m.Comments).Name("comments");
+            Map(m => m.V).Name("v");
+            Map(m => m.RA).Name("ra");
+            Map(m => m.Dec).Name("dec");
+            Map(m => m.epoch).Name("epoch");
+            Map(m => m.period).Name("period");
+            Map(m => m.amplitude).Name("amplitude").Default(1);
+            Map(m => m.OCRange).Name("ocrange").Default(0);
+            Map(m => m.observedPhase).Name("phase").Default(0);
+        }
+    }
+}

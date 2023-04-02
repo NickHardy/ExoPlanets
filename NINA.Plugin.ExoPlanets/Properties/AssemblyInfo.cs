@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ExoPlanets")]
-[assembly: AssemblyDescription("A plugin to help get exoplanet data.")]
+[assembly: AssemblyDescription("A plugin to help get exoplanet or variable star data.")]
 [assembly: AssemblyConfiguration("")]
 
 //Your name
-[assembly: AssemblyCompany("Nick Hardy")]
+[assembly: AssemblyCompany("Nick Hardy & Rafa Barbera")]
 //The product name that this plugin is part of
 [assembly: AssemblyProduct("NINA Plugin ExoPlanets")]
 [assembly: AssemblyCopyright("Copyright ©  2021")]
@@ -27,8 +27,8 @@ using System.Runtime.InteropServices;
 
 //The assembly versioning
 //Should be incremented for each new release build of a plugin
-[assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
+[assembly: AssemblyVersion("2.0.1.0")]
+[assembly: AssemblyFileVersion("2.0.1.0")]
 
 //The minimum Version of N.I.N.A. that this plugin is compatible with
 [assembly: AssemblyMetadata("MinimumApplicationVersion", "3.0.0.1010")]
@@ -43,7 +43,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyMetadata("Repository", "https://bitbucket.org/NickHardy/exoplanets/src/main/")]
 
 //Common tags that quickly describe your plugin
-[assembly: AssemblyMetadata("Tags", "ExoPlanet,Sequencer")]
+[assembly: AssemblyMetadata("Tags", "ExoPlanet,VariableStar,Sequencer")]
 
 //The featured logo that will be displayed in the plugin list next to the name
 [assembly: AssemblyMetadata("FeaturedImageURL", "https://bitbucket.org/NickHardy/exoplanets/downloads/FinalLightCurve_TrES-2b.png")]
@@ -51,7 +51,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyMetadata("ScreenshotURL", "https://bitbucket.org/NickHardy/exoplanets/downloads/TransitDSOcontainerScreenShot.png")]
 //An additional example screenshot of your plugin in action
 [assembly: AssemblyMetadata("AltScreenshotURL", "https://bitbucket.org/NickHardy/exoplanets/downloads/Tres-1b-fov.png")]
-[assembly: AssemblyMetadata("LongDescription", @"# N.I.N.A. - Nighttime Imaging 'N' Astronomy ExoPlanet Plugin#
+[assembly: AssemblyMetadata("LongDescription", @"# N.I.N.A. - Nighttime Imaging 'N' Astronomy ExoPlanet and Variable star Plugin#
 
 [https://nighttime-imaging.eu/](https://nighttime-imaging.eu/)
 
@@ -62,6 +62,11 @@ using System.Runtime.InteropServices;
   This is similar to the DSO container, but it has an added button to retrieve a list of exoplanet targets
   You can then select a target from the dropdownlist. They are sorted by observability and depth. The coordinates will be filled out.
   You can then create your sequence as you wish
+* VariableStar object container
+  This is similar to the DSO container also, but it has an added button to calculate the list of variable stars (from the user defined catalog), thay will be on a defined period phase tonight.
+  You can then select a target from the dropdownlist. They are sorted by the time of the event, so early events go first on the list.
+  When a target is selected, its coordinates will be filled out.
+  You can then create your secuence as you wish.
 * Wait for transit observation time
   Basically a wait for time instruction where you can choose the observation start time
 * Loop until transit observation time
@@ -76,13 +81,21 @@ using System.Runtime.InteropServices;
   This instruction will also check the image for comparison stars and variable stars and show their locations on the image and save the fov image to your imaging directory.
   Make sure the coordinates for the target star are correct and that the correct pixel size and focal length are used in the Nina options.
 
+*Variable Stars Catalog:*
+* This is a simple [CSV file](https://bitbucket.org/NickHardy/exoplanets/downloads/geos.csv) with the mandatory columns name,ra,dec,v,epoch and period
+  Optionally you can add:
+	- amplitude: if you want to show each variable with different variation height.
+	- ocrange: to compensate for variable O-C like on RRab with Blazhko effect.
+	- phase: use a number between 0 and 1 to observe different portions of the light curve.
+
 *Template*
-* [Example template](https://bitbucket.org/NickHardy/exoplanets/downloads/TransitPlanetImagingSequence.json)
-  This is an example template you could use or modify as you wish
+* [Example exoplanet sequence](https://bitbucket.org/NickHardy/exoplanets/downloads/TransitPlanetImagingSequence.json)
+* [Example variable star sequence](https://bitbucket.org/NickHardy/exoplanets/downloads/VariableStarImagingSequence.json)
 
 *More to read*
 * [ExoClock](https://www.exoclock.space/)
 * [Exoplanet-watch](https://exoplanets.nasa.gov/exoplanet-watch)
+* [AAVSO](https://www.aavso.org/)
 
 This plugin uses online data from:
 * [https://astro.swarthmore.edu/transits/](https://astro.swarthmore.edu/transits/)
@@ -96,7 +109,9 @@ Tutorials:
 
 A big thank you goes out to Dominique(@DominiqueD84) for testing this plugin. :)
 
-Please report any issues in the [Nina discord server](https://discord.gg/rWRbVbw) and tag me: @NickHolland#5257 
+I would also like to thank Rafa Barbera for adding Variable Star support.
+
+Please report any issues in the [Nina discord server](https://discord.gg/rWRbVbw) and tag me: @NickHolland#5257 or rbarbera#1806
 
 If you would like to buy me a whisky: [click here](https://www.paypal.com/paypalme/NickHardyHolland)
-")] 
+")]

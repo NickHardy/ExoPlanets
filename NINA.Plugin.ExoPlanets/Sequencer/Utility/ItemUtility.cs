@@ -24,6 +24,7 @@ using NINA.Plugin.ExoPlanets.Model;
 using NINA.Sequencer.Interfaces;
 using NINA.Sequencer.SequenceItem.Imaging;
 using NINA.Equipment.Model;
+using NINA.Plugin.ExoPlanets.Interfaces;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
@@ -31,7 +32,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
         public static ExoPlanetDeepSkyObject RetrieveExoPlanetDSO(ISequenceContainer parent) {
             if (parent != null) {
-                var container = parent as ExoPlanetObjectContainer;
+                var container = parent as IVariableBrightnessTargetContainer;
                 if (container != null) {
                     return container.ExoPlanetDSO;
                 } else {
@@ -44,7 +45,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
         public static ExoPlanetInputTarget RetrieveInputTarget(ISequenceContainer parent) {
             if (parent != null) {
-                var container = parent as ExoPlanetObjectContainer;
+                var container = parent as IVariableBrightnessTargetContainer;
                 if (container != null) {
                     return container.ExoPlanetInputTarget;
                 } else {
@@ -65,7 +66,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                         continue;
                     }
                     var listSubItem = item as TakeSubframeExposure;
-                    if (listSubItem != null && listItem.ImageType == CaptureSequence.ImageTypes.LIGHT) {
+                    if (listSubItem != null && listSubItem.ImageType == CaptureSequence.ImageTypes.LIGHT) {
                         listSubItem.ExposureTime = exposureTime;
                         continue;
                     }
