@@ -391,8 +391,9 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container
         private void RetrieveTargetsFromFile(string fileName)
         {
             VariableStarTargets.Clear();
-            var sunset = NighttimeData.TwilightRiseAndSet.Set ?? DateTime.Now;
-            var date = (sunset.CompareTo(DateTime.Now) < 0) ? DateTime.Now : sunset;            
+            var sunset = NighttimeData.TwilightRiseAndSet.Set?.ToUniversalTime();
+            var tNow = DateTime.Now.ToUniversalTime();
+            var date = (sunset?.CompareTo(tNow) < 0) ? tNow : (sunset ?? tNow);            
             var baseJd = date.ToOADate() + 2415018.5;
             var span = exoPlanetsPlugin.VarStarObservationSpan;
 

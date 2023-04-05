@@ -101,7 +101,7 @@ namespace NINA.Plugin.ExoPlanets.Model
             jd_start = nextEvent - window;
             jd_mid = nextEvent;
             jd_end = nextEvent + window;
-
+                
             startTime = JulianToDateTime(jd_start).ToLocalTime();
             midTime = JulianToDateTime(jd_mid).ToLocalTime();
             endTime = JulianToDateTime(jd_end).ToLocalTime();
