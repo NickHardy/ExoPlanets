@@ -101,6 +101,17 @@ namespace NINA.Plugin.ExoPlanets.Model {
             RaisePropertyChanged();
         }
 
+        public void SetAllNight(DateTime starRise, DateTime starSet)
+        {
+            ObservationStart = starRise;
+            ObservationEnd = starSet;
+
+            var lightCurve = new List<DataPoint>();
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(starRise), 30));
+            lightCurve.Add(new DataPoint(DateTimeAxis.ToDouble(starSet), 30));
+            LightCurve = lightCurve;
+            RaisePropertyChanged();
+        }
         private static DateTime JulianToDateTime(double julianDate) {
             return DateTime.FromOADate(julianDate - 2415018.5).ToLocalTime();
         }

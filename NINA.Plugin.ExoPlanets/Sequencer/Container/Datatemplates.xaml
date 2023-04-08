@@ -858,7 +858,7 @@
                                         Margin="5,5,0,0"
                                         VerticalAlignment="Center"
                                         Foreground="{StaticResource PrimaryBrush}"
-                                        Text="ppt" />
+                                        Text="mag" />
                                 <TextBlock
                                         Grid.Row="3"
                                         Grid.Column="0"
