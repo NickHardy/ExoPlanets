@@ -121,7 +121,14 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container
 
                 ExoPlanetDSO.Coordinates = SelectedVariableStar.Coordinates();
                 ExoPlanetDSO.Magnitude = SelectedVariableStar.V;
-                ExoPlanetDSO.SetMaximum(SelectedVariableStar.jd_start, SelectedVariableStar.jd_mid, SelectedVariableStar.jd_end, SelectedVariableStar.OCRange, SelectedVariableStar.amplitude);
+                if (SelectedVariableStar.HasEvents)
+                {
+                    ExoPlanetDSO.SetMaximum(SelectedVariableStar.jd_start, SelectedVariableStar.jd_mid, SelectedVariableStar.jd_end, SelectedVariableStar.OCRange, SelectedVariableStar.amplitude);
+                } else
+                {
+                    ExoPlanetDSO.SetAllNight(SelectedVariableStar.startTime,SelectedVariableStar.endTime);
+                }
+                
                 AfterParentChanged();
             }
         }
@@ -381,7 +388,59 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container
             return altList.OrderByDescending((x) => x.alt).FirstOrDefault().datetime;
         }
 
+        private DateTime GetNextSettingTime(CustomHorizon horizon, Coordinates coords, DateTime startTime)
+        {
+            var start = startTime;
+            var siderealTime = AstroUtil.GetLocalSiderealTime(start, profileService.ActiveProfile.AstrometrySettings.Longitude);
+            var hourAngle = AstroUtil.GetHourAngle(siderealTime, coords.RA);
 
+            for (double angle = hourAngle; angle < hourAngle + 24; angle += 0.1)
+            {
+                var degAngle = AstroUtil.HoursToDegrees(angle);
+                var altitude = AstroUtil.GetAltitude(degAngle, profileService.ActiveProfile.AstrometrySettings.Latitude, coords.Dec);
+                var azimuth = AstroUtil.GetAzimuth(degAngle, altitude, profileService.ActiveProfile.AstrometrySettings.Latitude, coords.Dec);
+
+                if ((horizon != null) && altitude < horizon.GetAltitude(azimuth))
+                {
+                   break;
+                } 
+                else if(altitude < 0)
+                {
+                    break;
+                }
+
+
+                start = start.AddHours(0.1);
+            }
+            return start;
+        }
+
+        private DateTime GetNextRiseTime(CustomHorizon horizon, Coordinates coords, DateTime startTime)
+        {
+            var start = startTime;
+            var siderealTime = AstroUtil.GetLocalSiderealTime(start, profileService.ActiveProfile.AstrometrySettings.Longitude);
+            var hourAngle = AstroUtil.GetHourAngle(siderealTime, coords.RA);
+
+            for (double angle = hourAngle; angle < hourAngle + 24; angle += 0.1)
+            {
+                var degAngle = AstroUtil.HoursToDegrees(angle);
+                var altitude = AstroUtil.GetAltitude(degAngle, profileService.ActiveProfile.AstrometrySettings.Latitude, coords.Dec);
+                var azimuth = AstroUtil.GetAzimuth(degAngle, altitude, profileService.ActiveProfile.AstrometrySettings.Latitude, coords.Dec);
+
+                if ((horizon != null) && altitude > horizon.GetAltitude(azimuth))
+                {
+                    break;
+                }
+                else if (altitude > 0)
+                {
+                    break;
+                }
+
+
+                start = start.AddHours(0.1);
+            }
+            return start;
+        }
         private static DateTime JulianToDateTime(double julianDate)
         {
             return DateTime.FromOADate(julianDate - 2415018.5).ToLocalTime();
@@ -390,11 +449,19 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container
 
         private void RetrieveTargetsFromFile(string fileName)
         {
-            VariableStarTargets.Clear();
-            var sunset = NighttimeData.TwilightRiseAndSet.Set ?? DateTime.Now;
-            var date = (sunset.CompareTo(DateTime.Now) < 0) ? DateTime.Now : sunset;            
+            var sunSetLocal = NighttimeData.TwilightRiseAndSet.Set ?? DateTime.Now;
+            var sunRiseLocal = NighttimeData.TwilightRiseAndSet.Rise ?? DateTime.Now;
+
+            var sunSetUT = sunSetLocal.ToUniversalTime();
+            var tNowUT = DateTime.Now.ToUniversalTime();
+            var date = (sunSetUT.CompareTo(tNowUT) < 0) ? tNowUT : sunSetUT;            
             var baseJd = date.ToOADate() + 2415018.5;
             var span = exoPlanetsPlugin.VarStarObservationSpan;
+
+            List<VariableStar> withEvents = new List<VariableStar>();
+            List<VariableStar> withoutEvents = new List<VariableStar>();
+
+            Core.Model.CustomHorizon horizon = profileService.ActiveProfile.AstrometrySettings.Horizon;
 
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
@@ -408,12 +475,30 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container
                 {
                     if (csv.GetRecord<VariableStar>() is VariableStar newStar)
                     {
-                        newStar.NextEvent(baseJd, span);
-                        VariableStarTargets.Add(newStar);
+                        if (newStar.HasEvents)
+                        {
+                            newStar.NextEvent(baseJd, span);
+                            withEvents.Add(newStar);
+                        }
+                        else
+                        {
+                            var starRise = GetNextRiseTime(horizon, newStar.Coordinates(), sunSetLocal);
+                            starRise = new DateTime(Math.Min(starRise.Ticks, sunRiseLocal.Ticks));
+                            var starSet = GetNextSettingTime(horizon, newStar.Coordinates(), starRise.AddMinutes(10d));
+                            starSet = new DateTime(Math.Min(starSet.Ticks, sunRiseLocal.Ticks));
+                            newStar.AllNight(starRise, starSet);
+                            withoutEvents.Add(newStar);
+                        }
                     }
                 }
             }
-            VariableStarTargets.Sort((a, b) => a.CompareTo(b));
+
+            withEvents.Sort((a, b) => a.CompareTo(b));
+            withoutEvents.Sort((a, b) => a.CompareTo(b));
+
+            VariableStarTargets.Clear();
+            VariableStarTargets.AddRange(withEvents);
+            VariableStarTargets.AddRange(withoutEvents);
         }
 
 

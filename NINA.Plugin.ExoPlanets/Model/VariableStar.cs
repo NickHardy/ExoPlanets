@@ -66,8 +66,6 @@ namespace NINA.Plugin.ExoPlanets.Model
         [JsonProperty]
         public double Azimuth { get; set; }
 
-
-        public string ephemerides { get { return String.Format("{0} + {1} * E", epoch, period); } }
         public Coordinates Coordinates()
         {
             return new Coordinates(Angle.ByDegree(AstroUtil.HMSToDegrees(RA)), Angle.ByDegree(AstroUtil.DMSToDegrees(Dec)), Epoch.J2000);
@@ -77,7 +75,14 @@ namespace NINA.Plugin.ExoPlanets.Model
         {
             get
             {
-                return period < 1.0 ? String.Format("{0}d ({1:F2}h)", period, period * 24.0) : String.Format("{0}d", period);
+                if (period > 0)
+                {
+                    return period < 1.0 ? String.Format("{0}d ({1:F2}h)", period, period * 24.0) : String.Format("{0}d", period);
+                } else
+                {
+                    return "--";
+                }
+                
             }
         }
 
@@ -94,6 +99,8 @@ namespace NINA.Plugin.ExoPlanets.Model
 
         public void NextEvent(double referenceJD, double span)
         {
+            if(!HasEvents) return;
+
             var shiftedEpoch = epoch + period * observedPhase;
             var cycle = Math.Floor((referenceJD - shiftedEpoch) / period);
             var nextEvent = shiftedEpoch + period * (cycle + 1);
@@ -105,12 +112,42 @@ namespace NINA.Plugin.ExoPlanets.Model
             startTime = JulianToDateTime(jd_start).ToLocalTime();
             midTime = JulianToDateTime(jd_mid).ToLocalTime();
             endTime = JulianToDateTime(jd_end).ToLocalTime();
+        }
 
+        public void AllNight(DateTime set, DateTime rise)
+        {
+            var nightDuration = rise.Subtract(set).Ticks;
+            startTime = set.AddMinutes(5);
+            midTime = set.AddTicks(nightDuration / 2);
+            endTime = rise.AddMinutes(-5);
+        }
+
+        public bool HasEvents
+        {
+            get
+            {
+                return epoch > 0;
+            }
         }
 
         public int CompareTo(VariableStar other)
         {
-            return jd_start.CompareTo(other.jd_start);
+            if (this.HasEvents && other.HasEvents)
+            {
+                return jd_start.CompareTo(other.jd_start);
+            } else
+            {
+                var RA = this.Coordinates().RA;
+                var otherRA = other.Coordinates().RA;
+
+                if ((RA > otherRA) && (RA - otherRA) > 12) {
+                    return RA.CompareTo(otherRA + 24);
+                } 
+                else
+                {
+                    return RA.CompareTo(otherRA);
+                }
+            }
         }
 
         private static DateTime JulianToDateTime(double julianDate)
@@ -129,8 +166,8 @@ namespace NINA.Plugin.ExoPlanets.Model
             Map(m => m.V).Name("v");
             Map(m => m.RA).Name("ra");
             Map(m => m.Dec).Name("dec");
-            Map(m => m.epoch).Name("epoch");
-            Map(m => m.period).Name("period");
+            Map(m => m.epoch).Name("epoch").Default(0);
+            Map(m => m.period).Name("period").Default(0);
             Map(m => m.amplitude).Name("amplitude").Default(1);
             Map(m => m.OCRange).Name("ocrange").Default(0);
             Map(m => m.observedPhase).Name("phase").Default(0);
