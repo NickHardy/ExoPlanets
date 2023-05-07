@@ -25,6 +25,7 @@ using NINA.Sequencer.Conditions;
 using NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider;
 using NINA.Plugin.ExoPlanets.Model;
 using NINA.Plugin.ExoPlanets.Sequencer.Utility;
+using NINA.Astrometry.Interfaces;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Conditions {
 
@@ -41,15 +42,17 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Conditions {
         private int minutesOffset;
         private int seconds;
         private IDateTimeProvider selectedProvider;
+        private INighttimeCalculator nighttimeCalculator;
 
         [ImportingConstructor]
-        public TransitCondition(IList<IDateTimeProvider> dateTimeProviders) {
+        public TransitCondition(IList<IDateTimeProvider> dateTimeProviders, INighttimeCalculator nighttimeCalculator) {
+            this.nighttimeCalculator = nighttimeCalculator;
             DateTime = new SystemDateTime();
             DateTimeProviders = dateTimeProviders;
             if (DateTimeProviders.Where(d => d is ObservationStartProvider).Count() == 0)
-                DateTimeProviders.Add(new ObservationStartProvider());
+                DateTimeProviders.Add(new ObservationStartProvider(nighttimeCalculator));
             if (DateTimeProviders.Where(d => d is ObservationEndProvider).Count() == 0)
-                DateTimeProviders.Add(new ObservationEndProvider());
+                DateTimeProviders.Add(new ObservationEndProvider(nighttimeCalculator));
             this.SelectedProvider = DateTimeProviders.FirstOrDefault(d => d is ObservationEndProvider);
             ConditionWatchdog = new ConditionWatchdog(() => { Tick(); return Task.CompletedTask; }, TimeSpan.FromSeconds(1));
         }

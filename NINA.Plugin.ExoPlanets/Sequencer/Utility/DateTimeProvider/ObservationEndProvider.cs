@@ -24,11 +24,16 @@ using System.Threading.Tasks;
 using NINA.Core.Locale;
 using NINA.Sequencer.Utility.DateTimeProvider;
 using NINA.Sequencer;
+using NINA.Astrometry.Interfaces;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider {
 
     [JsonObject(MemberSerialization.OptIn)]
     public class ObservationEndProvider : IDateTimeProvider {
+        private INighttimeCalculator nighttimeCalculator;
+        public ObservationEndProvider(INighttimeCalculator nighttimeCalculator) {
+            this.nighttimeCalculator = nighttimeCalculator;
+        }
         public string Name { get; } = "End observation"; //Loc.Instance["LblMeridian"];
         public ICustomDateTime DateTime { get; set; } = new SystemDateTime();
 
@@ -38,6 +43,14 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider {
                 return new DateTime(Math.Max(exoPlanetDSO.ObservationEnd.Ticks, DateTime.Now.Ticks));
             }
             return DateTime.Now;
+        }
+
+        public TimeOnly GetRolloverTime(ISequenceEntity context) {
+            var dawn = nighttimeCalculator.Calculate().SunRiseAndSet.Rise;
+            if (!dawn.HasValue || (this.GetDateTime(context) > dawn.Value)) {
+                return new TimeOnly(12, 0, 0);
+            }
+            return TimeOnly.FromDateTime(dawn.Value);
         }
     }
 }

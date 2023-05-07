@@ -27,11 +27,11 @@ using System.Runtime.InteropServices;
 
 //The assembly versioning
 //Should be incremented for each new release build of a plugin
-[assembly: AssemblyVersion("2.0.1.0")]
-[assembly: AssemblyFileVersion("2.0.1.0")]
+[assembly: AssemblyVersion("2.0.2.2")]
+[assembly: AssemblyFileVersion("2.0.2.2")]
 
 //The minimum Version of N.I.N.A. that this plugin is compatible with
-[assembly: AssemblyMetadata("MinimumApplicationVersion", "3.0.0.1010")]
+[assembly: AssemblyMetadata("MinimumApplicationVersion", "3.0.0.1022")]
 
 //Your plugin homepage - omit if not applicaple
 [assembly: AssemblyMetadata("Homepage", "https://nighttime-imaging.eu/")]
@@ -96,6 +96,8 @@ using System.Runtime.InteropServices;
 * [ExoClock](https://www.exoclock.space/)
 * [Exoplanet-watch](https://exoplanets.nasa.gov/exoplanet-watch)
 * [AAVSO](https://www.aavso.org/)
+* [Siril Processing](https://siril.readthedocs.io/en/latest/photometry/lightcurves.html#nina-exoplanet-button)
+  A Nina Exoplanet button has been added to easily process the data collected. Make sure to select save the csv starlist in the options.
 
 This plugin uses online data from:
 * [https://astro.swarthmore.edu/transits/](https://astro.swarthmore.edu/transits/)
