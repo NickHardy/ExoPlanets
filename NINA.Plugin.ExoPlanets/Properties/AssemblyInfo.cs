@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCompany("Nick Hardy & Rafa Barbera")]
 //The product name that this plugin is part of
 [assembly: AssemblyProduct("NINA Plugin ExoPlanets")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyCopyright("Copyright © 2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -31,7 +31,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("2.0.2.2")]
 
 //The minimum Version of N.I.N.A. that this plugin is compatible with
-[assembly: AssemblyMetadata("MinimumApplicationVersion", "3.0.0.1022")]
+[assembly: AssemblyMetadata("MinimumApplicationVersion", "3.0.0.2001")]
 
 //Your plugin homepage - omit if not applicaple
 [assembly: AssemblyMetadata("Homepage", "https://nighttime-imaging.eu/")]

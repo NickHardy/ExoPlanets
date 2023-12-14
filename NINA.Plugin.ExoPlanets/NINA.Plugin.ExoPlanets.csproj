@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
     <OutputType>Library</OutputType>
     <AssemblyName>ExoPlanets</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -30,7 +30,7 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NINA.Plugin" Version="3.0.0.1022-nightly" />
+    <PackageReference Include="NINA.Plugin" Version="3.0.0.2001-beta" />
   </ItemGroup>
   <PropertyGroup />
   <ItemGroup>

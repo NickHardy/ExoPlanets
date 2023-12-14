@@ -15,19 +15,17 @@
 using Newtonsoft.Json;
 using NINA.Core.Model;
 using NINA.Sequencer.Utility.DateTimeProvider;
-using NINA.Astrometry;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NINA.Sequencer.SequenceItem;
 using NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider;
 using NINA.Plugin.ExoPlanets.Model;
 using NINA.Astrometry.Interfaces;
+using TimeProvider = NINA.Sequencer.Utility.DateTimeProvider.TimeProvider;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
@@ -72,7 +70,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
         public bool HasFixedTimeProvider {
             get {
-                return selectedProvider != null && !(selectedProvider is TimeProvider);
+                return selectedProvider != null && selectedProvider is not TimeProvider;
             }
         }
 

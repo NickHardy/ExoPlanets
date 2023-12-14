@@ -12,20 +12,14 @@
 
 #endregion "copyright"
 
+using Microsoft.Win32;
 using NINA.Core.Utility;
 using NINA.Plugin.Interfaces;
 using NINA.Profile.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Input;
 
 namespace NINA.Plugin.ExoPlanets {
@@ -204,7 +198,7 @@ namespace NINA.Plugin.ExoPlanets {
             fileDialog.DefaultExt = ".csv"; // Required file extension 
             fileDialog.Filter = "Csv documents|*.csv"; // Optional file extensions
 
-            if (fileDialog.ShowDialog() == DialogResult.OK)
+            if (fileDialog.ShowDialog() == true)
             {
                 VarStarCatalog = fileDialog.FileName;
             }

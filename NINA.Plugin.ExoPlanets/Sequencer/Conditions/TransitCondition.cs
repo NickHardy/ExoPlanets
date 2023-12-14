@@ -26,6 +26,7 @@ using NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider;
 using NINA.Plugin.ExoPlanets.Model;
 using NINA.Plugin.ExoPlanets.Sequencer.Utility;
 using NINA.Astrometry.Interfaces;
+using TimeProvider = NINA.Sequencer.Utility.DateTimeProvider.TimeProvider;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Conditions {
 
@@ -76,7 +77,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Conditions {
 
         public bool HasFixedTimeProvider {
             get {
-                return selectedProvider != null && !(selectedProvider is TimeProvider);
+                return selectedProvider != null && selectedProvider is not TimeProvider;
             }
         }
 
