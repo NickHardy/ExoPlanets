@@ -29,11 +29,9 @@ using NINA.Astrometry.Interfaces;
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider {
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class ObservationStartProvider : IDateTimeProvider {
-        private INighttimeCalculator nighttimeCalculator;
-        public ObservationStartProvider(INighttimeCalculator nighttimeCalculator) {
-            this.nighttimeCalculator = nighttimeCalculator;
-        }
+    public class ObservationStartProvider(INighttimeCalculator nighttimeCalculator) : IDateTimeProvider {
+        private readonly INighttimeCalculator nighttimeCalculator = nighttimeCalculator;
+
         public string Name { get; } = "Start observation"; //Loc.Instance["LblMeridian"];
         public ICustomDateTime DateTime { get; set; } = new SystemDateTime();
 

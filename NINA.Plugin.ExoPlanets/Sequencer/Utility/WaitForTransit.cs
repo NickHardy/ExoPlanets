@@ -42,15 +42,15 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
         private int minutesOffset;
         private int seconds;
         private IDateTimeProvider selectedProvider;
-        private INighttimeCalculator nighttimeCalculator;
+        private readonly INighttimeCalculator nighttimeCalculator;
 
         [ImportingConstructor]
         public WaitForTransit(IList<IDateTimeProvider> dateTimeProviders, INighttimeCalculator nighttimeCalculator) {
             this.nighttimeCalculator = nighttimeCalculator;
             DateTimeProviders = dateTimeProviders;
-            if (DateTimeProviders.Where(d => d is ObservationStartProvider).Count() == 0)
+            if (!DateTimeProviders.Where(d => d is ObservationStartProvider).Any())
                 DateTimeProviders.Add(new ObservationStartProvider(nighttimeCalculator));
-            if (DateTimeProviders.Where(d => d is ObservationEndProvider).Count() == 0)
+            if (!DateTimeProviders.Where(d => d is ObservationEndProvider).Any())
                 DateTimeProviders.Add(new ObservationEndProvider(nighttimeCalculator));
             SelectedProvider = DateTimeProviders.FirstOrDefault(d => d is ObservationStartProvider);
         }

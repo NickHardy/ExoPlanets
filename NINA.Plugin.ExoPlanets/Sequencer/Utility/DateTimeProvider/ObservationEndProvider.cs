@@ -30,7 +30,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider {
 
     [JsonObject(MemberSerialization.OptIn)]
     public class ObservationEndProvider : IDateTimeProvider {
-        private INighttimeCalculator nighttimeCalculator;
+        private readonly INighttimeCalculator nighttimeCalculator;
         public ObservationEndProvider(INighttimeCalculator nighttimeCalculator) {
             this.nighttimeCalculator = nighttimeCalculator;
         }

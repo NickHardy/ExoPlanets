@@ -34,7 +34,7 @@ using NINA.Image.ImageAnalysis;
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
     public class StarDetection : IStarDetection {
-        private static int _maxWidth = 1552;
+        private static readonly int _maxWidth = 1552;
 
         public string Name => "NINA";
 
@@ -103,7 +103,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             public double HFR;
             public Accord.Point Position;
             public double meanBrightness;
-            private List<PixelData> pixelData;
+            private readonly List<PixelData> pixelData;
             public double Average { get; private set; } = 0;
             public double SurroundingMean { get; set; } = 0;
             public double maxPixelValue { get; set; } = 0;
@@ -152,7 +152,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                 this.pixelData.Clear();
             }
 
-            internal bool InsideCircle(double x, double y, double centerX, double centerY, double radius) {
+            internal static bool InsideCircle(double x, double y, double centerX, double centerY, double radius) {
                 return (Math.Pow(x - centerX, 2) + Math.Pow(y - centerY, 2) <= Math.Pow(radius, 2));
             }
 
@@ -211,7 +211,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                         var mean = (from star in result.StarList select star.HFR).Average();
                         var stdDev = double.NaN;
                         if (result.StarList.Count > 1) {
-                            stdDev = Math.Sqrt((from star in result.StarList select (star.HFR - mean) * (star.HFR - mean)).Sum() / (result.StarList.Count() - 1));
+                            stdDev = Math.Sqrt((from star in result.StarList select (star.HFR - mean) * (star.HFR - mean)).Sum() / (result.StarList.Count - 1));
                         }
 
                         Logger.Info($"Average HFR: {mean}, HFR σ: {stdDev}, Detected Stars {detectedStars}");
@@ -286,7 +286,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     for (int y = largeRect.Y; y < largeRect.Y + largeRect.Height; y++) {
                         var pixelValue = state._iarr.FlatArray[x + (state.imageProperties.Width * y)];
                         if (x >= s.Rectangle.X && x < s.Rectangle.X + s.Rectangle.Width && y >= s.Rectangle.Y && y < s.Rectangle.Y + s.Rectangle.Height) { //We're in the small rectangle directly surrounding the star
-                            if (s.InsideCircle(x, y, s.Position.X, s.Position.Y, s.radius)) { // We're in the inner sanctum of the star
+                            if (Star.InsideCircle(x, y, s.Position.X, s.Position.Y, s.radius)) { // We're in the inner sanctum of the star
                                 starPixelSum += pixelValue;
                                 starPixelCount++;
                                 innerStarPixelValues.Add(pixelValue);
@@ -318,7 +318,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             }
 
             // No stars could be found. Return.
-            if (starlist.Count() == 0) {
+            if (starlist.Count == 0) {
                 return new List<DetectedStar>();
             }
 
@@ -328,14 +328,14 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             return starlist.Select(s => s.ToDetectedStar()).ToList();
         }
 
-        private double CalculateEccentricity(double width, double height) {
+        private static double CalculateEccentricity(double width, double height) {
             var x = Math.Max(width, height);
             var y = Math.Min(width, height);
             double focus = Math.Sqrt(Math.Pow(x, 2) - Math.Pow(y, 2));
             return focus / x;
         }
 
-        private BlobCounter DetectStructures(Bitmap bmp, CancellationToken token) {
+        private static BlobCounter DetectStructures(Bitmap bmp, CancellationToken token) {
             var sw = Stopwatch.StartNew();
 
             /* detect structures */
@@ -351,7 +351,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             return blobCounter;
         }
 
-        private void PrepareForStructureDetection(Bitmap bmp, StarDetectionParams p, State state, CancellationToken token) {
+        private static void PrepareForStructureDetection(Bitmap bmp, StarDetectionParams p, State state, CancellationToken token) {
             var sw = Stopwatch.StartNew();
 
             if (p.Sensitivity == StarSensitivityEnum.Normal) {

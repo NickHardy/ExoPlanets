@@ -67,9 +67,9 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container
         private readonly IFramingAssistantVM framingAssistantVM;
         private readonly IPlanetariumFactory planetariumFactory;
         private readonly IApplicationMediator applicationMediator;
-        private INighttimeCalculator nighttimeCalculator;
+        private readonly INighttimeCalculator nighttimeCalculator;
         private ExoPlanetInputTarget target;
-        private ExoPlanets exoPlanetsPlugin;
+        private readonly ExoPlanets exoPlanetsPlugin;
 
         [ImportingConstructor]
         public VariableStarObjectContainer(
@@ -228,9 +228,9 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container
             SelectedVariableStar = VariableStarTargetList.FirstOrDefault();
         }
 
-        private Boolean _LoadingTargets = false;
+        private bool _LoadingTargets = false;
 
-        public Boolean LoadingTargets
+        public bool LoadingTargets
         {
             get { return _LoadingTargets; }
             set
@@ -257,7 +257,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container
                     Logger.Error(ex);
                 }
 
-                retrievedTargets = VariableStarTargets.Count();
+                retrievedTargets = VariableStarTargets.Count;
                 PreFilterTargets();
                 SearchExoPlanetTargets(null);
                 LoadingTargets = false;
@@ -275,7 +275,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container
             if (exoPlanetsPlugin.CheckMagnitude)
             {
                 VariableStarTargets = new List<VariableStar>(VariableStarTargets.Where(ep => ep.V < exoPlanetsPlugin.MaxMagnitude));
-                FilteredTargets = retrievedTargets - VariableStarTargets.Count();
+                FilteredTargets = retrievedTargets - VariableStarTargets.Count;
             }
 
             // check twilight
@@ -293,7 +293,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container
                 {
                     VariableStarTargets = new List<VariableStar>(VariableStarTargets.Where(ep => ep.startTime > set && ep.endTime < rise));
                 }
-                FilteredTargets = retrievedTargets - VariableStarTargets.Count();
+                FilteredTargets = retrievedTargets - VariableStarTargets.Count;
             }
 
             // check nautical
@@ -311,7 +311,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container
                 {
                     VariableStarTargets = new List<VariableStar>(VariableStarTargets.Where(ep => ep.startTime > set && ep.endTime < rise));
                 }
-                FilteredTargets = retrievedTargets - VariableStarTargets.Count();
+                FilteredTargets = retrievedTargets - VariableStarTargets.Count;
             }
 
             // check horizon
@@ -334,7 +334,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container
                         CheckAboveHorizon(horizon, ep.Coordinates(), ep.endTime)
                     ));
                 }
-                FilteredTargets = retrievedTargets - VariableStarTargets.Count();
+                FilteredTargets = retrievedTargets - VariableStarTargets.Count;
             }
 
             // Check meridian
@@ -551,8 +551,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container
 
         public ICommand CoordsToFramingCommand { get; set; }
 
-        private async Task<bool> CoordsToFraming()
-        {
+        private async Task<bool> CoordsToFraming() {
             if (Target.DeepSkyObject?.Coordinates != null)
             {
                 var dso = new DeepSkyObject(Target.DeepSkyObject.Name, Target.DeepSkyObject.Coordinates, profileService.ActiveProfile.ApplicationSettings.SkyAtlasImageRepository, profileService.ActiveProfile.AstrometrySettings.Horizon);

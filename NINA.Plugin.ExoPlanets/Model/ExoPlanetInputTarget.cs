@@ -19,11 +19,7 @@ using NINA.Astrometry;
 namespace NINA.Plugin.ExoPlanets.Model {
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class ExoPlanetInputTarget : InputTarget {
-
-        public ExoPlanetInputTarget(Angle latitude, Angle longitude, CustomHorizon horizon) : base(latitude, longitude, horizon) {
-        }
-
+    public class ExoPlanetInputTarget(Angle latitude, Angle longitude, CustomHorizon horizon) : InputTarget(latitude, longitude, horizon) {
         private ExoPlanetDeepSkyObject exoPlanetdeepSkyObject;
 
         public ExoPlanetDeepSkyObject ExoPlanetDeepSkyObject {

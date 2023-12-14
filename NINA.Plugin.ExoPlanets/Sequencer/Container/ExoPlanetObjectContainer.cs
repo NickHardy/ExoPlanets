@@ -66,9 +66,9 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
         private readonly IFramingAssistantVM framingAssistantVM;
         private readonly IPlanetariumFactory planetariumFactory;
         private readonly IApplicationMediator applicationMediator;
-        private INighttimeCalculator nighttimeCalculator;
+        private readonly INighttimeCalculator nighttimeCalculator;
         private ExoPlanetInputTarget _target;
-        private ExoPlanets exoPlanetsPlugin;
+        private readonly ExoPlanets exoPlanetsPlugin;
 
         [ImportingConstructor]
         public ExoPlanetObjectContainer(
@@ -201,9 +201,9 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             SelectedExoPlanet = ExoPlanetTargetsList.FirstOrDefault();
         }
 
-        private Boolean _LoadingTargets = false;
+        private bool _LoadingTargets = false;
 
-        public Boolean LoadingTargets {
+        public bool LoadingTargets {
             get { return _LoadingTargets; }
             set {
                 _LoadingTargets = value;
@@ -232,7 +232,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                         break;
                 }
 
-                retrievedTargets = ExoPlanetTargets.Count();
+                retrievedTargets = ExoPlanetTargets.Count;
                 PreFilterTargets();
                 SearchExoPlanetTargets(null);
                 LoadingTargets = false;
@@ -248,7 +248,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             // Check magnitude
             if (exoPlanetsPlugin.CheckMagnitude) {
                 ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.V < exoPlanetsPlugin.MaxMagnitude));
-                FilteredTargets = retrievedTargets - ExoPlanetTargets.Count();
+                FilteredTargets = retrievedTargets - ExoPlanetTargets.Count;
             }
 
             // check twilight
@@ -262,7 +262,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 } else {
                     ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.midTime > set && ep.midTime < rise));
                 }
-                FilteredTargets = retrievedTargets - ExoPlanetTargets.Count();
+                FilteredTargets = retrievedTargets - ExoPlanetTargets.Count;
             }
 
             // check nautical
@@ -276,7 +276,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 } else {
                     ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.midTime > set && ep.midTime < rise));
                 }
-                FilteredTargets = retrievedTargets - ExoPlanetTargets.Count();
+                FilteredTargets = retrievedTargets - ExoPlanetTargets.Count;
             }
 
             // check horizon
@@ -295,7 +295,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                         CheckAboveHorizon(horizon, ep.Coordinates(), ep.endTime)
                     ));
                 }
-                FilteredTargets = retrievedTargets - ExoPlanetTargets.Count();
+                FilteredTargets = retrievedTargets - ExoPlanetTargets.Count;
             }
 
             // Check meridian
@@ -304,7 +304,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                     var meridianTime = GetMeridianTime(ep.Coordinates(), ep.startTime.AddHours(-1d));
                     return !(ep.startTime < meridianTime && ep.endTime > meridianTime);
                 }));
-                FilteredTargets = retrievedTargets - ExoPlanetTargets.Count();
+                FilteredTargets = retrievedTargets - ExoPlanetTargets.Count;
             }
         }
 
@@ -322,7 +322,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             public DateTime datetime { get; set; }
             public double alt { get; set; }
 
-            public Dp(Double alt, DateTime datetime) {
+            public Dp(double alt, DateTime datetime) {
                 this.alt = alt;
                 this.datetime = datetime;
             }
@@ -442,7 +442,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             return url;
         }
 
-        private List<ExoClockTarget> getExoClockDatabase() {
+        private static List<ExoClockTarget> getExoClockDatabase() {
             var url = $"https://www.exoclock.space/database/planets_json";
             WebRequest request = WebRequest.Create(url);
             request.Timeout = 30 * 60 * 1000;

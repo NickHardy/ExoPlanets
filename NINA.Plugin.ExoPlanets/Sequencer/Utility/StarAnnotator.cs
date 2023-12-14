@@ -13,22 +13,22 @@ using System.Windows.Media.Imaging;
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
     public class StarAnnotator {
-        private static Pen TARGET_PEN = new Pen(Brushes.DarkRed, 2);
-        private static Pen COMP_PEN = new Pen(Brushes.LightYellow, 1);
-        private static Pen VAR_PEN = new Pen(Brushes.LightBlue, 1);
-        private static Pen AVG_PEN = new Pen(Brushes.LightGreen, 1);
-        private static SolidBrush TARGET_TEXTBRUSH = new SolidBrush(Color.Red);
-        private static SolidBrush COMP_TEXTBRUSH = new SolidBrush(Color.Yellow);
-        private static SolidBrush VAR_TEXTBRUSH = new SolidBrush(Color.Blue);
-        private static SolidBrush AVG_TEXTBRUSH = new SolidBrush(Color.Green);
-        private static FontFamily FONTFAMILY = new FontFamily("Arial");
-        private static Font FONT = new Font(FONTFAMILY, 24, FontStyle.Regular, GraphicsUnit.Pixel);
+        private static readonly Pen TARGET_PEN = new Pen(Brushes.DarkRed, 2);
+        private static readonly Pen COMP_PEN = new Pen(Brushes.LightYellow, 1);
+        private static readonly Pen VAR_PEN = new Pen(Brushes.LightBlue, 1);
+        private static readonly Pen AVG_PEN = new Pen(Brushes.LightGreen, 1);
+        private static readonly SolidBrush TARGET_TEXTBRUSH = new SolidBrush(Color.Red);
+        private static readonly SolidBrush COMP_TEXTBRUSH = new SolidBrush(Color.Yellow);
+        private static readonly SolidBrush VAR_TEXTBRUSH = new SolidBrush(Color.Blue);
+        private static readonly SolidBrush AVG_TEXTBRUSH = new SolidBrush(Color.Green);
+        private static readonly FontFamily FONTFAMILY = new FontFamily("Arial");
+        private static readonly Font FONT = new Font(FONTFAMILY, 24, FontStyle.Regular, GraphicsUnit.Pixel);
 
-        public string Name => "NINA";
+        public static string Name => "NINA";
 
         public string ContentId => this.GetType().FullName;
 
-        public Task<BitmapSource> GetAnnotatedImage(DetectedStar targetStar, List<DetectedStar> starList, List<DetectedStar> VStarList, List<DetectedStar> avgStarList, List<DetectedStar> simbadStarList, BitmapSource imageToAnnotate, string annotationJpg, double exposuretime, CancellationToken token = default) {
+        public static Task<BitmapSource> GetAnnotatedImage(DetectedStar targetStar, List<DetectedStar> starList, List<DetectedStar> VStarList, List<DetectedStar> avgStarList, List<DetectedStar> simbadStarList, BitmapSource imageToAnnotate, string annotationJpg, double exposuretime, CancellationToken token = default) {
             return Task.Run(() => {
                 using (MyStopWatch.Measure()) {
                     if (imageToAnnotate.Format == System.Windows.Media.PixelFormats.Rgb48) {
@@ -47,7 +47,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
                             int offset = 10;
 
-                            int simbadStarListCount = simbadStarList.Count();
+                            int simbadStarListCount = simbadStarList.Count;
                             if (simbadStarListCount > 0) {
                                 foreach (var star in simbadStarList) {
                                     token.ThrowIfCancellationRequested();
@@ -61,7 +61,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                                 }
                             }
 
-                            int starListCount = starList.Count();
+                            int starListCount = starList.Count;
                             if (starListCount > 0) {
                                 foreach (var star in starList) {
                                     token.ThrowIfCancellationRequested();
@@ -75,7 +75,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                                 }
                             }
 
-                            int vStarListCount = VStarList.Count();
+                            int vStarListCount = VStarList.Count;
                             if (vStarListCount > 0) {
                                 foreach (var star in VStarList) {
                                     token.ThrowIfCancellationRequested();
@@ -89,7 +89,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                                 }
                             }
 
-                            int avgStarListCount = avgStarList.Count();
+                            int avgStarListCount = avgStarList.Count;
                             if (avgStarListCount > 0) {
                                 foreach (var star in avgStarList) {
                                     token.ThrowIfCancellationRequested();

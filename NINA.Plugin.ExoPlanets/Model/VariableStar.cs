@@ -77,7 +77,7 @@ namespace NINA.Plugin.ExoPlanets.Model
             {
                 if (period > 0)
                 {
-                    return period < 1.0 ? String.Format("{0}d ({1:F2}h)", period, period * 24.0) : String.Format("{0}d", period);
+                    return period < 1.0 ? string.Format("{0}d ({1:F2}h)", period, period * 24.0) : string.Format("{0}d", period);
                 } else
                 {
                     return "--";
@@ -101,7 +101,7 @@ namespace NINA.Plugin.ExoPlanets.Model
         {
             if(!HasEvents) return;
 
-            var shiftedEpoch = epoch + period * observedPhase;
+            var shiftedEpoch = epoch + (period * observedPhase);
             var cycle = Math.Floor((referenceJD - shiftedEpoch) / period);
             var nextEvent = shiftedEpoch + period * (cycle + 1);
             var window = (span + OCRange) / 1440.0;

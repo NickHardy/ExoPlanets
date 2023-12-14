@@ -43,16 +43,16 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Conditions {
         private int minutesOffset;
         private int seconds;
         private IDateTimeProvider selectedProvider;
-        private INighttimeCalculator nighttimeCalculator;
+        private readonly INighttimeCalculator nighttimeCalculator;
 
         [ImportingConstructor]
         public TransitCondition(IList<IDateTimeProvider> dateTimeProviders, INighttimeCalculator nighttimeCalculator) {
             this.nighttimeCalculator = nighttimeCalculator;
             DateTime = new SystemDateTime();
             DateTimeProviders = dateTimeProviders;
-            if (DateTimeProviders.Where(d => d is ObservationStartProvider).Count() == 0)
+            if (!DateTimeProviders.Where(d => d is ObservationStartProvider).Any())
                 DateTimeProviders.Add(new ObservationStartProvider(nighttimeCalculator));
-            if (DateTimeProviders.Where(d => d is ObservationEndProvider).Count() == 0)
+            if (!DateTimeProviders.Where(d => d is ObservationEndProvider).Any())
                 DateTimeProviders.Add(new ObservationEndProvider(nighttimeCalculator));
             this.SelectedProvider = DateTimeProviders.FirstOrDefault(d => d is ObservationEndProvider);
             ConditionWatchdog = new ConditionWatchdog(() => { Tick(); return Task.CompletedTask; }, TimeSpan.FromSeconds(1));

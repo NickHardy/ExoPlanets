@@ -25,11 +25,7 @@ using System.Linq;
 
 namespace NINA.Plugin.ExoPlanets.Model {
 
-    public class ExoPlanetDeepSkyObject : DeepSkyObject {
-
-        public ExoPlanetDeepSkyObject(string id, Coordinates coords, string imageRepository, CustomHorizon customHorizon) : base(id, coords, imageRepository, customHorizon) {
-        }
-
+    public class ExoPlanetDeepSkyObject(string id, Coordinates coords, string imageRepository, CustomHorizon customHorizon) : DeepSkyObject(id, coords, imageRepository, customHorizon) {
         private List<DataPoint> _lightCurve;
         private DateTime _observationStart;
 
@@ -85,8 +81,7 @@ namespace NINA.Plugin.ExoPlanets.Model {
             RaisePropertyChanged();
         }
 
-        public void SetMaximum(double StarttimeJD, double MidtimeJD, double EndtimeJD, double OCDrift, double Amplitude)
-        {
+        public void SetMaximum(double StarttimeJD, double MidtimeJD, double EndtimeJD, double OCDrift, double Amplitude) {
             ObservationStart = JulianToDateTime(StarttimeJD);
             ObservationEnd = JulianToDateTime(EndtimeJD);
             var drift = OCDrift / 1440.0;
@@ -101,8 +96,7 @@ namespace NINA.Plugin.ExoPlanets.Model {
             RaisePropertyChanged();
         }
 
-        public void SetAllNight(DateTime starRise, DateTime starSet)
-        {
+        public void SetAllNight(DateTime starRise, DateTime starSet) {
             ObservationStart = starRise;
             ObservationEnd = starSet;
 
@@ -112,6 +106,7 @@ namespace NINA.Plugin.ExoPlanets.Model {
             LightCurve = lightCurve;
             RaisePropertyChanged();
         }
+
         private static DateTime JulianToDateTime(double julianDate) {
             return DateTime.FromOADate(julianDate - 2415018.5).ToLocalTime();
         }

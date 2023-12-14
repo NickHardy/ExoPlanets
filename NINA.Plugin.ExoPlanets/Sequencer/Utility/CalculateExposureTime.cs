@@ -69,13 +69,13 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
     [Export(typeof(ISequenceItem))]
     [JsonObject(MemberSerialization.OptIn)]
     public class CalculateExposureTime : SequenceItem, IValidatable {
-        private ICameraMediator cameraMediator;
-        private IImagingMediator imagingMediator;
-        private IImageSaveMediator imageSaveMediator;
-        private IImageHistoryVM imageHistoryVM;
-        private IProfileService profileService;
-        private ITelescopeMediator telescopeMediator;
-        private ExoPlanets exoPlanets;
+        private readonly ICameraMediator cameraMediator;
+        private readonly IImagingMediator imagingMediator;
+        private readonly IImageSaveMediator imageSaveMediator;
+        private readonly IImageHistoryVM imageHistoryVM;
+        private readonly IProfileService profileService;
+        private readonly ITelescopeMediator telescopeMediator;
+        private readonly ExoPlanets exoPlanets;
 
         [ImportingConstructor]
         public CalculateExposureTime(IProfileService profileService, ICameraMediator cameraMediator, IImagingMediator imagingMediator, IImageSaveMediator imageSaveMediator, IImageHistoryVM imageHistoryVM, ITelescopeMediator telescopeMediator) {
@@ -264,8 +264,8 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
         private int _compStarCount;
         public int CompStarCount { get => _compStarCount; set { _compStarCount = value; RaisePropertyChanged(); } }
 
-        private List<double> inputs = new List<double>();
-        private List<double> outputs = new List<double>();
+        private readonly List<double> inputs = new List<double>();
+        private readonly List<double> outputs = new List<double>();
 
         public override async Task Execute(IProgress<ApplicationStatus> progress, CancellationToken token) {
             if (Validate()) {
@@ -439,7 +439,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     // Check the Compstars are not variable
                     StarList = StarList.Where(s => !VStarList.Any(v => v.Position == s.Position)).ToList<DetectedStar>()
                         .Where(s => !SimbadStarList.Any(v => v.Position == s.Position)).ToList<DetectedStar>();
-                    CompStarCount = SimbadStarList.Count() + StarList.Count();
+                    CompStarCount = SimbadStarList.Count + StarList.Count;
                     StarList.ForEach(i => Logger.Info("Comparison star: " + JsonConvert.SerializeObject(i)));
 
                     // Check for similar avarage stars
@@ -454,7 +454,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     // Annotate image
                     var starAnnotator = new StarAnnotator();
                     saveAnnotationJpg = profileService.ActiveProfile.ImageFileSettings.FilePath + "\\" + inputTarget.TargetName + "_fov.jpg";
-                    var annotatedImage = await starAnnotator.GetAnnotatedImage(TargetStar, StarList, VStarList, avgStarList, SimbadStarList, image.Image, saveAnnotationJpg, ExposureTime, token);
+                    var annotatedImage = await StarAnnotator.GetAnnotatedImage(TargetStar, StarList, VStarList, avgStarList, SimbadStarList, image.Image, saveAnnotationJpg, ExposureTime, token);
                     imagingMediator.SetImage(annotatedImage);
 
                     // Save comparison and variable star csv
@@ -520,7 +520,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             }
         }
 
-        private bool CheckPointWithinImage(Point point, Image.Interfaces.IRenderedImage image) {
+        private static bool CheckPointWithinImage(Point point, Image.Interfaces.IRenderedImage image) {
             if (point.X < 0 || point.X > image.Image.PixelWidth)
                 return false;
             if (point.Y < 0 || point.Y > image.Image.PixelHeight)
@@ -656,7 +656,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             request.ContentType = "multipart/form-data; boundary=" + boundary;
             Stream requestStream = request.GetRequestStream();
             foreach (string key in dictionary.Keys) {
-                string item = String.Format(FormDataTemplate, boundary, key, dictionary[key]);
+                string item = string.Format(FormDataTemplate, boundary, key, dictionary[key]);
                 byte[] itemBytes = System.Text.Encoding.UTF8.GetBytes(item);
                 requestStream.Write(itemBytes, 0, itemBytes.Length);
             }
@@ -699,9 +699,9 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
         private static void AppendUrlEncoded(StringBuilder sb, string name, string value) {
             if (sb.Length != 0)
-                sb.Append("&");
+                sb.Append('&');
             sb.Append(WebUtility.UrlEncode(name));
-            sb.Append("=");
+            sb.Append('=');
             sb.Append(WebUtility.UrlEncode(value));
         }
 
@@ -713,7 +713,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                 return;
 
             // Only retrieve the list once for the given target
-            if (variableTarget.Equals(targetName) && VariableStarList != null && VariableStarList.Count() > 0)
+            if (variableTarget.Equals(targetName) && VariableStarList != null && VariableStarList.Count > 0)
                 return;
 
             progress.Report(new ApplicationStatus() { Status = "Retrieving variable stars" });

@@ -23,11 +23,7 @@ using System.Threading.Tasks;
 
 namespace NINA.Plugin.ExoPlanets.RiseAndSet {
 
-    public class MoonRiseAndSet : RiseAndSetEvent {
-
-        public MoonRiseAndSet(DateTime date, double latitude, double longitude) : base(date, latitude, longitude) {
-        }
-
+    public class MoonRiseAndSet(DateTime date, double latitude, double longitude) : RiseAndSetEvent(date, latitude, longitude) {
         protected override double AdjustAltitude(BasicBody body) {
             /* Readjust moon altitude based on earth radius and refraction */
             var horizon = 90.0;
@@ -36,7 +32,7 @@ namespace NINA.Plugin.ExoPlanets.RiseAndSet {
                 Longitude = Longitude
             };
             var refraction = NOVAS.Refract(ref location, NOVAS.RefractionOption.StandardRefraction, horizon); ;
-            var altitude = body.Altitude - AstroUtil.ToDegree(Earth.Radius) / body.Distance + AstroUtil.ToDegree(body.Radius) / body.Distance + refraction;
+            var altitude = body.Altitude - (AstroUtil.ToDegree(Earth.Radius) / body.Distance) + (AstroUtil.ToDegree(body.Radius) / body.Distance) + refraction;
             return altitude;
         }
 

@@ -40,7 +40,7 @@ namespace NINA.Plugin.ExoPlanets.Model {
         [JsonProperty]
         public decimal resolution { get; set; }
         [JsonProperty]
-        public Boolean dss { get; set; }
+        public bool dss { get; set; }
         [JsonProperty]
         public string special { get; set; }
 
