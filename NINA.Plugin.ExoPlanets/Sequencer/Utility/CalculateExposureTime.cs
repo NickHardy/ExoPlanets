@@ -355,7 +355,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     var center = new Point(width / 2, height / 2);
 
                     //Translate your coordinates to x/y in relation to center coordinates
-                    Point targetPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(plateSolveResult.Coordinates, center, arcsecPerPix, arcsecPerPix, plateSolveResult.Orientation, ProjectionType.Stereographic);
+                    Point targetPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(plateSolveResult.Coordinates, center, arcsecPerPix, arcsecPerPix, plateSolveResult.PositionAngle, ProjectionType.Stereographic);
                     TargetStar = starDetectionResult.StarList
                         .GroupBy(p => Math.Pow(targetPoint.X - p.Position.X, 2) + Math.Pow(targetPoint.Y - p.Position.Y, 2))
                         .OrderBy(p => p.Key)
@@ -377,7 +377,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     List<DetectedStar> VStarList = new List<DetectedStar>();
                     findVariableStars(progress, token, inputTarget.TargetName, plateSolveResult.Coordinates);
                     foreach (var vStar in VariableStarList) {
-                        Point vStarPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(vStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, plateSolveResult.Orientation, ProjectionType.Stereographic);
+                        Point vStarPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(vStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, plateSolveResult.PositionAngle, ProjectionType.Stereographic);
                         if (!CheckPointWithinImage(vStarPoint, image)) continue;
                         DetectedStar dStar = starDetectionResult.StarList
                             .GroupBy(p => Math.Pow(vStarPoint.X - p.Position.X, 2) + Math.Pow(vStarPoint.Y - p.Position.Y, 2))
@@ -397,7 +397,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     findSimbadComparisonStars(progress, token, inputTarget, plateSolveResult.Coordinates);
                     if (SimbadCompStarList?.Count > 0) {
                         foreach (var compStar in SimbadCompStarList) {
-                            Point compPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(compStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, plateSolveResult.Orientation, ProjectionType.Stereographic);
+                            Point compPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(compStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, plateSolveResult.PositionAngle, ProjectionType.Stereographic);
                             if (!CheckPointWithinImage(compPoint, image)) continue;
                             DetectedStar cStar = starDetectionResult.StarList
                                 .GroupBy(p => Math.Pow(compPoint.X - p.Position.X, 2) + Math.Pow(compPoint.Y - p.Position.Y, 2))
@@ -420,7 +420,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     findComparisonStars(progress, token, inputTarget.TargetName, plateSolveResult.Coordinates);
                     if (CompStarChart?.photometry?.Count > 0) {
                         foreach (var compStar in CompStarChart.photometry) {
-                            Point compPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(compStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, plateSolveResult.Orientation, ProjectionType.Stereographic);
+                            Point compPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(compStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, plateSolveResult.PositionAngle, ProjectionType.Stereographic);
                             if (!CheckPointWithinImage(compPoint, image)) continue;
                             DetectedStar cStar = starDetectionResult.StarList
                                 .GroupBy(p => Math.Pow(compPoint.X - p.Position.X, 2) + Math.Pow(compPoint.Y - p.Position.Y, 2))
