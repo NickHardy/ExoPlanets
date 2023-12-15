@@ -252,7 +252,8 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             }
 
             // check twilight
-            if (exoPlanetsPlugin.WithinTwilight) {
+            if (exoPlanetsPlugin.WithinTwilight)
+            {
                 var rise = NighttimeData.TwilightRiseAndSet.Rise;
                 var set = NighttimeData.TwilightRiseAndSet.Set;
                 if (exoPlanetsPlugin.PartialTransits) {
