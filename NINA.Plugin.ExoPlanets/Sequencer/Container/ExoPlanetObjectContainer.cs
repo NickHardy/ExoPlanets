@@ -12,44 +12,42 @@
 
 #endregion "copyright"
 
+using CommunityToolkit.Mvvm.Input;
+using CsvHelper;
+using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
-using NINA.Sequencer.Container;
+using NINA.Astrometry.Interfaces;
+using NINA.Astrometry;
+using NINA.Core.Enum;
+using NINA.Core.Model;
+using NINA.Core.Utility;
+using NINA.Equipment.Interfaces;
+using NINA.Plugin.ExoPlanets.Interfaces;
+using NINA.Plugin.ExoPlanets.Model;
+using NINA.Plugin.ExoPlanets.Utility;
+using NINA.Profile.Interfaces;
 using NINA.Sequencer.Conditions;
 using NINA.Sequencer.Container.ExecutionStrategy;
+using NINA.Sequencer.Container;
 using NINA.Sequencer.SequenceItem;
 using NINA.Sequencer.Trigger;
-using NINA.Core.Utility;
-using System;
+using NINA.Sequencer;
+using NINA.WPF.Base.Interfaces.Mediator;
+using NINA.WPF.Base.Interfaces.ViewModel;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using NINA.Astrometry;
-using NINA.Plugin.ExoPlanets.Model;
-using NINA.Profile.Interfaces;
-using NINA.WPF.Base.Interfaces.ViewModel;
-using NINA.Equipment.Interfaces;
-using NINA.WPF.Base.Interfaces.Mediator;
-using NINA.Astrometry.Interfaces;
-using System.Net;
-using System.IO;
-using CsvHelper;
-using System.Globalization;
 using System.Data;
-using System.Windows.Data;
-using System.ComponentModel;
-using System.Windows;
-using NINA.Sequencer.Utility.DateTimeProvider;
-using System.Collections.Generic;
-using NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
 using System.Text;
-using Newtonsoft.Json.Serialization;
-using NINA.Core.Model;
-using NINA.Core.Enum;
-using NINA.Plugin.ExoPlanets.RiseAndSet;
-using NINA.Sequencer;
-using NINA.Plugin.ExoPlanets.Interfaces;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Windows.Input;
+using System.Windows;
+using System;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
@@ -60,8 +58,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
     [Export(typeof(ISequenceItem))]
     [Export(typeof(ISequenceContainer))]
     [JsonObject(MemberSerialization.OptIn)]
-    public class ExoPlanetObjectContainer : SequenceContainer, IDeepSkyObjectContainer, IVariableBrightnessTargetContainer
-    {
+    public partial class ExoPlanetObjectContainer : SequenceContainer, IDeepSkyObjectContainer, IVariableBrightnessTargetContainer {
         private readonly IProfileService profileService;
         private readonly IFramingAssistantVM framingAssistantVM;
         private readonly IPlanetariumFactory planetariumFactory;
@@ -83,15 +80,12 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             this.framingAssistantVM = framingAssistantVM;
             this.planetariumFactory = planetariumFactory;
 
-            Task.Run(() => NighttimeData = nighttimeCalculator.Calculate(DateTime.Now.AddHours(4)) );
-            CoordsToFramingCommand = new AsyncCommand<bool>(() => Task.Run(CoordsToFraming));
+            Task.Run(() => NighttimeData = nighttimeCalculator.Calculate(DateTime.Now.AddHours(4)));
+            CoordsToFramingCommand = new AsyncRelayCommand(() => Task.Run(CoordsToFraming));
             exoPlanetsPlugin = new ExoPlanets();
 
             ExoPlanetInputTarget = new ExoPlanetInputTarget(Angle.ByDegree(profileService.ActiveProfile.AstrometrySettings.Latitude), Angle.ByDegree(profileService.ActiveProfile.AstrometrySettings.Longitude), profileService.ActiveProfile.AstrometrySettings.Horizon);
-            DropTargetCommand = new GalaSoft.MvvmLight.Command.RelayCommand<object>(DropTarget);
-            LoadTargetsCommand = new AsyncCommand<bool>(LoadTargets);
-            LoadSingleTargetCommand = new RelayCommand(LoadSingleTarget);
-            SearchExoPlanetTargetsCommand = new RelayCommand(SearchExoPlanetTargets);
+            LoadTargetsCommand = new AsyncRelayCommand(LoadTargets);
             ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>();
             ExoPlanetTargetsList = new AsyncObservableCollection<ExoPlanet>();
             ExoPlanetDSO = new ExoPlanetDeepSkyObject(string.Empty, new Coordinates(Angle.Zero, Angle.Zero, Epoch.J2000), string.Empty, profileService.ActiveProfile.AstrometrySettings.Horizon);
@@ -109,6 +103,108 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             };
         }
 
+        private ExoPlanet selectedExoPlanet;
+
+        [JsonProperty]
+        public ExoPlanet SelectedExoPlanet {
+            get => selectedExoPlanet;
+            set {
+                selectedExoPlanet = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private ExoPlanetDeepSkyObject exoPlanetDSO;
+
+        [JsonProperty]
+        public ExoPlanetDeepSkyObject ExoPlanetDSO {
+            get => exoPlanetDSO;
+            set {
+                exoPlanetDSO = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        [JsonProperty]
+        public ExoPlanetInputTarget ExoPlanetInputTarget {
+            get => _target;
+            set {
+                if (ExoPlanetInputTarget != null) {
+                    WeakEventManager<InputTarget, EventArgs>.RemoveHandler(ExoPlanetInputTarget, nameof(ExoPlanetInputTarget.CoordinatesChanged), Target_OnCoordinatesChanged);
+                    // ExoPlanetInputTarget.CoordinatesChanged -= Target_OnCoordinatesChanged;
+                }
+                _target = (ExoPlanetInputTarget)value;
+                if (ExoPlanetInputTarget != null) {
+                    WeakEventManager<InputTarget, EventArgs>.AddHandler(ExoPlanetInputTarget, nameof(ExoPlanetInputTarget.CoordinatesChanged), Target_OnCoordinatesChanged);
+                    // ExoPlanetInputTarget.CoordinatesChanged += Target_OnCoordinatesChanged;
+                }
+                RaisePropertyChanged();
+            }
+        }
+
+        [JsonProperty]
+        public InputTarget Target {
+            get => ExoPlanetInputTarget;
+            set {
+                ExoPlanetInputTarget.TargetName = value.TargetName;
+                ExoPlanetInputTarget.InputCoordinates = value.InputCoordinates;
+                ExoPlanetInputTarget.PositionAngle = value.PositionAngle;
+                ExoPlanetDSO.Coordinates = value.InputCoordinates.Coordinates;
+            }
+        }
+
+        private AsyncObservableCollection<ExoPlanet> exoPlanetTargets;
+
+        public AsyncObservableCollection<ExoPlanet> ExoPlanetTargets {
+            get => exoPlanetTargets;
+            set {
+                exoPlanetTargets = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private AsyncObservableCollection<ExoPlanet> exoPlanetTargetsList;
+
+        public AsyncObservableCollection<ExoPlanet> ExoPlanetTargetsList {
+            get => exoPlanetTargetsList;
+            set {
+                exoPlanetTargetsList = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private int RetrievedTargets { get; set; } = 0;
+
+        private int filteredTargets = 0;
+
+        public int FilteredTargets {
+            get => filteredTargets;
+            set {
+                filteredTargets = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string filterTargets = string.Empty;
+
+        public string FilterTargets {
+            get => filterTargets;
+            set {
+                filterTargets = value;
+                RaisePropertyChanged(); }
+        }
+
+        private bool loadingTargets = false;
+
+        public bool LoadingTargets {
+            get => loadingTargets;
+            set {
+                loadingTargets = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        [RelayCommand]
         private void LoadSingleTarget(object obj) {
             if (SelectedExoPlanet != null && SelectedExoPlanet?.Name != null) {
                 Target.TargetName = SelectedExoPlanet.Name;
@@ -123,11 +219,10 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             }
         }
 
+        [RelayCommand]
         private void DropTarget(object obj) {
-            var p = obj as NINA.Sequencer.DragDrop.DropIntoParameters;
-            if (p != null) {
-                var con = p.Source as TargetSequenceContainer;
-                if (con != null) {
+            if (obj is NINA.Sequencer.DragDrop.DropIntoParameters p) {
+                if (p.Source is TargetSequenceContainer con) {
                     var dropTarget = con.Container.Target;
                     if (dropTarget != null) {
                         this.Name = dropTarget.TargetName;
@@ -139,102 +234,55 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             }
         }
 
-        private ExoPlanet _SelectedExoPlanet;
-
-        [JsonProperty]
-        public ExoPlanet SelectedExoPlanet {
-            get {
-                return _SelectedExoPlanet;
-            }
-            set {
-                _SelectedExoPlanet = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private ExoPlanetDeepSkyObject _ExoPlanetDSO;
-
-        [JsonProperty]
-        public ExoPlanetDeepSkyObject ExoPlanetDSO {
-            get {
-                return _ExoPlanetDSO;
-            }
-            set {
-                _ExoPlanetDSO = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private AsyncObservableCollection<ExoPlanet> _exoPlanetTargets;
-
-        public AsyncObservableCollection<ExoPlanet> ExoPlanetTargets {
-            get {
-                return _exoPlanetTargets;
-            }
-            set {
-                _exoPlanetTargets = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private AsyncObservableCollection<ExoPlanet> _exoPlanetTargetsList;
-
-        public AsyncObservableCollection<ExoPlanet> ExoPlanetTargetsList {
-            get {
-                return _exoPlanetTargetsList;
-            }
-            set {
-                _exoPlanetTargetsList = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private int retrievedTargets { get; set; } = 0;
-        private int filteredTargets = 0;
-        public int FilteredTargets { get => filteredTargets; set { filteredTargets = value; RaisePropertyChanged(); } }
-
-        private string filterTargets = "";
-        public string FilterTargets { get => filterTargets; set { filterTargets = value; RaisePropertyChanged(); } }
-
+        [RelayCommand]
         private void SearchExoPlanetTargets(object obj) {
             ExoPlanetTargetsList = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.Name.ToLower().Contains(FilterTargets.ToLower())));
             SelectedExoPlanet = ExoPlanetTargetsList.FirstOrDefault();
         }
 
-        private bool _LoadingTargets = false;
+        private async Task<bool> CoordsToFraming() {
+            if (Target.DeepSkyObject?.Coordinates != null) {
+                var dso = new DeepSkyObject(Target.DeepSkyObject.Name, Target.DeepSkyObject.Coordinates, profileService.ActiveProfile.ApplicationSettings.SkyAtlasImageRepository, profileService.ActiveProfile.AstrometrySettings.Horizon) {
+                    RotationPositionAngle = Target.PositionAngle
+                };
+                applicationMediator.ChangeTab(ApplicationTab.FRAMINGASSISTANT);
 
-        public bool LoadingTargets {
-            get { return _LoadingTargets; }
-            set {
-                _LoadingTargets = value;
-                RaisePropertyChanged();
+                return await framingAssistantVM.SetCoordinates(dso);
             }
+            return false;
         }
 
-        private Task<bool> LoadTargets(object obj) {
-            LoadingTargets = true;
-            ExoPlanetTargets.Clear();
-            ExoPlanetTargetsList.Clear();
+        private Task<bool> LoadTargets() {
+            return Task.Run(async () => {
+                LoadingTargets = true;
+                ExoPlanetTargets.Clear();
+                ExoPlanetTargetsList.Clear();
 
-            return Task.Run(() => {
                 switch (exoPlanetsPlugin.TargetList) {
                     case 0:
-                        RetrieveTargetsFromSwarthmore(0);
+                        await RetrieveTargetsFromSwarthmore(0);
                         break;
+
                     case 1:
-                        RetrieveTargetsFromSwarthmore(2);
+                        await RetrieveTargetsFromSwarthmore(2);
                         break;
+
                     case 2:
-                        RetrieveTargetsFromExoClock();
+                        await RetrieveTargetsFromExoClock();
                         break;
+
                     case 3:
-                        RetrieveTargetsFromSwarthmore(3);
+                        await RetrieveTargetsFromSwarthmore(3);
                         break;
+
+                    default:
+                        return false;
                 }
 
-                retrievedTargets = ExoPlanetTargets.Count;
+                RetrievedTargets = ExoPlanetTargets.Count;
                 PreFilterTargets();
                 SearchExoPlanetTargets(null);
+
                 LoadingTargets = false;
                 AfterParentChanged();
                 return true;
@@ -248,22 +296,21 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             // Check magnitude
             if (exoPlanetsPlugin.CheckMagnitude) {
                 ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.V < exoPlanetsPlugin.MaxMagnitude));
-                FilteredTargets = retrievedTargets - ExoPlanetTargets.Count;
+                FilteredTargets = RetrievedTargets - ExoPlanetTargets.Count;
             }
 
             // check twilight
-            if (exoPlanetsPlugin.WithinTwilight)
-            {
+            if (exoPlanetsPlugin.WithinTwilight) {
                 var rise = NighttimeData.TwilightRiseAndSet.Rise;
                 var set = NighttimeData.TwilightRiseAndSet.Set;
                 if (exoPlanetsPlugin.PartialTransits) {
                     ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(
-                        ExoPlanetTargets.Where(ep => (ep.startTime > set && ep.startTime < rise) 
-                        || (ep.midTime > set && ep.midTime < rise) || (ep.endTime > set && ep.endTime < rise)) );
+                        ExoPlanetTargets.Where(ep => (ep.startTime > set && ep.startTime < rise)
+                        || (ep.midTime > set && ep.midTime < rise) || (ep.endTime > set && ep.endTime < rise)));
                 } else {
                     ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.midTime > set && ep.midTime < rise));
                 }
-                FilteredTargets = retrievedTargets - ExoPlanetTargets.Count;
+                FilteredTargets = RetrievedTargets - ExoPlanetTargets.Count;
             }
 
             // check nautical
@@ -277,7 +324,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 } else {
                     ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.midTime > set && ep.midTime < rise));
                 }
-                FilteredTargets = retrievedTargets - ExoPlanetTargets.Count;
+                FilteredTargets = RetrievedTargets - ExoPlanetTargets.Count;
             }
 
             // check horizon
@@ -296,7 +343,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                         CheckAboveHorizon(horizon, ep.Coordinates(), ep.endTime)
                     ));
                 }
-                FilteredTargets = retrievedTargets - ExoPlanetTargets.Count;
+                FilteredTargets = RetrievedTargets - ExoPlanetTargets.Count;
             }
 
             // Check meridian
@@ -305,8 +352,10 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                     var meridianTime = GetMeridianTime(ep.Coordinates(), ep.startTime.AddHours(-1d));
                     return !(ep.startTime < meridianTime && ep.endTime > meridianTime);
                 }));
-                FilteredTargets = retrievedTargets - ExoPlanetTargets.Count;
+                FilteredTargets = RetrievedTargets - ExoPlanetTargets.Count;
             }
+
+            Logger.Debug($"Filters accepted {FilteredTargets} out of {RetrievedTargets} total targets. {RetrievedTargets - FilteredTargets} were removed");
         }
 
         private bool CheckAboveHorizon(CustomHorizon horizon, Coordinates coords, DateTime time) {
@@ -319,14 +368,9 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             return horizon != null ? horizon.GetAltitude(azimuth) < altitude : 0 < altitude;
         }
 
-        private class Dp {
-            public DateTime datetime { get; set; }
-            public double alt { get; set; }
-
-            public Dp(double alt, DateTime datetime) {
-                this.alt = alt;
-                this.datetime = datetime;
-            }
+        private class Dp(double alt, DateTime datetime) {
+            public DateTime Datetime { get; set; } = datetime;
+            public double Alt { get; set; } = alt;
         }
 
         private DateTime GetMeridianTime(Coordinates coords, DateTime startTime) {
@@ -334,7 +378,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             var siderealTime = AstroUtil.GetLocalSiderealTime(start, profileService.ActiveProfile.AstrometrySettings.Longitude);
             var hourAngle = AstroUtil.GetHourAngle(siderealTime, coords.RA);
 
-            List<Dp> altList = new List<Dp>();
+            var altList = new List<Dp>();
             for (double angle = hourAngle; angle < hourAngle + 24; angle += 0.1) {
                 var degAngle = AstroUtil.HoursToDegrees(angle);
                 var altitude = AstroUtil.GetAltitude(degAngle, profileService.ActiveProfile.AstrometrySettings.Latitude, coords.Dec);
@@ -343,35 +387,41 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 altList.Add(new Dp(altitude, start));
                 start = start.AddHours(0.1);
             }
-            return altList.OrderByDescending((x) => x.alt).FirstOrDefault().datetime;
+            return altList.OrderByDescending((x) => x.Alt).FirstOrDefault().Datetime;
         }
 
-        private void RetrieveTargetsFromExoClock() {
-            List<ExoClockTarget> targets = getExoClockDatabase();
+        private async Task RetrieveTargetsFromExoClock() {
+            List<ExoClockTarget> targets = await GetExoClockDatabase();
+            Logger.Debug($"Retrieved {targets.Count} targets from ExoClock");
+
+            var exoplanets = new AsyncObservableCollection<ExoPlanet>();
+
             foreach (ExoClockTarget target in targets) {
-                ExoPlanet exoPlanet = ExoClock2ExoPlanet(target);
-                ExoPlanetTargets.Add(exoPlanet);
+                exoplanets.Add(ExoClock2ExoPlanet(target));
             }
+
+            ExoPlanetTargets = exoplanets;
         }
 
-        private ExoPlanet ExoClock2ExoPlanet(ExoClockTarget item) {
-            ExoPlanet exoPlanet = new ExoPlanet();
-            exoPlanet.Name = item.name;
-            exoPlanet.coords = item.ra_j2000 + " " + item.dec_j2000;
+        private static ExoPlanet ExoClock2ExoPlanet(ExoClockTarget item) {
+            var exoPlanet = new ExoPlanet {
+                Name = item.name,
+                coords = item.ra_j2000 + " " + item.dec_j2000,
 
-            var latitude = profileService.ActiveProfile.AstrometrySettings.Latitude;
-            var longitude = profileService.ActiveProfile.AstrometrySettings.Longitude;
+                jd_start = item.TransitStart(),
+                jd_mid = item.TransitMidpoint(),
+                jd_end = item.TransitEnd(),
+            };
 
-            exoPlanet.jd_start = item.TransitStart();
-            exoPlanet.jd_mid = item.TransitMidpoint();
-            exoPlanet.jd_end = item.TransitEnd();
             exoPlanet.startTime = JulianToDateTime(exoPlanet.jd_start);
             exoPlanet.midTime = JulianToDateTime(exoPlanet.jd_mid);
             exoPlanet.endTime = JulianToDateTime(exoPlanet.jd_end);
             exoPlanet.V = item.v_mag;
             exoPlanet.depth = item.depth_r_mmag;
+
             exoPlanet.Comments = "Priority: " + item.priority + " Total obs/Recent: " + item.total_observations + "/" + item.total_observations_recent;
             exoPlanet.Comments += "\r\nMin aperture: " + item.min_telescope_inches;
+
             return exoPlanet;
         }
 
@@ -379,31 +429,28 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             return DateTime.FromOADate(julianDate - 2415018.5).ToLocalTime();
         }
 
-        private void RetrieveTargetsFromSwarthmore(int targetlist) {
-            WebRequest request = WebRequest.Create(CreateUrl(targetlist));
-            request.Timeout = 30 * 60 * 1000;
-            request.UseDefaultCredentials = true;
-            request.Proxy.Credentials = request.Credentials;
-            WebResponse response = (WebResponse)request.GetResponse();
-            ExoPlanetTargets.Clear();
-            using (var reader = new StreamReader(response.GetResponseStream()))
-            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture)) {
-                // Do any configuration to `CsvReader` before creating CsvDataReader.
-                using (var dr = new CsvDataReader(csv)) {
-                    csv.Context.RegisterClassMap<ExoPlanetMap>();
-                    var records = csv.GetRecords<ExoPlanet>();
-                    foreach (ExoPlanet record in records.ToList()) {
-                        record.startTime = record.startTime.ToLocalTime();
-                        record.midTime = record.midTime.ToLocalTime();
-                        record.endTime = record.endTime.ToLocalTime();
-                        record.jd_start += 2450000D; // Add the default deviation for swarthmore
-                        record.jd_mid += 2450000D;
-                        record.jd_end += 2450000D;
-                        ExoPlanetTargets.Add(record);
-                    }
-                    ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.OrderByDescending(i => i.pbto));
-                }
+        private async Task RetrieveTargetsFromSwarthmore(int targetlist) {
+            var response = await HttpRequest.HttpRequestAsync(CreateUrl(targetlist), HttpMethod.Get, CancellationToken.None);
+
+            using var reader = new StreamReader(await response.Content?.ReadAsStreamAsync());
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+            using var dr = new CsvDataReader(csv);
+            csv.Context.RegisterClassMap<ExoPlanetMap>();
+            var records = csv.GetRecords<ExoPlanet>();
+
+            var exoplanets = new AsyncObservableCollection<ExoPlanet>();
+
+            foreach (ExoPlanet record in records.ToList()) {
+                record.startTime = record.startTime.ToLocalTime();
+                record.midTime = record.midTime.ToLocalTime();
+                record.endTime = record.endTime.ToLocalTime();
+                record.jd_start += 2450000D; // Add the default deviation for swarthmore
+                record.jd_mid += 2450000D;
+                record.jd_end += 2450000D;
+                exoplanets.Add(record);
             }
+
+            ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(exoplanets.OrderByDescending(i => i.pbto));
         }
 
         private string CreateUrl(int targetlist) {
@@ -443,93 +490,28 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             return url;
         }
 
-        private static List<ExoClockTarget> getExoClockDatabase() {
+        private static async Task<List<ExoClockTarget>> GetExoClockDatabase() {
             var url = $"https://www.exoclock.space/database/planets_json";
-            WebRequest request = WebRequest.Create(url);
-            request.Timeout = 30 * 60 * 1000;
-            request.UseDefaultCredentials = true;
-            request.Proxy.Credentials = request.Credentials;
-            WebResponse response = (WebResponse)request.GetResponse();
+            var response = await HttpRequest.HttpRequestAsync(url, HttpMethod.Get, CancellationToken.None);
 
             var serializer = new JsonSerializer();
+            using var sr = new StreamReader(await response.Content?.ReadAsStreamAsync(), Encoding.UTF8);
+            using var jsonTextReader = new JsonTextReader(sr);
 
-            using (var sr = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
-            using (var jsonTextReader = new JsonTextReader(sr)) {
-                var exoPlanetDict = serializer.Deserialize<Dictionary<string, ExoClockTarget>>(jsonTextReader);
-                List<ExoClockTarget> exoClockTargets = exoPlanetDict.Select(item => item.Value).ToList();
-                return exoClockTargets;
-            }
-
-/*            // For debugging
-            ITraceWriter traceWriter = new MemoryTraceWriter();
-
-            var settings = new JsonSerializerSettings {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore,
-                Formatting = Formatting.None,
-                DateFormatHandling = DateFormatHandling.IsoDateFormat,
-                FloatParseHandling = FloatParseHandling.Decimal,
-                TraceWriter = traceWriter
-            };
-
-            using (Stream stream = response.GetResponseStream()) {
-                StreamReader reader = new StreamReader(stream, Encoding.UTF8);
-                String responseString = reader.ReadToEnd();
-                Dictionary<string, ExoClockTarget> exoClockTargets = JsonConvert.DeserializeObject<Dictionary<string,ExoClockTarget>>(responseString, settings);
-                return exoClockTargets;
-            }*/
+            var exoPlanetDict = serializer.Deserialize<Dictionary<string, ExoClockTarget>>(jsonTextReader);
+            List<ExoClockTarget> exoClockTargets = exoPlanetDict.Select(item => item.Value).ToList();
+            return exoClockTargets;
         }
 
         public NighttimeData NighttimeData { get; private set; }
 
-        public ICommand DropTargetCommand { get; set; }
         public ICommand LoadTargetsCommand { get; set; }
-        public ICommand LoadSingleTargetCommand { get; set; }
-        public ICommand SearchExoPlanetTargetsCommand { get; set; }
+        public ICommand CoordsToFramingCommand { get; set; }
 
-        [JsonProperty]
-        public ExoPlanetInputTarget ExoPlanetInputTarget {
-            get => _target;
-            set {
-                if (ExoPlanetInputTarget != null) {
-                    WeakEventManager<InputTarget, EventArgs>.RemoveHandler(ExoPlanetInputTarget, nameof(ExoPlanetInputTarget.CoordinatesChanged), Target_OnCoordinatesChanged);
-                    // ExoPlanetInputTarget.CoordinatesChanged -= Target_OnCoordinatesChanged;
-                }
-                _target = (ExoPlanetInputTarget)value;
-                if (ExoPlanetInputTarget != null) {
-                    WeakEventManager<InputTarget, EventArgs>.AddHandler(ExoPlanetInputTarget, nameof(ExoPlanetInputTarget.CoordinatesChanged), Target_OnCoordinatesChanged);
-                    // ExoPlanetInputTarget.CoordinatesChanged += Target_OnCoordinatesChanged;
-                }
-                RaisePropertyChanged();
-            }
-        }
-
-        [JsonProperty]
-        public InputTarget Target {
-            get => ExoPlanetInputTarget;
-            set {
-                ExoPlanetInputTarget.TargetName = value.TargetName;
-                ExoPlanetInputTarget.InputCoordinates = value.InputCoordinates;
-                ExoPlanetInputTarget.PositionAngle = value.PositionAngle;
-                ExoPlanetDSO.Coordinates = value.InputCoordinates.Coordinates;
-            }
-        }
 
         private void Target_OnCoordinatesChanged(object sender, EventArgs e) {
             ExoPlanetDSO.Coordinates = Target.InputCoordinates.Coordinates;
             AfterParentChanged();
-        }
-
-        public ICommand CoordsToFramingCommand { get; set; }
-
-        private async Task<bool> CoordsToFraming() {
-            if (Target.DeepSkyObject?.Coordinates != null) {
-                var dso = new DeepSkyObject(Target.DeepSkyObject.Name, Target.DeepSkyObject.Coordinates, profileService.ActiveProfile.ApplicationSettings.SkyAtlasImageRepository, profileService.ActiveProfile.AstrometrySettings.Horizon);
-                dso.RotationPositionAngle = Target.PositionAngle ;
-                applicationMediator.ChangeTab(ApplicationTab.FRAMINGASSISTANT);
-                return await framingAssistantVM.SetCoordinates(dso);
-            }
-            return false;
         }
 
         public override object Clone() {
