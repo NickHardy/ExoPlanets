@@ -257,7 +257,6 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             return Task.Run(async () => {
                 LoadingTargets = true;
                 ExoPlanetTargets.Clear();
-                ExoPlanetTargetsList.Clear();
 
                 switch (exoPlanetsPlugin.TargetList) {
                     case 0:
@@ -280,7 +279,14 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                         return false;
                 }
 
+                if (ExoPlanetTargets.Count == 0) {
+                    LoadingTargets = false;
+                    return false;
+                }
+
+                ExoPlanetTargetsList.Clear();
                 RetrievedTargets = ExoPlanetTargets.Count;
+
                 PreFilterTargets();
                 SearchExoPlanetTargets(null);
 
