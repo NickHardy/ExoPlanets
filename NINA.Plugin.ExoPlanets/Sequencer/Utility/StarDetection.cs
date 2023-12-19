@@ -153,7 +153,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             }
 
             internal static bool InsideCircle(double x, double y, double centerX, double centerY, double radius) {
-                return (Math.Pow(x - centerX, 2) + Math.Pow(y - centerY, 2) <= Math.Pow(radius, 2));
+                return Math.Pow(x - centerX, 2) + Math.Pow(y - centerY, 2) <= Math.Pow(radius, 2);
             }
 
             public DetectedStar ToDetectedStar() {
@@ -303,13 +303,13 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                 }
 
                 s.meanBrightness = starPixelSum / (double)starPixelCount;
-                double largeRectPixelCount = largeRect.Height * largeRect.Width - rect.Height * rect.Width;
+                double largeRectPixelCount = (largeRect.Height * largeRect.Width) - (rect.Height * rect.Width);
                 double largeRectMean = largeRectPixelSum / largeRectPixelCount;
                 s.SurroundingMean = largeRectMean;
-                double largeRectStdev = Math.Sqrt((largeRectPixelSumSquares - largeRectPixelCount * largeRectMean * largeRectMean) / largeRectPixelCount);
+                double largeRectStdev = Math.Sqrt((largeRectPixelSumSquares - (largeRectPixelCount * largeRectMean * largeRectMean)) / largeRectPixelCount);
                 int minimumNumberOfPixels = (int)Math.Ceiling(Math.Max(state._originalBitmapSource.PixelWidth, state._originalBitmapSource.PixelHeight) / 1000d);
 
-                if (s.meanBrightness >= largeRectMean + Math.Min(0.1 * largeRectMean, largeRectStdev) && innerStarPixelValues.Count(pv => pv > largeRectMean + 1.5 * largeRectStdev) > minimumNumberOfPixels) { //It's a local maximum, and has enough bright pixels, so likely to be a star. Let's add it to our star dictionary.
+                if (s.meanBrightness >= largeRectMean + Math.Min(0.1 * largeRectMean, largeRectStdev) && innerStarPixelValues.Count(pv => pv > largeRectMean + (1.5 * largeRectStdev)) > minimumNumberOfPixels) { //It's a local maximum, and has enough bright pixels, so likely to be a star. Let's add it to our star dictionary.
                     sumRadius += s.radius;
                     sumSquares += s.radius * s.radius;
                     s.CalculateHfr();

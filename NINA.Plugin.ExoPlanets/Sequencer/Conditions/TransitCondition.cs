@@ -13,19 +13,19 @@
 #endregion "copyright"
 
 using Newtonsoft.Json;
+using NINA.Astrometry.Interfaces;
+using NINA.Core.Utility;
+using NINA.Plugin.ExoPlanets.Model;
+using NINA.Plugin.ExoPlanets.Sequencer.Utility;
+using NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider;
+using NINA.Sequencer.Conditions;
 using NINA.Sequencer.SequenceItem;
 using NINA.Sequencer.Utility.DateTimeProvider;
-using NINA.Core.Utility;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Threading.Tasks;
-using NINA.Sequencer.Conditions;
-using NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider;
-using NINA.Plugin.ExoPlanets.Model;
-using NINA.Plugin.ExoPlanets.Sequencer.Utility;
-using NINA.Astrometry.Interfaces;
 using TimeProvider = NINA.Sequencer.Utility.DateTimeProvider.TimeProvider;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Conditions {
@@ -109,7 +109,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Conditions {
 
         public TimeSpan RemainingTime {
             get {
-                TimeSpan remaining = (CalculateRemainingTime() - DateTime.Now);
+                TimeSpan remaining = CalculateRemainingTime() - DateTime.Now;
                 if (remaining.TotalSeconds < 0) return new TimeSpan(0);
                 return remaining;
             }

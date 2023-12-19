@@ -51,10 +51,10 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                                     token.ThrowIfCancellationRequested();
                                     graphics.DrawEllipse(COMP_PEN, new RectangleF(star.BoundingBox.X, star.BoundingBox.Y, star.BoundingBox.Width, star.BoundingBox.Height));
                                     if (simbadStarListCount < 20) {
-                                        graphics.DrawString("C1 (" + star.Position.X.ToString("##") + "," + star.Position.Y.ToString("##") + ")", FONT, COMP_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - 1.5 * offset), Convert.ToSingle(star.Position.Y + 2.5 * offset)));
-                                        graphics.DrawString("max pixel: " + star.MaxBrightness.ToString("##"), FONT, COMP_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - 1.5 * offset), Convert.ToSingle(star.Position.Y + 5 * offset)));
+                                        graphics.DrawString("C1 (" + star.Position.X.ToString("##") + "," + star.Position.Y.ToString("##") + ")", FONT, COMP_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - (1.5 * offset)), Convert.ToSingle(star.Position.Y + (2.5 * offset))));
+                                        graphics.DrawString("max pixel: " + star.MaxBrightness.ToString("##"), FONT, COMP_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - (1.5 * offset)), Convert.ToSingle(star.Position.Y + (5 * offset))));
                                     } else {
-                                        graphics.DrawString("C1", FONT, COMP_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - 1.0 * offset), Convert.ToSingle(star.Position.Y + 1.5 * offset)));
+                                        graphics.DrawString("C1", FONT, COMP_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - (1.0 * offset)), Convert.ToSingle(star.Position.Y + (1.5 * offset))));
                                     }
                                 }
                             }
@@ -65,10 +65,10 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                                     token.ThrowIfCancellationRequested();
                                     graphics.DrawEllipse(COMP_PEN, new RectangleF(star.BoundingBox.X, star.BoundingBox.Y, star.BoundingBox.Width, star.BoundingBox.Height));
                                     if (starListCount < 20) {
-                                        graphics.DrawString("C2 (" + star.Position.X.ToString("##") + "," + star.Position.Y.ToString("##") + ")", FONT, COMP_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - 1.5 * offset), Convert.ToSingle(star.Position.Y + 2.5 * offset)));
-                                        graphics.DrawString("max pixel: " + star.MaxBrightness.ToString("##"), FONT, COMP_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - 1.5 * offset), Convert.ToSingle(star.Position.Y + 5 * offset)));
+                                        graphics.DrawString("C2 (" + star.Position.X.ToString("##") + "," + star.Position.Y.ToString("##") + ")", FONT, COMP_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - (1.5 * offset)), Convert.ToSingle(star.Position.Y + (2.5 * offset))));
+                                        graphics.DrawString("max pixel: " + star.MaxBrightness.ToString("##"), FONT, COMP_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - (1.5 * offset)), Convert.ToSingle(star.Position.Y + (5 * offset))));
                                     } else {
-                                        graphics.DrawString("C2", FONT, COMP_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - 1.0 * offset), Convert.ToSingle(star.Position.Y + 1.5 * offset)));
+                                        graphics.DrawString("C2", FONT, COMP_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - (1.0 * offset)), Convert.ToSingle(star.Position.Y + (1.5 * offset))));
                                     }
                                 }
                             }
@@ -79,10 +79,10 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                                     token.ThrowIfCancellationRequested();
                                     graphics.DrawEllipse(VAR_PEN, new RectangleF(star.BoundingBox.X, star.BoundingBox.Y, star.BoundingBox.Width, star.BoundingBox.Height));
                                     if (vStarListCount < 20) {
-                                        graphics.DrawString("V (" + star.Position.X.ToString("##") + "," + star.Position.Y.ToString("##") + ")", FONT, VAR_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - 1.5 * offset), Convert.ToSingle(star.Position.Y + 2.5 * offset)));
-                                        graphics.DrawString("max pixel: " + star.MaxBrightness.ToString("##"), FONT, VAR_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - 1.5 * offset), Convert.ToSingle(star.Position.Y + 5 * offset)));
+                                        graphics.DrawString("V (" + star.Position.X.ToString("##") + "," + star.Position.Y.ToString("##") + ")", FONT, VAR_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - (1.5 * offset)), Convert.ToSingle(star.Position.Y + (2.5 * offset))));
+                                        graphics.DrawString("max pixel: " + star.MaxBrightness.ToString("##"), FONT, VAR_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - (1.5 * offset)), Convert.ToSingle(star.Position.Y + (5 * offset))));
                                     } else {
-                                        graphics.DrawString("V", FONT, VAR_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - 1.0 * offset), Convert.ToSingle(star.Position.Y + 1.5 * offset)));
+                                        graphics.DrawString("V", FONT, VAR_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - (1.0 * offset)), Convert.ToSingle(star.Position.Y + (1.5 * offset))));
                                     }
                                 }
                             }
@@ -93,19 +93,19 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                                     token.ThrowIfCancellationRequested();
                                     graphics.DrawEllipse(AVG_PEN, new RectangleF(star.BoundingBox.X, star.BoundingBox.Y, star.BoundingBox.Width, star.BoundingBox.Height));
                                     if (avgStarListCount < 20) {
-                                        graphics.DrawString("A (" + star.Position.X.ToString("##") + "," + star.Position.Y.ToString("##") + ")", FONT, AVG_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - 1.5 * offset), Convert.ToSingle(star.Position.Y + 2.5 * offset)));
-                                        graphics.DrawString("avg pixel: " + star.AverageBrightness.ToString("##"), FONT, AVG_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - 1.5 * offset), Convert.ToSingle(star.Position.Y + 5 * offset)));
+                                        graphics.DrawString("A (" + star.Position.X.ToString("##") + "," + star.Position.Y.ToString("##") + ")", FONT, AVG_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - (1.5 * offset)), Convert.ToSingle(star.Position.Y + (2.5 * offset))));
+                                        graphics.DrawString("avg pixel: " + star.AverageBrightness.ToString("##"), FONT, AVG_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - (1.5 * offset)), Convert.ToSingle(star.Position.Y + (5 * offset))));
                                     } else {
-                                        graphics.DrawString("A", FONT, AVG_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - 1.0 * offset), Convert.ToSingle(star.Position.Y + 1.5 * offset)));
+                                        graphics.DrawString("A", FONT, AVG_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - (1.0 * offset)), Convert.ToSingle(star.Position.Y + (1.5 * offset))));
                                     }
                                 }
                             }
 
                             if (targetStar != null) {
                                 graphics.DrawEllipse(TARGET_PEN, new RectangleF(targetStar.BoundingBox.X, targetStar.BoundingBox.Y, targetStar.BoundingBox.Width, targetStar.BoundingBox.Height));
-                                graphics.DrawString("T (" + targetStar.Position.X.ToString("##") + "," + targetStar.Position.Y.ToString("##") + ")", FONT, TARGET_TEXTBRUSH, new PointF(Convert.ToSingle(targetStar.Position.X - offset - 1.5 * offset), Convert.ToSingle(targetStar.Position.Y + 2.5 * offset)));
-                                graphics.DrawString("max pixel: " + targetStar.MaxBrightness.ToString("##"), FONT, TARGET_TEXTBRUSH, new PointF(Convert.ToSingle(targetStar.Position.X - offset - 1.5 * offset), Convert.ToSingle(targetStar.Position.Y + 5 * offset)));
-                                graphics.DrawString("Exposure: " + exposuretime.ToString("##") + "s", FONT, TARGET_TEXTBRUSH, new PointF(Convert.ToSingle(targetStar.Position.X - offset - 1.5 * offset), Convert.ToSingle(targetStar.Position.Y + 7.5 * offset)));
+                                graphics.DrawString("T (" + targetStar.Position.X.ToString("##") + "," + targetStar.Position.Y.ToString("##") + ")", FONT, TARGET_TEXTBRUSH, new PointF(Convert.ToSingle(targetStar.Position.X - offset - (1.5 * offset)), Convert.ToSingle(targetStar.Position.Y + (2.5 * offset))));
+                                graphics.DrawString("max pixel: " + targetStar.MaxBrightness.ToString("##"), FONT, TARGET_TEXTBRUSH, new PointF(Convert.ToSingle(targetStar.Position.X - offset - (1.5 * offset)), Convert.ToSingle(targetStar.Position.Y + (5 * offset))));
+                                graphics.DrawString("Exposure: " + exposuretime.ToString("##") + "s", FONT, TARGET_TEXTBRUSH, new PointF(Convert.ToSingle(targetStar.Position.X - offset - (1.5 * offset)), Convert.ToSingle(targetStar.Position.Y + (7.5 * offset))));
                             }
 
                             if (annotationJpg != null)

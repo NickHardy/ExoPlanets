@@ -104,7 +104,7 @@ namespace NINA.Plugin.ExoPlanets.Model {
 
             var shiftedEpoch = epoch + (period * observedPhase);
             var cycle = Math.Floor((referenceJD - shiftedEpoch) / period);
-            var nextEvent = shiftedEpoch + period * (cycle + 1);
+            var nextEvent = shiftedEpoch + (period * (cycle + 1));
             var window = (span + OCRange) / 1440.0;
             jd_start = nextEvent - window;
             jd_mid = nextEvent;

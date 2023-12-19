@@ -14,10 +14,10 @@
 
 using CommunityToolkit.Mvvm.Input;
 using CsvHelper;
-using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
-using NINA.Astrometry.Interfaces;
+using Newtonsoft.Json.Serialization;
 using NINA.Astrometry;
+using NINA.Astrometry.Interfaces;
 using NINA.Core.Enum;
 using NINA.Core.Model;
 using NINA.Core.Utility;
@@ -26,14 +26,15 @@ using NINA.Plugin.ExoPlanets.Interfaces;
 using NINA.Plugin.ExoPlanets.Model;
 using NINA.Plugin.ExoPlanets.Utility;
 using NINA.Profile.Interfaces;
+using NINA.Sequencer;
 using NINA.Sequencer.Conditions;
-using NINA.Sequencer.Container.ExecutionStrategy;
 using NINA.Sequencer.Container;
+using NINA.Sequencer.Container.ExecutionStrategy;
 using NINA.Sequencer.SequenceItem;
 using NINA.Sequencer.Trigger;
-using NINA.Sequencer;
 using NINA.WPF.Base.Interfaces.Mediator;
 using NINA.WPF.Base.Interfaces.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
@@ -43,11 +44,10 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
-using System.Windows.Input;
+using System.Threading.Tasks;
 using System.Windows;
-using System;
+using System.Windows.Input;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
