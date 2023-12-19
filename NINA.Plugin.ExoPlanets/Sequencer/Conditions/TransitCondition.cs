@@ -75,11 +75,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Conditions {
             }
         }
 
-        public bool HasFixedTimeProvider {
-            get {
-                return selectedProvider != null && selectedProvider is not TimeProvider;
-            }
-        }
+        public bool HasFixedTimeProvider => selectedProvider is not null and not TimeProvider;
 
         [JsonProperty]
         public int Hours {

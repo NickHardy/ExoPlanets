@@ -13,7 +13,11 @@
 #endregion "copyright"
 
 using Newtonsoft.Json;
+using NINA.Astrometry.Interfaces;
 using NINA.Core.Model;
+using NINA.Plugin.ExoPlanets.Model;
+using NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider;
+using NINA.Sequencer.SequenceItem;
 using NINA.Sequencer.Utility.DateTimeProvider;
 using System;
 using System.Collections.Generic;
@@ -21,10 +25,6 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NINA.Sequencer.SequenceItem;
-using NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider;
-using NINA.Plugin.ExoPlanets.Model;
-using NINA.Astrometry.Interfaces;
 using TimeProvider = NINA.Sequencer.Utility.DateTimeProvider.TimeProvider;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
@@ -177,7 +177,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
         public bool Validate() {
             var i = new List<string>();
-            
+
             ExoPlanetDeepSkyObject exoPlanetDSO = ItemUtility.RetrieveExoPlanetDSO(this.Parent);
             if (exoPlanetDSO == null) {
                 i.Add("This instruction must be used within the ExoPlanet or VariableStar object container.");

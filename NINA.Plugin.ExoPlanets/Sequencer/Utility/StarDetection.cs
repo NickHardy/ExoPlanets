@@ -18,7 +18,9 @@ using Accord.Math.Geometry;
 using NINA.Core.Enum;
 using NINA.Core.Model;
 using NINA.Core.Utility;
+using NINA.Image.ImageAnalysis;
 using NINA.Image.ImageData;
+using NINA.Image.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -28,8 +30,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using NINA.Image.Interfaces;
-using NINA.Image.ImageAnalysis;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
@@ -68,13 +68,13 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             state._originalBitmapSource = renderedImage.Image;
 
             state._resizefactor = 1.0;
-/*            if (state.imageProperties.Width > _maxWidth) {
-                if (p.Sensitivity == StarSensitivityEnum.Highest) {
-                    state._resizefactor = Math.Max(0.625, (double)_maxWidth / state.imageProperties.Width);
-                } else {
-                    state._resizefactor = (double)_maxWidth / state.imageProperties.Width;
-                }
-            }*/
+            /*            if (state.imageProperties.Width > _maxWidth) {
+                            if (p.Sensitivity == StarSensitivityEnum.Highest) {
+                                state._resizefactor = Math.Max(0.625, (double)_maxWidth / state.imageProperties.Width);
+                            } else {
+                                state._resizefactor = (double)_maxWidth / state.imageProperties.Width;
+                            }
+                        }*/
             state._inverseResizefactor = 1.0 / state._resizefactor;
 
             state._minStarSize = (int)Math.Floor(5 * state._resizefactor);
@@ -97,7 +97,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
         }
 
         private BlobCounter _blobCounter;
-        
+
         public class Star {
             public double radius;
             public double HFR;
@@ -324,7 +324,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
             // Ensure we provide the list of detected stars, even if NumberOfAF stars is used
             detectedStars = starlist.Count;
-          
+
             return starlist.Select(s => s.ToDetectedStar()).ToList();
         }
 

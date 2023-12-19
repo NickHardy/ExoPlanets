@@ -13,8 +13,8 @@
 #endregion "copyright"
 
 using Newtonsoft.Json;
-using NINA.Core.Model;
 using NINA.Astrometry;
+using NINA.Core.Model;
 
 namespace NINA.Plugin.ExoPlanets.Model {
 

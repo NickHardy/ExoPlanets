@@ -15,9 +15,9 @@
     xmlns:mini="clr-namespace:NINA.View.Sequencer.MiniSequencer;assembly=NINA.Sequencer"
     xmlns:ninactrl="clr-namespace:NINA.CustomControlLibrary;assembly=NINA.CustomControlLibrary"
     xmlns:ns="clr-namespace:NINA.Core.Locale;assembly=NINA.Core"
-    xmlns:util="clr-namespace:NINA.Core.Utility;assembly=NINA.Core"
     xmlns:rules="clr-namespace:NINA.Core.Utility.ValidationRules;assembly=NINA.Core"
     xmlns:s="clr-namespace:System;assembly=mscorlib"
+    xmlns:util="clr-namespace:NINA.Core.Utility;assembly=NINA.Core"
     xmlns:view="clr-namespace:NINA.View.Sequencer;assembly=NINA.Sequencer">
 
     <DataTemplate DataType="{x:Type local:WaitForTransit}">
@@ -183,7 +183,7 @@
             SelectedValuePath="Name" />
 
         <!--  List of Gain  -->
-        <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <WrapPanel VerticalAlignment="Center" Orientation="Horizontal">
             <WrapPanel.Visibility>
                 <PriorityBinding>
                     <Binding
@@ -233,7 +233,7 @@
         </WrapPanel>
 
         <!--  Free Gain  -->
-        <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <WrapPanel VerticalAlignment="Center" Orientation="Horizontal">
             <WrapPanel.Visibility>
                 <PriorityBinding FallbackValue="Visible">
                     <Binding
@@ -283,7 +283,7 @@
         </WrapPanel>
 
         <!--  Offset  -->
-        <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <WrapPanel VerticalAlignment="Center" Orientation="Horizontal">
             <WrapPanel.Visibility>
                 <MultiBinding Converter="{StaticResource BooleanOrToVisibilityCollapsedMultiConverter}" FallbackValue="Visible">
                     <Binding
@@ -334,70 +334,79 @@
         </WrapPanel>
 
         <!--  Settings  -->
-        <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <WrapPanel VerticalAlignment="Center" Orientation="Horizontal">
             <TextBlock
                 Margin="7.5,0,7.5,0"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Text="|" />
             <TextBlock VerticalAlignment="Center" Text="Target ADU" />
-            <Slider 
-                    VerticalAlignment="Center"
-                    IsSnapToTickEnabled="True"
-                    Maximum="0.9"
-                    Minimum="0.1"
-                    TickFrequency="0.05"
-                    Value="{Binding TargetADU, UpdateSourceTrigger=PropertyChanged}" />
+            <Slider
+                VerticalAlignment="Center"
+                IsSnapToTickEnabled="True"
+                Maximum="0.9"
+                Minimum="0.1"
+                TickFrequency="0.05"
+                Value="{Binding TargetADU, UpdateSourceTrigger=PropertyChanged}" />
             <TextBlock
-                Margin="5,0,0,0"    
+                Margin="5,0,0,0"
                 VerticalAlignment="Center"
                 Text="{Binding TargetADU, Mode=OneWay, Converter={StaticResource PercentageConverter}}" />
-            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="%" />
             <TextBlock
-            Margin="7.5,0,7.5,0"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Text="|" />
-            <TextBlock VerticalAlignment="Center" Text="{ns:Loc LblSave}" />
-            <CheckBox
-                        MinWidth="40"
-                        Margin="5,0,0,0"
-                        VerticalAlignment="Center"
-                        IsChecked="{Binding SaveImages}" />
-            <TextBlock
-            Margin="7.5,0,7.5,0"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Text="|" />
-            <TextBlock VerticalAlignment="Center" Text="Update exposuretime" />
-            <CheckBox
-                        MinWidth="40"
-                        Margin="5,0,0,0"
-                        VerticalAlignment="Center"
-                        IsChecked="{Binding UpdateExposureTime}" />
-            <TextBlock
-            Margin="7.5,0,7.5,0"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Text="|" />
-        </WrapPanel>
-
-        <!--  Target star  -->
-        <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
-            <TextBlock VerticalAlignment="Center" Text="{ns:Loc LblTime}" />
-            <TextBlock
-                Margin="5,0,0,0"    
+                Margin="5,0,0,0"
                 VerticalAlignment="Center"
-                Text="{Binding ExposureTime, Mode=OneWay}" />
-            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="s" />
+                Text="%" />
             <TextBlock
                 Margin="7.5,0,7.5,0"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Text="|" />
-            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="Max pixel" />
+            <TextBlock VerticalAlignment="Center" Text="{ns:Loc LblSave}" />
+            <CheckBox
+                MinWidth="40"
+                Margin="5,0,0,0"
+                VerticalAlignment="Center"
+                IsChecked="{Binding SaveImages}" />
             <TextBlock
-                Margin="5,0,0,0"    
+                Margin="7.5,0,7.5,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Text="|" />
+            <TextBlock VerticalAlignment="Center" Text="Update exposuretime" />
+            <CheckBox
+                MinWidth="40"
+                Margin="5,0,0,0"
+                VerticalAlignment="Center"
+                IsChecked="{Binding UpdateExposureTime}" />
+            <TextBlock
+                Margin="7.5,0,7.5,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Text="|" />
+        </WrapPanel>
+
+        <!--  Target star  -->
+        <WrapPanel VerticalAlignment="Center" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center" Text="{ns:Loc LblTime}" />
+            <TextBlock
+                Margin="5,0,0,0"
+                VerticalAlignment="Center"
+                Text="{Binding ExposureTime, Mode=OneWay}" />
+            <TextBlock
+                Margin="5,0,0,0"
+                VerticalAlignment="Center"
+                Text="s" />
+            <TextBlock
+                Margin="7.5,0,7.5,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Text="|" />
+            <TextBlock
+                Margin="5,0,0,0"
+                VerticalAlignment="Center"
+                Text="Max pixel" />
+            <TextBlock
+                Margin="5,0,0,0"
                 VerticalAlignment="Center"
                 Text="{Binding TargetStar.MaxBrightness, Mode=OneWay}" />
             <TextBlock
@@ -405,9 +414,12 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Text="|" />
-            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="Position" />
             <TextBlock
-                Margin="5,0,0,0"    
+                Margin="5,0,0,0"
+                VerticalAlignment="Center"
+                Text="Position" />
+            <TextBlock
+                Margin="5,0,0,0"
                 VerticalAlignment="Center"
                 Text="{Binding TargetStarPosition, Mode=OneWay}" />
             <TextBlock
@@ -415,9 +427,12 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Text="|" />
-            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="Comparison stars" />
             <TextBlock
-                Margin="5,0,0,0"    
+                Margin="5,0,0,0"
+                VerticalAlignment="Center"
+                Text="Comparison stars" />
+            <TextBlock
+                Margin="5,0,0,0"
                 VerticalAlignment="Center"
                 Text="{Binding CompStarCount, Mode=OneWay}" />
         </WrapPanel>

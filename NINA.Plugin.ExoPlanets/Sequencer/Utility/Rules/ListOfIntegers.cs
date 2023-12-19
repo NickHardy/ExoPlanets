@@ -32,12 +32,10 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility.Rules {
         }
     }
 
-    public class FileExist : ValidationRule
-    {
-        public override ValidationResult Validate(object value, CultureInfo cultureInfo)
-        {
+    public class FileExist : ValidationRule {
+
+        public override ValidationResult Validate(object value, CultureInfo cultureInfo) {
             return new ValidationResult(true, null);
         }
     }
-
 }

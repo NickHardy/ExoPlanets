@@ -1,15 +1,10 @@
 ﻿using CsvHelper.Configuration;
-using Newtonsoft.Json;
 using NINA.Image.ImageAnalysis;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NINA.Plugin.ExoPlanets.Model {
+
     public class DetectedExoStar {
+
         public DetectedExoStar(DetectedStar ds, ExoPlanetInputTarget target) {
             this.type = "Target";
             this.HFR = ds.HFR;
@@ -21,6 +16,7 @@ namespace NINA.Plugin.ExoPlanets.Model {
             this.ra = target.InputCoordinates.Coordinates.RADegrees;
             this.dec = target.InputCoordinates.Coordinates.Dec;
         }
+
         public DetectedExoStar(DetectedStar ds, VSXObject vstar) {
             this.type = "Var";
             this.HFR = ds.HFR;
@@ -32,6 +28,7 @@ namespace NINA.Plugin.ExoPlanets.Model {
             this.ra = vstar.Coordinates().RADegrees;
             this.dec = vstar.Coordinates().Dec;
         }
+
         public DetectedExoStar(DetectedStar ds, SimbadCompStar cstar) {
             this.type = "Comp1";
             this.HFR = ds.HFR;
@@ -43,6 +40,7 @@ namespace NINA.Plugin.ExoPlanets.Model {
             this.ra = cstar.ra;
             this.dec = cstar.dec;
         }
+
         public DetectedExoStar(DetectedStar ds, ComparisonStar cstar) {
             this.type = "Comp2";
             this.HFR = ds.HFR;
@@ -65,6 +63,7 @@ namespace NINA.Plugin.ExoPlanets.Model {
         public double ra { get; set; }
         public double dec { get; set; }
     }
+
     public sealed class DetectedStarMap : ClassMap<DetectedExoStar> {
 
         public DetectedStarMap() {

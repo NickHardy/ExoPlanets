@@ -1,11 +1,8 @@
 ﻿using NINA.Astrometry;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NINA.Plugin.ExoPlanets.Model {
+
     // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
     public class Root {
         public VSXObjects VSXObjects { get; set; }
@@ -41,6 +38,4 @@ namespace NINA.Plugin.ExoPlanets.Model {
     public class VSXObjects {
         public List<VSXObject> VSXObject { get; set; }
     }
-
-
 }

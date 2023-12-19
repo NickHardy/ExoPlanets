@@ -14,55 +14,42 @@
 
 using Accord.Statistics.Models.Regression.Linear;
 using CsvHelper;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using NINA.Astrometry;
 using NINA.Core.Enum;
 using NINA.Core.Locale;
-using NINA.Core.Model.Equipment;
 using NINA.Core.Model;
-using NINA.Core.Utility.Notification;
+using NINA.Core.Model.Equipment;
 using NINA.Core.Utility;
+using NINA.Core.Utility.Notification;
 using NINA.Equipment.Equipment.MyCamera;
 using NINA.Equipment.Interfaces.Mediator;
-using NINA.Equipment.Interfaces.ViewModel;
 using NINA.Equipment.Model;
 using NINA.Image.ImageAnalysis;
 using NINA.PlateSolving;
 using NINA.Plugin.ExoPlanets.Model;
 using NINA.Plugin.ExoPlanets.Utility;
 using NINA.Profile.Interfaces;
-using NINA.Sequencer.Container;
-using NINA.Sequencer.Interfaces;
 using NINA.Sequencer.SequenceItem;
 using NINA.Sequencer.Validations;
-using NINA.ViewModel.Interfaces;
 using NINA.WPF.Base.Interfaces.Mediator;
 using NINA.WPF.Base.Interfaces.ViewModel;
-using static NINA.Astrometry.Coordinates;
-using static NINA.Equipment.Model.CaptureSequence;
+using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel.Composition;
 using System.Data;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Net;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
+using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
-using System.Xml.XPath;
-using System.Xml;
-using System;
+using static NINA.Astrometry.Coordinates;
+using static NINA.Equipment.Model.CaptureSequence;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
@@ -264,7 +251,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
         }
 
         private DetectedStar _targetStar;
-        
+
         public DetectedStar TargetStar {
             get => _targetStar;
             set {
@@ -274,6 +261,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
         }
 
         public string _targetStarPosition;
+
         public string TargetStarPosition {
             get => _targetStarPosition;
             set {
@@ -316,7 +304,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
         }
 
         private int _compStarCount;
-        
+
         public int CompStarCount {
             get => _compStarCount;
             set {

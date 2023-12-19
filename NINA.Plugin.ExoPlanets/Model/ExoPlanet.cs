@@ -12,54 +12,67 @@
 
 #endregion "copyright"
 
-using Newtonsoft.Json;
-using NINA.Core.Model;
-using NINA.Astrometry;
 using CsvHelper.Configuration;
+using Newtonsoft.Json;
+using NINA.Astrometry;
 using System;
 
 namespace NINA.Plugin.ExoPlanets.Model {
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class ExoPlanet{
+    public class ExoPlanet {
+
         [JsonProperty]
         public string Name { get; set; }
+
         [JsonProperty]
         public string Comments { get; set; }
+
         [JsonProperty]
         public double V { get; set; }
+
         [JsonProperty]
         public DateTime startTime { get; set; }
+
         [JsonProperty]
         public DateTime midTime { get; set; }
+
         [JsonProperty]
         public DateTime endTime { get; set; }
+
         [JsonProperty]
         public double jd_start { get; set; }
+
         [JsonProperty]
         public double jd_mid { get; set; }
+
         [JsonProperty]
         public double jd_end { get; set; }
+
         [JsonProperty]
         public string coords { get; set; }
+
         [JsonProperty]
         public double depth { get; set; }
+
         [JsonProperty]
         public int pto { get; set; }
+
         [JsonProperty]
         public int pbo { get; set; }
+
         [JsonProperty]
         public double pbto { get { return pto + pbo + depth; } }
-        
+
         public Coordinates Coordinates() {
             string RaString = this.coords.Split(' ')[0];
             string DecString = this.coords.Split(' ')[1];
             return new Coordinates(Angle.ByDegree(AstroUtil.HMSToDegrees(RaString)), Angle.ByDegree(AstroUtil.DMSToDegrees(DecString)), Epoch.J2000);
         }
 
-
         [JsonProperty]
         public double Altitude { get; set; }
+
         [JsonProperty]
         public double Azimuth { get; set; }
 
@@ -71,7 +84,6 @@ namespace NINA.Plugin.ExoPlanets.Model {
             Altitude = AstroUtil.GetAltitude(degAngle, latitude, Coordinates().Dec);
             Azimuth = AstroUtil.GetAzimuth(degAngle, Altitude, latitude, Coordinates().Dec);
         }
-
     }
 
     public sealed class ExoPlanetMap : ClassMap<ExoPlanet> {

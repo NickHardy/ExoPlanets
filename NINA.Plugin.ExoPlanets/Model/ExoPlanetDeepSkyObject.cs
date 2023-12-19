@@ -14,14 +14,11 @@
 
 using Newtonsoft.Json;
 using NINA.Astrometry;
-using NINA.Astrometry.Body;
-using NINA.Astrometry.RiseAndSet;
 using NINA.Core.Model;
 using OxyPlot;
 using OxyPlot.Axes;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace NINA.Plugin.ExoPlanets.Model {
 
@@ -48,7 +45,6 @@ namespace NINA.Plugin.ExoPlanets.Model {
                 RaisePropertyChanged();
             }
         }
-
 
         [JsonProperty]
         public List<DataPoint> LightCurve {

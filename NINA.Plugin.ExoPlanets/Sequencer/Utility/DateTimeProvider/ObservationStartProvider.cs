@@ -13,18 +13,11 @@
 #endregion "copyright"
 
 using Newtonsoft.Json;
-using NINA.Profile.Interfaces;
-using NINA.Core.Utility;
-using NINA.Astrometry;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NINA.Core.Locale;
-using NINA.Sequencer.Utility.DateTimeProvider;
-using NINA.Sequencer;
 using NINA.Astrometry.Interfaces;
+using NINA.Core.Utility;
+using NINA.Sequencer;
+using NINA.Sequencer.Utility.DateTimeProvider;
+using System;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider {
 
