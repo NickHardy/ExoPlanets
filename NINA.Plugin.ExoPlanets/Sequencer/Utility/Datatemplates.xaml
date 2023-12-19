@@ -351,11 +351,7 @@
             <TextBlock
                 Margin="5,0,0,0"
                 VerticalAlignment="Center"
-                Text="{Binding TargetADU, Mode=OneWay, Converter={StaticResource PercentageConverter}}" />
-            <TextBlock
-                Margin="5,0,0,0"
-                VerticalAlignment="Center"
-                Text="%" />
+                Text="{Binding TargetADU, Mode=OneWay, StringFormat='{}{0:0}%', Converter={StaticResource PercentageConverter}}" />
             <TextBlock
                 Margin="7.5,0,7.5,0"
                 HorizontalAlignment="Center"
