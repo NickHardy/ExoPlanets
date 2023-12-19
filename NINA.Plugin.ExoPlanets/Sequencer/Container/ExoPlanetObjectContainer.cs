@@ -21,6 +21,7 @@ using NINA.Astrometry.Interfaces;
 using NINA.Core.Enum;
 using NINA.Core.Model;
 using NINA.Core.Utility;
+using NINA.Core.Utility.Notification;
 using NINA.Equipment.Interfaces;
 using NINA.Plugin.ExoPlanets.Interfaces;
 using NINA.Plugin.ExoPlanets.Model;
@@ -431,24 +432,31 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
         }
 
         private async Task RetrieveTargetsFromSwarthmore(int targetlist) {
-            var response = await HttpRequest.HttpRequestAsync(CreateUrl(targetlist), HttpMethod.Get, CancellationToken.None);
-
-            using var reader = new StreamReader(await response.Content?.ReadAsStreamAsync());
-            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-            using var dr = new CsvDataReader(csv);
-            csv.Context.RegisterClassMap<ExoPlanetMap>();
-            var records = csv.GetRecords<ExoPlanet>();
-
             var exoplanets = new AsyncObservableCollection<ExoPlanet>();
 
-            foreach (ExoPlanet record in records.ToList()) {
-                record.startTime = record.startTime.ToLocalTime();
-                record.midTime = record.midTime.ToLocalTime();
-                record.endTime = record.endTime.ToLocalTime();
-                record.jd_start += 2450000D; // Add the default deviation for swarthmore
-                record.jd_mid += 2450000D;
-                record.jd_end += 2450000D;
-                exoplanets.Add(record);
+            try {
+                var response = await HttpRequest.HttpRequestAsync(CreateUrl(targetlist), HttpMethod.Get, CancellationToken.None);
+
+                using var reader = new StreamReader(await response.Content?.ReadAsStreamAsync());
+                using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+                using var dr = new CsvDataReader(csv);
+                csv.Context.RegisterClassMap<ExoPlanetMap>();
+                var records = csv.GetRecords<ExoPlanet>();
+
+                foreach (ExoPlanet record in records.ToList()) {
+                    record.startTime = record.startTime.ToLocalTime();
+                    record.midTime = record.midTime.ToLocalTime();
+                    record.endTime = record.endTime.ToLocalTime();
+                    record.jd_start += 2450000D; // Add the default deviation for swarthmore
+                    record.jd_mid += 2450000D;
+                    record.jd_end += 2450000D;
+                    exoplanets.Add(record);
+                }
+            } catch (Exception ex) {
+                var errorStr = "Error retrieving targets from Swarthmore";
+                Logger.Error(ex, errorStr);
+                Notification.ShowError(errorStr);
+                return;
             }
 
             ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(exoplanets.OrderByDescending(i => i.pbto));
@@ -492,15 +500,25 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
         }
 
         private static async Task<List<ExoClockTarget>> GetExoClockDatabase() {
+            List<ExoClockTarget> exoClockTargets;
             var url = $"https://www.exoclock.space/database/planets_json";
-            var response = await HttpRequest.HttpRequestAsync(url, HttpMethod.Get, CancellationToken.None);
 
-            var serializer = new JsonSerializer();
-            using var sr = new StreamReader(await response.Content?.ReadAsStreamAsync(), Encoding.UTF8);
-            using var jsonTextReader = new JsonTextReader(sr);
+            try {
+                var response = await HttpRequest.HttpRequestAsync(url, HttpMethod.Get, CancellationToken.None);
 
-            var exoPlanetDict = serializer.Deserialize<Dictionary<string, ExoClockTarget>>(jsonTextReader);
-            List<ExoClockTarget> exoClockTargets = exoPlanetDict.Select(item => item.Value).ToList();
+                var serializer = new JsonSerializer();
+                using var sr = new StreamReader(await response.Content?.ReadAsStreamAsync(), Encoding.UTF8);
+                using var jsonTextReader = new JsonTextReader(sr);
+
+                var exoPlanetDict = serializer.Deserialize<Dictionary<string, ExoClockTarget>>(jsonTextReader);
+                exoClockTargets = exoPlanetDict.Select(item => item.Value).ToList();
+            } catch (Exception ex) {
+                var errorStr = "Error retrieving targets from ExoClock";
+                Logger.Error(ex, errorStr);
+                Notification.ShowError(errorStr);
+                return [];
+            }
+
             return exoClockTargets;
         }
 

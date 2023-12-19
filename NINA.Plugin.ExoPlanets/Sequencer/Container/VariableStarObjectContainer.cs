@@ -22,6 +22,7 @@ using NINA.Astrometry.Interfaces;
 using NINA.Core.Enum;
 using NINA.Core.Model;
 using NINA.Core.Utility;
+using NINA.Core.Utility.Notification;
 using NINA.Equipment.Interfaces;
 using NINA.Plugin.ExoPlanets.Interfaces;
 using NINA.Plugin.ExoPlanets.Model;
@@ -403,6 +404,13 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
         }
 
         private Task RetrieveTargetsFromFile(string fileName) {
+            if (!File.Exists(fileName)) {
+                var errorStr = $"Variable star list {fileName} does not exist.";
+                Logger.Error(errorStr);
+                Notification.ShowError(errorStr);
+                return Task.CompletedTask;
+            }
+
             var sunSetLocal = NighttimeData.TwilightRiseAndSet.Set ?? DateTime.Now;
             var sunRiseLocal = NighttimeData.TwilightRiseAndSet.Rise ?? DateTime.Now;
 
@@ -420,6 +428,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             var config = new CsvConfiguration(CultureInfo.InvariantCulture) {
                 MissingFieldFound = null,
             };
+
             using (var reader = new StreamReader(fileName))
             using (var csv = new CsvReader(reader, config)) {
                 csv.Context.RegisterClassMap<VarStarMap>();
