@@ -419,8 +419,9 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             exoPlanet.V = item.v_mag;
             exoPlanet.depth = item.depth_r_mmag;
 
-            exoPlanet.Comments = "Priority: " + item.priority + " Total obs/Recent: " + item.total_observations + "/" + item.total_observations_recent;
-            exoPlanet.Comments += "\r\nMin aperture: " + item.min_telescope_inches;
+            exoPlanet.Comments = $"Priority: {item.priority}{Environment.NewLine}";
+            exoPlanet.Comments += $"Total obs./Recent: {item.total_observations}/{item.total_observations_recent}{Environment.NewLine}";
+            exoPlanet.Comments += $"Min. aperture: {item.min_telescope_inches * 25.4:N1}mm / {item.min_telescope_inches:N1}\"";
 
             return exoPlanet;
         }
