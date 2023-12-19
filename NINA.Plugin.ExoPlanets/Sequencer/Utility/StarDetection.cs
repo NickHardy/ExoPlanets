@@ -181,53 +181,57 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
         public async Task<StarDetectionResult> Detect(IRenderedImage image, PixelFormat pf, StarDetectionParams p, IProgress<ApplicationStatus> progress, CancellationToken token) {
             var result = new StarDetectionResult();
             Bitmap _bitmapToAnalyze = null;
-            try {
-                using (MyStopWatch.Measure()) {
-                    progress?.Report(new ApplicationStatus() { Status = "Preparing image for star detection" });
 
-                    var state = GetInitialState(image, pf, p);
-                    _bitmapToAnalyze = ImageUtility.Convert16BppTo8Bpp(state._originalBitmapSource);
+            await Task.Run(() => {
+                try {
+                    using (MyStopWatch.Measure()) {
+                        progress?.Report(new ApplicationStatus() { Status = "Preparing image for star detection" });
 
-                    token.ThrowIfCancellationRequested();
+                        var state = GetInitialState(image, pf, p);
+                        _bitmapToAnalyze = ImageUtility.Convert16BppTo8Bpp(state._originalBitmapSource);
 
-                    /* Resize to speed up manipulation */
-                    _bitmapToAnalyze = DetectionUtility.ResizeForDetection(_bitmapToAnalyze, _maxWidth, state._resizefactor);
+                        token.ThrowIfCancellationRequested();
 
-                    /* prepare image for structure detection */
-                    PrepareForStructureDetection(_bitmapToAnalyze, p, state, token);
+                        /* Resize to speed up manipulation */
+                        _bitmapToAnalyze = DetectionUtility.ResizeForDetection(_bitmapToAnalyze, _maxWidth, state._resizefactor);
 
-                    progress?.Report(new ApplicationStatus() { Status = "Detecting structures" });
+                        /* prepare image for structure detection */
+                        PrepareForStructureDetection(_bitmapToAnalyze, p, state, token);
 
-                    /* get structure info */
-                    _blobCounter = DetectStructures(_bitmapToAnalyze, token);
+                        progress?.Report(new ApplicationStatus() { Status = "Detecting structures" });
 
-                    progress?.Report(new ApplicationStatus() { Status = "Analyzing stars" });
+                        /* get structure info */
+                        _blobCounter = DetectStructures(_bitmapToAnalyze, token);
 
-                    result.StarList = IdentifyStars(p, state, _bitmapToAnalyze, result, token, out var detectedStars);
+                        progress?.Report(new ApplicationStatus() { Status = "Analyzing stars" });
 
-                    token.ThrowIfCancellationRequested();
+                        result.StarList = IdentifyStars(p, state, _bitmapToAnalyze, result, token, out var detectedStars);
 
-                    if (result.StarList.Count > 0) {
-                        var mean = (from star in result.StarList select star.HFR).Average();
-                        var stdDev = double.NaN;
-                        if (result.StarList.Count > 1) {
-                            stdDev = Math.Sqrt((from star in result.StarList select (star.HFR - mean) * (star.HFR - mean)).Sum() / (result.StarList.Count - 1));
+                        token.ThrowIfCancellationRequested();
+
+                        if (result.StarList.Count > 0) {
+                            var mean = (from star in result.StarList select star.HFR).Average();
+                            var stdDev = double.NaN;
+                            if (result.StarList.Count > 1) {
+                                stdDev = Math.Sqrt((from star in result.StarList select (star.HFR - mean) * (star.HFR - mean)).Sum() / (result.StarList.Count - 1));
+                            }
+
+                            Logger.Info($"Average HFR: {mean}, HFR σ: {stdDev}, Detected Stars {detectedStars}");
+
+                            result.AverageHFR = mean;
+                            result.HFRStdDev = stdDev;
+                            result.DetectedStars = detectedStars;
                         }
 
-                        Logger.Info($"Average HFR: {mean}, HFR σ: {stdDev}, Detected Stars {detectedStars}");
-
-                        result.AverageHFR = mean;
-                        result.HFRStdDev = stdDev;
-                        result.DetectedStars = detectedStars;
+                        _blobCounter = null;
                     }
-
-                    _blobCounter = null;
+                } catch (OperationCanceledException) {
+                } finally {
+                    progress?.Report(new ApplicationStatus() { Status = string.Empty });
+                    _bitmapToAnalyze?.Dispose();
                 }
-            } catch (OperationCanceledException) {
-            } finally {
-                progress?.Report(new ApplicationStatus() { Status = string.Empty });
-                _bitmapToAnalyze?.Dispose();
-            }
+            }, token);
+
             return result;
         }
 
