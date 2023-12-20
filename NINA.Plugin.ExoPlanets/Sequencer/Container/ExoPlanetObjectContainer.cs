@@ -205,6 +205,10 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             }
         }
 
+        public DateTime StartTimeUtc => SelectedExoPlanet.startTime.ToUniversalTime();
+        public DateTime EndTimeUtc => SelectedExoPlanet.endTime.ToUniversalTime();
+        public TimeSpan TransitDuration => SelectedExoPlanet.endTime.Subtract(SelectedExoPlanet.startTime);
+
         [RelayCommand]
         private void LoadSingleTarget(object obj) {
             if (SelectedExoPlanet != null && SelectedExoPlanet?.Name != null) {

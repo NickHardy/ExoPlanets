@@ -392,6 +392,22 @@
                                     Grid.Column="1"
                                     Margin="0,5,0,0"
                                     Orientation="Horizontal">
+                                    <StackPanel.ToolTip>
+                                        <ToolTip ToolTipService.ShowOnDisabled="False">
+                                            <StackPanel Orientation="Vertical">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Start / End (UTC):" MinWidth="100"  FontWeight="SemiBold" />
+                                                    <TextBlock Text="{Binding StartTimeUtc, StringFormat='{}{0:HH:mm}'}" Margin="5,0,0,0" />
+                                                    <TextBlock Text="/" Margin="5,0,0,0" />
+                                                    <TextBlock Text="{Binding EndTimeUtc, StringFormat='{}{0:HH:mm}'}" Margin="5,0,0,0" />
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Transit duration:" MinWidth="100" FontWeight="SemiBold" />
+                                                    <TextBlock Text="{Binding TransitDuration, StringFormat='{}{0:g}'}" Margin="5,0,0,0" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </ToolTip>
+                                    </StackPanel.ToolTip>
                                     <TextBlock
                                         Margin="5,0,0,0"
                                         VerticalAlignment="Center"
