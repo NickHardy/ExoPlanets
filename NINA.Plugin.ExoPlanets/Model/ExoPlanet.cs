@@ -50,7 +50,7 @@ namespace NINA.Plugin.ExoPlanets.Model {
         public double jd_end { get; set; }
 
         [JsonProperty]
-        public string coords { get; set; }
+        public Coordinates coords { get; set; }
 
         [JsonProperty]
         public double depth { get; set; }
@@ -64,12 +64,6 @@ namespace NINA.Plugin.ExoPlanets.Model {
         [JsonProperty]
         public double pbto { get { return pto + pbo + depth; } }
 
-        public Coordinates Coordinates() {
-            string RaString = this.coords.Split(' ')[0];
-            string DecString = this.coords.Split(' ')[1];
-            return new Coordinates(Angle.ByDegree(AstroUtil.HMSToDegrees(RaString)), Angle.ByDegree(AstroUtil.DMSToDegrees(DecString)), Epoch.J2000);
-        }
-
         [JsonProperty]
         public double Altitude { get; set; }
 
@@ -78,11 +72,11 @@ namespace NINA.Plugin.ExoPlanets.Model {
 
         public void CalculateAltAz(double latitude, double longitude) {
             var siderealTime = AstroUtil.GetLocalSiderealTime(midTime, longitude);
-            var hourAngle = AstroUtil.GetHourAngle(siderealTime, Coordinates().RA);
+            var hourAngle = AstroUtil.GetHourAngle(siderealTime, coords.RA);
 
             var degAngle = AstroUtil.HoursToDegrees(hourAngle);
-            Altitude = AstroUtil.GetAltitude(degAngle, latitude, Coordinates().Dec);
-            Azimuth = AstroUtil.GetAzimuth(degAngle, Altitude, latitude, Coordinates().Dec);
+            Altitude = AstroUtil.GetAltitude(degAngle, latitude, coords.Dec);
+            Azimuth = AstroUtil.GetAzimuth(degAngle, Altitude, latitude, coords.Dec);
         }
     }
 

@@ -213,10 +213,10 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
         private void LoadSingleTarget(object obj) {
             if (SelectedExoPlanet != null && SelectedExoPlanet?.Name != null) {
                 Target.TargetName = SelectedExoPlanet.Name;
-                Target.InputCoordinates.Coordinates = SelectedExoPlanet.Coordinates();
-                Target.DeepSkyObject.Coordinates = SelectedExoPlanet.Coordinates();
+                Target.InputCoordinates.Coordinates = SelectedExoPlanet.coords;
+                Target.DeepSkyObject.Coordinates = SelectedExoPlanet.coords;
 
-                ExoPlanetDSO.Coordinates = SelectedExoPlanet.Coordinates();
+                ExoPlanetDSO.Coordinates = SelectedExoPlanet.coords;
                 ExoPlanetDSO.Magnitude = SelectedExoPlanet.V;
                 ExoPlanetDSO.SetTransit(SelectedExoPlanet.jd_start, SelectedExoPlanet.jd_mid, SelectedExoPlanet.jd_end, SelectedExoPlanet.depth);
                 RaiseAllPropertiesChanged();
@@ -347,15 +347,15 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 Core.Model.CustomHorizon horizon = profileService.ActiveProfile.AstrometrySettings.Horizon;
                 if (exoPlanetsPlugin.PartialTransits) {
                     ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep =>
-                        CheckAboveHorizon(horizon, ep.Coordinates(), ep.startTime) ||
-                        CheckAboveHorizon(horizon, ep.Coordinates(), ep.midTime) ||
-                        CheckAboveHorizon(horizon, ep.Coordinates(), ep.endTime)
+                        CheckAboveHorizon(horizon, ep.coords, ep.startTime) ||
+                        CheckAboveHorizon(horizon, ep.coords, ep.midTime) ||
+                        CheckAboveHorizon(horizon, ep.coords, ep.endTime)
                     ));
                 } else {
                     ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep =>
-                        CheckAboveHorizon(horizon, ep.Coordinates(), ep.startTime) &&
-                        CheckAboveHorizon(horizon, ep.Coordinates(), ep.midTime) &&
-                        CheckAboveHorizon(horizon, ep.Coordinates(), ep.endTime)
+                        CheckAboveHorizon(horizon, ep.coords, ep.startTime) &&
+                        CheckAboveHorizon(horizon, ep.coords, ep.midTime) &&
+                        CheckAboveHorizon(horizon, ep.coords, ep.endTime)
                     ));
                 }
                 FilteredTargets = RetrievedTargets - ExoPlanetTargets.Count;
@@ -364,7 +364,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             // Check meridian
             if (exoPlanetsPlugin.WithoutMeridianFlip) {
                 ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => {
-                    var meridianTime = GetMeridianTime(ep.Coordinates(), ep.startTime.AddHours(-1d));
+                    var meridianTime = GetMeridianTime(ep.coords, ep.startTime.AddHours(-1d));
                     return !(ep.startTime < meridianTime && ep.endTime > meridianTime);
                 }));
                 FilteredTargets = RetrievedTargets - ExoPlanetTargets.Count;
@@ -421,7 +421,9 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
         private static ExoPlanet ExoClock2ExoPlanet(ExoClockTarget item) {
             var exoPlanet = new ExoPlanet {
                 Name = item.name,
-                coords = item.ra_j2000 + " " + item.dec_j2000,
+                coords = new Coordinates(Angle.ByDegree(AstroUtil.HMSToDegrees(item.ra_j2000)),
+                                         Angle.ByDegree(AstroUtil.DMSToDegrees(item.dec_j2000)),
+                                         Epoch.J2000),
 
                 jd_start = item.TransitStart(),
                 jd_mid = item.TransitMidpoint(),
