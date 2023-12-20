@@ -304,6 +304,10 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             // start with 0 filtered targets
             FilteredTargets = 0;
 
+            // Check if transit has already finished
+            ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.endTime > DateTime.Now));
+            FilteredTargets = RetrievedTargets - ExoPlanetTargets.Count;
+
             // Check magnitude
             if (exoPlanetsPlugin.CheckMagnitude) {
                 ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.V < exoPlanetsPlugin.MaxMagnitude));
