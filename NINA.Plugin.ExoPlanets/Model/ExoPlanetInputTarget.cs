@@ -13,17 +13,13 @@
 #endregion "copyright"
 
 using Newtonsoft.Json;
-using NINA.Core.Model;
 using NINA.Astrometry;
+using NINA.Core.Model;
 
 namespace NINA.Plugin.ExoPlanets.Model {
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class ExoPlanetInputTarget : InputTarget {
-
-        public ExoPlanetInputTarget(Angle latitude, Angle longitude, CustomHorizon horizon) : base(latitude, longitude, horizon) {
-        }
-
+    public class ExoPlanetInputTarget(Angle latitude, Angle longitude, CustomHorizon horizon) : InputTarget(latitude, longitude, horizon) {
         private ExoPlanetDeepSkyObject exoPlanetdeepSkyObject;
 
         public ExoPlanetDeepSkyObject ExoPlanetDeepSkyObject {

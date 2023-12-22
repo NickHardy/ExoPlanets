@@ -17,13 +17,13 @@
     <!--  In order for this datatemplate to be picked correctly, the key has to follow the naming convention of <IPlugin.Name>_Options -->
     <!--  Furthermore the Resource Dictionary has to be exported via code behind export attributes  -->
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="resources/SVGDictionary.xaml"/>
+        <ResourceDictionary Source="resources/SVGDictionary.xaml" />
     </ResourceDictionary.MergedDictionaries>
     <DataTemplate x:Key="ExoPlanets_Options">
         <TabControl
-                Grid.Row="3"
-                Style="{StaticResource SecondLevelTabControl}"
-                TabStripPlacement="Left">
+            Grid.Row="3"
+            Style="{StaticResource SecondLevelTabControl}"
+            TabStripPlacement="Left">
             <TabItem>
                 <TabItem.Header>
                     <Grid>
@@ -41,9 +41,9 @@
                             </Grid>
                         </Grid>
                         <TextBlock
-                                Grid.Row="1"
-                                Style="{StaticResource SideBarTextBlock}"
-                                Text="Targets" />
+                            Grid.Row="1"
+                            Style="{StaticResource SideBarTextBlock}"
+                            Text="Targets" />
                     </Grid>
                 </TabItem.Header>
                 <TabItem.Content>
@@ -64,10 +64,15 @@
                             <RowDefinition MinHeight="25" />
                             <RowDefinition MinHeight="25" />
                         </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Select target list" />
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Text="Select target list" />
                         <ComboBox
-                            Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
                             Name="TargetList"
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Grid.ColumnSpan="2"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Center"
                             SelectedIndex="{Binding TargetList}">
@@ -145,7 +150,7 @@
                             HorizontalAlignment="Left"
                             VerticalAlignment="Center"
                             IsChecked="{Binding AboveHorizon}" />
-                                    <TextBlock
+                        <TextBlock
                             Grid.Row="6"
                             VerticalAlignment="Center"
                             Text="Exclude transits that contain a meridian flip?" />
@@ -170,9 +175,15 @@
                             VerticalAlignment="Center"
                             IsChecked="{Binding UseExposureTimes}" />
 
-                        <TextBlock Grid.Row="8" Grid.Column="0" VerticalAlignment="Center" Text="Exposure times (csv)" />
+                        <TextBlock
+                            Grid.Row="8"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            Text="Exposure times (csv)" />
                         <TextBox
-                            Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="2"
+                            Grid.Row="8"
+                            Grid.Column="1"
+                            Grid.ColumnSpan="2"
                             MinWidth="100"
                             Margin="5,0,0,0"
                             HorizontalAlignment="Left"
@@ -180,7 +191,7 @@
                             <TextBox.Text>
                                 <Binding Path="ExposureTimes">
                                     <Binding.ValidationRules>
-                                        <localrules:ListOfIntegers/>
+                                        <localrules:ListOfIntegers />
                                     </Binding.ValidationRules>
                                 </Binding>
                             </TextBox.Text>
@@ -205,9 +216,9 @@
                             </Grid>
                         </Grid>
                         <TextBlock
-                                Grid.Row="1"
-                                Style="{StaticResource SideBarTextBlock}"
-                                Text="Calculation" />
+                            Grid.Row="1"
+                            Style="{StaticResource SideBarTextBlock}"
+                            Text="Calculation" />
                     </Grid>
                 </TabItem.Header>
                 <TabItem.Content>
@@ -284,9 +295,9 @@
                             </Grid>
                         </Grid>
                         <TextBlock
-                                Grid.Row="1"
-                                Style="{StaticResource SideBarTextBlock}"
-                                Text="Variable Stars" />
+                            Grid.Row="1"
+                            Style="{StaticResource SideBarTextBlock}"
+                            Text="Variable Stars" />
                     </Grid>
                 </TabItem.Header>
                 <TabItem.Content>
@@ -307,25 +318,24 @@
                             <RowDefinition MinHeight="25" />
                         </Grid.RowDefinitions>
                         <TextBlock
-                            Grid.Row="0" 
+                            Grid.Row="0"
                             Grid.Column="0"
                             VerticalAlignment="Center"
                             Text="Variable Star Catalog" />
-                        <StackPanel 
-                            Orientation="Horizontal" 
-                            Grid.Row="0" 
-                            Grid.Column="1">
-                                <TextBox
-                                    Margin="5,5,0,0"
-                                    MinWidth="250"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Center"
-                                    VerticalContentAlignment="Center">
-                                    <TextBox.Text>
-                                        <Binding Path="VarStarCatalog" UpdateSourceTrigger="LostFocus">
-                                        </Binding>
-                                    </TextBox.Text>
-                                </TextBox>
+                        <StackPanel
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Orientation="Horizontal">
+                            <TextBox
+                                MinWidth="250"
+                                Margin="5,5,0,0"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Center">
+                                <TextBox.Text>
+                                    <Binding Path="VarStarCatalog" UpdateSourceTrigger="LostFocus" />
+                                </TextBox.Text>
+                            </TextBox>
                             <Button
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
@@ -344,29 +354,27 @@
                                 </Button.Style>
                             </Button>
                         </StackPanel>
-                        <TextBlock 
-                            Grid.Row="1" 
-                            Grid.Column="0" 
-                            VerticalAlignment="Center" 
+                        <TextBlock
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
                             Text="Observation Span" />
-                        <StackPanel 
-                            Orientation="Horizontal" 
-                            Grid.Row="1" 
-                            Grid.Column="1">
-                            <TextBox
-                            Grid.Row="1" 
+                        <StackPanel
+                            Grid.Row="1"
                             Grid.Column="1"
-                            MinWidth="20"
-                            Margin="5,0,0,0"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center">
+                            Orientation="Horizontal">
+                            <TextBox
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                MinWidth="20"
+                                Margin="5,0,0,0"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center">
                                 <TextBox.Text>
                                     <Binding Path="VarStarObservationSpan" />
                                 </TextBox.Text>
                             </TextBox>
-                            <TextBlock 
-                            VerticalAlignment="Center" 
-                            Text="min" />
+                            <TextBlock VerticalAlignment="Center" Text="min" />
                         </StackPanel>
                     </Grid>
                 </TabItem.Content>

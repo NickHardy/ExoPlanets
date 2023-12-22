@@ -13,21 +13,19 @@
 #endregion "copyright"
 
 using Newtonsoft.Json;
+using NINA.Astrometry.Interfaces;
 using NINA.Core.Model;
+using NINA.Plugin.ExoPlanets.Model;
+using NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider;
+using NINA.Sequencer.SequenceItem;
 using NINA.Sequencer.Utility.DateTimeProvider;
-using NINA.Astrometry;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NINA.Sequencer.SequenceItem;
-using NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider;
-using NINA.Plugin.ExoPlanets.Model;
-using NINA.Astrometry.Interfaces;
+using TimeProvider = NINA.Sequencer.Utility.DateTimeProvider.TimeProvider;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
@@ -44,15 +42,15 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
         private int minutesOffset;
         private int seconds;
         private IDateTimeProvider selectedProvider;
-        private INighttimeCalculator nighttimeCalculator;
+        private readonly INighttimeCalculator nighttimeCalculator;
 
         [ImportingConstructor]
         public WaitForTransit(IList<IDateTimeProvider> dateTimeProviders, INighttimeCalculator nighttimeCalculator) {
             this.nighttimeCalculator = nighttimeCalculator;
             DateTimeProviders = dateTimeProviders;
-            if (DateTimeProviders.Where(d => d is ObservationStartProvider).Count() == 0)
+            if (!DateTimeProviders.Where(d => d is ObservationStartProvider).Any())
                 DateTimeProviders.Add(new ObservationStartProvider(nighttimeCalculator));
-            if (DateTimeProviders.Where(d => d is ObservationEndProvider).Count() == 0)
+            if (!DateTimeProviders.Where(d => d is ObservationEndProvider).Any())
                 DateTimeProviders.Add(new ObservationEndProvider(nighttimeCalculator));
             SelectedProvider = DateTimeProviders.FirstOrDefault(d => d is ObservationStartProvider);
         }
@@ -72,7 +70,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
         public bool HasFixedTimeProvider {
             get {
-                return selectedProvider != null && !(selectedProvider is TimeProvider);
+                return selectedProvider != null && selectedProvider is not TimeProvider;
             }
         }
 
@@ -179,7 +177,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
         public bool Validate() {
             var i = new List<string>();
-            
+
             ExoPlanetDeepSkyObject exoPlanetDSO = ItemUtility.RetrieveExoPlanetDSO(this.Parent);
             if (exoPlanetDSO == null) {
                 i.Add("This instruction must be used within the ExoPlanet or VariableStar object container.");

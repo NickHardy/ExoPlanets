@@ -13,27 +13,18 @@
 #endregion "copyright"
 
 using Newtonsoft.Json;
-using NINA.Profile.Interfaces;
-using NINA.Core.Utility;
-using NINA.Astrometry;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NINA.Core.Locale;
-using NINA.Sequencer.Utility.DateTimeProvider;
-using NINA.Sequencer;
 using NINA.Astrometry.Interfaces;
+using NINA.Core.Utility;
+using NINA.Sequencer;
+using NINA.Sequencer.Utility.DateTimeProvider;
+using System;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider {
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class ObservationStartProvider : IDateTimeProvider {
-        private INighttimeCalculator nighttimeCalculator;
-        public ObservationStartProvider(INighttimeCalculator nighttimeCalculator) {
-            this.nighttimeCalculator = nighttimeCalculator;
-        }
+    public class ObservationStartProvider(INighttimeCalculator nighttimeCalculator) : IDateTimeProvider {
+        private readonly INighttimeCalculator nighttimeCalculator = nighttimeCalculator;
+
         public string Name { get; } = "Start observation"; //Loc.Instance["LblMeridian"];
         public ICustomDateTime DateTime { get; set; } = new SystemDateTime();
 

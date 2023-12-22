@@ -13,17 +13,14 @@
 #endregion "copyright"
 
 using Newtonsoft.Json;
-using NINA.Core.Model;
-using NINA.Astrometry;
-using CsvHelper.Configuration;
-using System;
 using System.Collections.Generic;
 
 namespace NINA.Plugin.ExoPlanets.Model {
 
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
+    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
     [JsonObject(MemberSerialization.OptIn)]
     public class Metadata {
+
         [JsonProperty("name")]
         public string Name { get; set; }
 
@@ -45,12 +42,11 @@ namespace NINA.Plugin.ExoPlanets.Model {
 
     [JsonObject(MemberSerialization.OptIn)]
     public class VoTable {
+
         [JsonProperty("metadata")]
         public List<Metadata> Metadata { get; set; }
 
         [JsonProperty("data")]
         public List<List<object>> Data { get; set; }
-
     }
-
 }

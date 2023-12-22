@@ -12,53 +12,44 @@
 
 #endregion "copyright"
 
+using Accord.Statistics.Models.Regression.Linear;
+using CsvHelper;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using NINA.Astrometry;
+using NINA.Core.Enum;
+using NINA.Core.Locale;
 using NINA.Core.Model;
-using NINA.Profile.Interfaces;
-using NINA.Sequencer.Container;
-using NINA.Sequencer.Validations;
+using NINA.Core.Model.Equipment;
 using NINA.Core.Utility;
+using NINA.Core.Utility.Notification;
+using NINA.Equipment.Equipment.MyCamera;
 using NINA.Equipment.Interfaces.Mediator;
-using NINA.ViewModel.Interfaces;
+using NINA.Equipment.Model;
+using NINA.Image.ImageAnalysis;
+using NINA.PlateSolving;
+using NINA.Plugin.ExoPlanets.Model;
+using NINA.Plugin.ExoPlanets.Utility;
+using NINA.Profile.Interfaces;
+using NINA.Sequencer.SequenceItem;
+using NINA.Sequencer.Validations;
+using NINA.WPF.Base.Interfaces.Mediator;
+using NINA.WPF.Base.Interfaces.ViewModel;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
+using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NINA.WPF.Base.Interfaces.Mediator;
-using NINA.Core.Model.Equipment;
-using NINA.Core.Locale;
-using NINA.Equipment.Model;
-using NINA.Astrometry;
-using NINA.Equipment.Equipment.MyCamera;
-using NINA.WPF.Base.Interfaces.ViewModel;
-using NINA.Sequencer.Interfaces;
-using NINA.Equipment.Interfaces.ViewModel;
-using NINA.Core.Enum;
-using NINA.Image.ImageAnalysis;
-using NINA.Sequencer.SequenceItem;
-using NINA.PlateSolving;
 using System.Windows;
 using static NINA.Astrometry.Coordinates;
-using System.Net;
-using NINA.Plugin.ExoPlanets.Model;
-using Newtonsoft.Json.Serialization;
-using System.Diagnostics;
-using Accord.Statistics.Models.Regression.Linear;
-using NINA.Core.Utility.Notification;
 using static NINA.Equipment.Model.CaptureSequence;
-using System.Xml;
-using System.Xml.XPath;
-using System.Collections.Specialized;
-using System.Data;
-using System.Reflection;
-using CsvHelper;
-using System.Globalization;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
@@ -69,13 +60,13 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
     [Export(typeof(ISequenceItem))]
     [JsonObject(MemberSerialization.OptIn)]
     public class CalculateExposureTime : SequenceItem, IValidatable {
-        private ICameraMediator cameraMediator;
-        private IImagingMediator imagingMediator;
-        private IImageSaveMediator imageSaveMediator;
-        private IImageHistoryVM imageHistoryVM;
-        private IProfileService profileService;
-        private ITelescopeMediator telescopeMediator;
-        private ExoPlanets exoPlanets;
+        private readonly ICameraMediator cameraMediator;
+        private readonly IImagingMediator imagingMediator;
+        private readonly IImageSaveMediator imageSaveMediator;
+        private readonly IImageHistoryVM imageHistoryVM;
+        private readonly IProfileService profileService;
+        private readonly ITelescopeMediator telescopeMediator;
+        private readonly ExoPlanets exoPlanets;
 
         [ImportingConstructor]
         public CalculateExposureTime(IProfileService profileService, ICameraMediator cameraMediator, IImagingMediator imagingMediator, IImageSaveMediator imageSaveMediator, IImageHistoryVM imageHistoryVM, ITelescopeMediator telescopeMediator) {
@@ -118,7 +109,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
         private IList<string> issues = new List<string>();
 
-        public IList<string> Issues { get => issues; set { issues = value; RaisePropertyChanged(); }}
+        public IList<string> Issues { get => issues; set { issues = value; RaisePropertyChanged(); } }
 
         private double exposureTime = 30;
 
@@ -166,22 +157,46 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
         private int gain;
 
         [JsonProperty]
-        public int Gain { get => gain; set { gain = value; RaisePropertyChanged(); } }
+        public int Gain {
+            get => gain;
+            set {
+                gain = value;
+                RaisePropertyChanged();
+            }
+        }
 
         private int offset;
 
         [JsonProperty]
-        public int Offset { get => offset; set { offset = value; RaisePropertyChanged(); } }
+        public int Offset {
+            get => offset;
+            set {
+                offset = value;
+                RaisePropertyChanged();
+            }
+        }
 
         private BinningMode binning;
 
         [JsonProperty]
-        public BinningMode Binning { get => binning; set { binning = value; RaisePropertyChanged(); } }
+        public BinningMode Binning {
+            get => binning;
+            set {
+                binning = value;
+                RaisePropertyChanged();
+            }
+        }
 
         private int exposureCount = 1;
 
         [JsonProperty]
-        public int ExposureCount { get => exposureCount; set { exposureCount = value; RaisePropertyChanged(); } }
+        public int ExposureCount {
+            get => exposureCount;
+            set {
+                exposureCount = value;
+                RaisePropertyChanged();
+            }
+        }
 
         private CameraInfo cameraInfo;
 
@@ -198,45 +213,37 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
         private ComparisonStarChart _compStarChart;
 
         public ComparisonStarChart CompStarChart {
-            get {
-                return _compStarChart;
-            }
+            get => _compStarChart;
             set {
                 _compStarChart = value;
                 RaisePropertyChanged();
             }
         }
 
-        private List<DetectedStar> _starList = new List<DetectedStar>();
+        private List<DetectedStar> _starList = [];
 
         public List<DetectedStar> StarList {
-            get {
-                return _starList;
-            }
+            get => _starList;
             set {
                 _starList = value;
                 RaisePropertyChanged();
             }
         }
 
-        private List<VSXObject> _variableStarList = new List<VSXObject>();
+        private List<VSXObject> _variableStarList = [];
 
         public List<VSXObject> VariableStarList {
-            get {
-                return _variableStarList;
-            }
+            get => _variableStarList;
             set {
                 _variableStarList = value;
                 RaisePropertyChanged();
             }
         }
 
-        private List<SimbadCompStar> _simbadCompStarList = new List<SimbadCompStar>();
+        private List<SimbadCompStar> _simbadCompStarList = [];
 
         public List<SimbadCompStar> SimbadCompStarList {
-            get {
-                return _simbadCompStarList;
-            }
+            get => _simbadCompStarList;
             set {
                 _simbadCompStarList = value;
                 RaisePropertyChanged();
@@ -244,33 +251,75 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
         }
 
         private DetectedStar _targetStar;
-        public DetectedStar TargetStar { get => _targetStar; set { _targetStar = value; RaisePropertyChanged(); } }
+
+        public DetectedStar TargetStar {
+            get => _targetStar;
+            set {
+                _targetStar = value;
+                RaisePropertyChanged();
+            }
+        }
 
         public string _targetStarPosition;
-        public string TargetStarPosition { get => _targetStarPosition; set { _targetStarPosition = value; RaisePropertyChanged(); } }
+
+        public string TargetStarPosition {
+            get => _targetStarPosition;
+            set {
+                _targetStarPosition = value;
+                RaisePropertyChanged();
+            }
+        }
 
         public double _targetADU;
+
         [JsonProperty]
-        public double TargetADU { get => _targetADU; set { _targetADU = value; RaisePropertyChanged(); } }
+        public double TargetADU {
+            get => _targetADU;
+            set {
+                _targetADU = value;
+                RaisePropertyChanged();
+            }
+        }
 
         private bool _saveImages;
+
         [JsonProperty]
-        public bool SaveImages { get => _saveImages; set { _saveImages = value; RaisePropertyChanged(); } }
+        public bool SaveImages {
+            get => _saveImages;
+            set {
+                _saveImages = value;
+                RaisePropertyChanged();
+            }
+        }
 
         private bool _updateExposureTime;
+
         [JsonProperty]
-        public bool UpdateExposureTime { get => _updateExposureTime; set { _updateExposureTime = value; RaisePropertyChanged(); } }
+        public bool UpdateExposureTime {
+            get => _updateExposureTime;
+            set {
+                _updateExposureTime = value;
+                RaisePropertyChanged();
+            }
+        }
 
         private int _compStarCount;
-        public int CompStarCount { get => _compStarCount; set { _compStarCount = value; RaisePropertyChanged(); } }
 
-        private List<double> inputs = new List<double>();
-        private List<double> outputs = new List<double>();
+        public int CompStarCount {
+            get => _compStarCount;
+            set {
+                _compStarCount = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private readonly List<double> inputs = [];
+        private readonly List<double> outputs = [];
 
         public override async Task Execute(IProgress<ApplicationStatus> progress, CancellationToken token) {
             if (Validate()) {
                 var keepTrying = true;
-                var saveAnnotationJpg = "";
+                var saveAnnotationJpg = string.Empty;
                 ExposureCount = 1;
                 inputs.Clear();
                 outputs.Clear();
@@ -302,7 +351,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     var imageData = await exposureData.ToImageData(progress, token);
 
                     var prepareTask = imagingMediator.PrepareImage(imageData, new PrepareImageParameters(true, false), token);
-                    
+
                     if (SaveImages) {
                         imageData.MetaData.Target.Name = inputTarget.TargetName;
                         imageData.MetaData.Target.Coordinates = inputTarget.InputCoordinates.Coordinates;
@@ -346,7 +395,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     var plateSolveResult = await imageSolver.Solve(image.RawImageData, parameter, progress, token);
                     if (!plateSolveResult.Success) {
                         Issues.Add("Platesolve failed.");
-                        throw new SequenceEntityFailedException(string.Join(",", Issues));
+                        throw new SequenceEntityFailedException(string.Join(", ", Issues));
                     }
 
                     var arcsecPerPix = AstroUtil.ArcsecPerPixel(profileService.ActiveProfile.CameraSettings.PixelSize * Binning?.X ?? 1, profileService.ActiveProfile.TelescopeSettings.FocalLength);
@@ -355,29 +404,30 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     var center = new Point(width / 2, height / 2);
 
                     //Translate your coordinates to x/y in relation to center coordinates
-                    Point targetPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(plateSolveResult.Coordinates, center, arcsecPerPix, arcsecPerPix, plateSolveResult.Orientation, ProjectionType.Stereographic);
+                    Point targetPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(plateSolveResult.Coordinates, center, arcsecPerPix, arcsecPerPix, plateSolveResult.PositionAngle, ProjectionType.Stereographic);
                     TargetStar = starDetectionResult.StarList
                         .GroupBy(p => Math.Pow(targetPoint.X - p.Position.X, 2) + Math.Pow(targetPoint.Y - p.Position.Y, 2))
                         .OrderBy(p => p.Key)
                         .FirstOrDefault()?.FirstOrDefault();
-                    
+
                     if (TargetStar == null) {
                         Notification.ShowError("Target star not found.");
                         Issues.Add("Target star not found.");
-                        throw new SequenceEntityFailedException(string.Join(",", Issues));
+                        throw new SequenceEntityFailedException(string.Join(", ", Issues));
                     }
                     TargetStar.Position = TargetStar.Position.Round();
                     TargetStarPosition = TargetStar.Position.X.ToString() + "," + TargetStar.Position.Y.ToString();
                     Logger.Info("TargetStar: " + JsonConvert.SerializeObject(TargetStar));
 
                     // Create list for csv export
-                    List<DetectedExoStar> exoStars = new List<DetectedExoStar>();
-                    exoStars.Add(new DetectedExoStar(TargetStar, inputTarget));
+                    var exoStars = new List<DetectedExoStar> {
+                        new(TargetStar, inputTarget)
+                    };
 
-                    List<DetectedStar> VStarList = new List<DetectedStar>();
-                    findVariableStars(progress, token, inputTarget.TargetName, plateSolveResult.Coordinates);
+                    var VStarList = new List<DetectedStar>();
+                    FindVariableStars(progress, token, inputTarget.TargetName, plateSolveResult.Coordinates);
                     foreach (var vStar in VariableStarList) {
-                        Point vStarPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(vStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, plateSolveResult.Orientation, ProjectionType.Stereographic);
+                        Point vStarPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(vStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, plateSolveResult.PositionAngle, ProjectionType.Stereographic);
                         if (!CheckPointWithinImage(vStarPoint, image)) continue;
                         DetectedStar dStar = starDetectionResult.StarList
                             .GroupBy(p => Math.Pow(vStarPoint.X - p.Position.X, 2) + Math.Pow(vStarPoint.Y - p.Position.Y, 2))
@@ -393,11 +443,12 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     }
 
                     // Simbad same colour comparison stars
-                    List<DetectedStar> SimbadStarList = new List<DetectedStar>();
-                    findSimbadComparisonStars(progress, token, inputTarget, plateSolveResult.Coordinates);
+                    var SimbadStarList = new List<DetectedStar>();
+                    FindSimbadComparisonStars(progress, token, inputTarget);
+
                     if (SimbadCompStarList?.Count > 0) {
                         foreach (var compStar in SimbadCompStarList) {
-                            Point compPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(compStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, plateSolveResult.Orientation, ProjectionType.Stereographic);
+                            Point compPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(compStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, plateSolveResult.PositionAngle, ProjectionType.Stereographic);
                             if (!CheckPointWithinImage(compPoint, image)) continue;
                             DetectedStar cStar = starDetectionResult.StarList
                                 .GroupBy(p => Math.Pow(compPoint.X - p.Position.X, 2) + Math.Pow(compPoint.Y - p.Position.Y, 2))
@@ -415,12 +466,12 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     // Check the Compstars are not variable
                     SimbadStarList = SimbadStarList.Where(s => !VStarList.Any(v => v.Position == s.Position)).ToList<DetectedStar>();
                     SimbadStarList.ForEach(i => Logger.Info("Simbad Comparison star: " + JsonConvert.SerializeObject(i)));
-                    
-                    StarList = new List<DetectedStar>();
-                    findComparisonStars(progress, token, inputTarget.TargetName, plateSolveResult.Coordinates);
+
+                    StarList = [];
+                    FindComparisonStars(progress, token, inputTarget.TargetName, plateSolveResult.Coordinates);
                     if (CompStarChart?.photometry?.Count > 0) {
                         foreach (var compStar in CompStarChart.photometry) {
-                            Point compPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(compStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, plateSolveResult.Orientation, ProjectionType.Stereographic);
+                            Point compPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(compStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, plateSolveResult.PositionAngle, ProjectionType.Stereographic);
                             if (!CheckPointWithinImage(compPoint, image)) continue;
                             DetectedStar cStar = starDetectionResult.StarList
                                 .GroupBy(p => Math.Pow(compPoint.X - p.Position.X, 2) + Math.Pow(compPoint.Y - p.Position.Y, 2))
@@ -439,32 +490,31 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     // Check the Compstars are not variable
                     StarList = StarList.Where(s => !VStarList.Any(v => v.Position == s.Position)).ToList<DetectedStar>()
                         .Where(s => !SimbadStarList.Any(v => v.Position == s.Position)).ToList<DetectedStar>();
-                    CompStarCount = SimbadStarList.Count() + StarList.Count();
+                    CompStarCount = SimbadStarList.Count + StarList.Count;
                     StarList.ForEach(i => Logger.Info("Comparison star: " + JsonConvert.SerializeObject(i)));
 
                     // Check for similar avarage stars
-                    List<DetectedStar> avgStarList = starDetectionResult.StarList.Where(x => Math.Abs(x.AverageBrightness - TargetStar.AverageBrightness) < TargetStar.AverageBrightness * 0.05d).ToList<DetectedStar>()
+                    var avgStarList = starDetectionResult.StarList.Where(x => Math.Abs(x.AverageBrightness - TargetStar.AverageBrightness) < TargetStar.AverageBrightness * 0.05d).ToList<DetectedStar>()
                         .Where(s => !VStarList.Any(v => v.Position == s.Position)).ToList<DetectedStar>()
                         .Where(s => !StarList.Any(v => v.Position == s.Position)).ToList<DetectedStar>()
                         .Where(s => !SimbadStarList.Any(v => v.Position == s.Position)).ToList<DetectedStar>()
                         .Except(new List<DetectedStar>() { TargetStar }).ToList<DetectedStar>();
-                    
+
                     var targetMax = TargetStar.MaxBrightness;
-                    
+
                     // Annotate image
                     var starAnnotator = new StarAnnotator();
                     saveAnnotationJpg = profileService.ActiveProfile.ImageFileSettings.FilePath + "\\" + inputTarget.TargetName + "_fov.jpg";
-                    var annotatedImage = await starAnnotator.GetAnnotatedImage(TargetStar, StarList, VStarList, avgStarList, SimbadStarList, image.Image, saveAnnotationJpg, ExposureTime, token);
+                    var annotatedImage = await StarAnnotator.GetAnnotatedImage(TargetStar, StarList, VStarList, avgStarList, SimbadStarList, image.Image, saveAnnotationJpg, ExposureTime, token);
                     imagingMediator.SetImage(annotatedImage);
 
                     // Save comparison and variable star csv
                     if (exoPlanets.SaveStarList) {
                         string csvfile = Path.Combine(profileService.ActiveProfile.ImageFileSettings.FilePath, inputTarget.TargetName + "_starList" + ".csv");
-                        using (var writer = new StreamWriter(csvfile))
-                        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture)) {
-                            csv.Context.RegisterClassMap<DetectedStarMap>();
-                            csv.WriteRecords(exoStars);
-                        }
+                        using var writer = new StreamWriter(csvfile);
+                        using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
+                        csv.Context.RegisterClassMap<DetectedStarMap>();
+                        csv.WriteRecords(exoStars);
                     }
 
                     if (ExposureCount <= 2 && TargetStar.MaxBrightness >= CameraMaxAdu * 0.9d) {
@@ -475,7 +525,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                         if (ExposureTimeSecond - ExposureTimeFirst < 1) {
                             Notification.ShowWarning("Target star blown out.");
                             Issues.Add("Target star blown out. Please adjust your exposure settings.");
-                            throw new SequenceEntityFailedException(string.Join(",", Issues));
+                            throw new SequenceEntityFailedException(string.Join(", ", Issues));
                         }
                         ExposureCount = 1;
                         continue;
@@ -488,7 +538,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                         keepTrying = false;
                     } else if (ExposureCount >= 2) {
                         var previousExposureTime = ExposureTime;
-                        OrdinaryLeastSquares ols = new OrdinaryLeastSquares();
+                        var ols = new OrdinaryLeastSquares();
                         SimpleLinearRegression regression = ols.Learn(inputs.ToArray(), outputs.ToArray());
 
                         //Get the trend and set the next exposuretime input
@@ -504,7 +554,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                         if (ExposureTime < 0) {
                             Issues.Add("Exposure time calculated to less than 0 seconds. Something failed.");
                             ExposureTime = 1;
-                            throw new SequenceItemSkippedException(string.Join(",", Issues));
+                            throw new SequenceItemSkippedException(string.Join(", ", Issues));
                         }
                     }
 
@@ -516,11 +566,11 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     ItemUtility.UpdateTakeExposureItems(this.Parent, ExposureTime);
                 }
             } else {
-                throw new SequenceItemSkippedException(string.Join(",", Issues));
+                throw new SequenceItemSkippedException(string.Join(", ", Issues));
             }
         }
 
-        private bool CheckPointWithinImage(Point point, Image.Interfaces.IRenderedImage image) {
+        private static bool CheckPointWithinImage(Point point, Image.Interfaces.IRenderedImage image) {
             if (point.X < 0 || point.X > image.Image.PixelWidth)
                 return false;
             if (point.Y < 0 || point.Y > image.Image.PixelHeight)
@@ -528,9 +578,9 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             return true;
         }
 
-        private string comparisonTarget = "";
+        private string comparisonTarget = string.Empty;
 
-        private void findComparisonStars(IProgress<ApplicationStatus> progress, CancellationToken token, string targetName, Coordinates coords) {
+        private async void FindComparisonStars(IProgress<ApplicationStatus> progress, CancellationToken token, string targetName, Coordinates coords) {
             // Check properties
             if (!exoPlanets.RetrieveComparisonStars)
                 return;
@@ -540,65 +590,39 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
             progress.Report(new ApplicationStatus() { Status = "Retrieving comparison stars" });
             try {
-                using (var localCTS = CancellationTokenSource.CreateLinkedTokenSource(token)) {
-                    localCTS.CancelAfter(TimeSpan.FromSeconds(30));
-                    comparisonTarget = targetName;
-                    // https://app.aavso.org/vsp/api/chart/?ra=20%3A13%3A31.62&dec=65%3A09%3A43.5&fov=35&maglimit=18.5&format=json
-                    // var container = JsonConvert.DeserializeObject<ComparisonStarChart>(sequenceJSON);
-                    var raString = coords.RAString.Replace(":", "%3A");
-                    var decString = AstroUtil.DegreesToFitsDMS(coords.Dec).Replace(" ", "%3A").Replace("+", "");
-                    var url = $"https://app.aavso.org/vsp/api/chart/?ra={raString}&dec={decString}&fov=35&maglimit=18.5&format=json";
-                    WebRequest request = WebRequest.Create(url);
-                    request.Timeout = 30 * 60 * 1000;
-                    request.UseDefaultCredentials = true;
-                    request.Proxy.Credentials = request.Credentials;
-                    WebResponse response = (WebResponse)request.GetResponse();
-                    /*
-                    // For debugging
-                    ITraceWriter traceWriter = new MemoryTraceWriter();
+                using var localCTS = CancellationTokenSource.CreateLinkedTokenSource(token);
+                localCTS.CancelAfter(TimeSpan.FromSeconds(30));
+                comparisonTarget = targetName;
+                // https://app.aavso.org/vsp/api/chart/?ra=20%3A13%3A31.62&dec=65%3A09%3A43.5&fov=35&maglimit=18.5&format=json
+                // var container = JsonConvert.DeserializeObject<ComparisonStarChart>(sequenceJSON);
+                var raString = coords.RAString.Replace(":", "%3A");
+                var decString = AstroUtil.DegreesToFitsDMS(coords.Dec).Replace(" ", "%3A").Replace("+", string.Empty);
+                var url = $"https://app.aavso.org/vsp/api/chart/?ra={raString}&dec={decString}&fov=35&maglimit=18.5&format=json";
 
-                    var settings = new JsonSerializerSettings {
-                        NullValueHandling = NullValueHandling.Ignore,
-                        MissingMemberHandling = MissingMemberHandling.Ignore,
-                        Formatting = Formatting.None,
-                        DateFormatHandling = DateFormatHandling.IsoDateFormat,
-                        FloatParseHandling = FloatParseHandling.Decimal,
-                        TraceWriter = traceWriter
-                    };
+                try {
+                    var response = await HttpRequest.HttpRequestAsync(url, HttpMethod.Get, token);
 
-                    using (Stream stream = response.GetResponseStream()) {
-                        StreamReader reader = new StreamReader(stream, Encoding.UTF8);
-                        String responseString = reader.ReadToEnd();
-                        CompStarChart = JsonConvert.DeserializeObject<ComparisonStarChart>(responseString, settings);
-                    }
-                    */
+                    var serializer = new JsonSerializer();
 
-                    try {
-                        var serializer = new JsonSerializer();
-
-                        using (var sr = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
-                        using (var jsonTextReader = new JsonTextReader(sr)) {
-
-                            CompStarChart = serializer.Deserialize<ComparisonStarChart>(jsonTextReader);
-                        }
-                    } catch {
-                        Logger.Info("Couldn't process comparison stars.");
-                        comparisonTarget = "";
-                    }
-
+                    using var sr = new StreamReader(await response.Content?.ReadAsStreamAsync(token), Encoding.UTF8);
+                    using var jsonTextReader = new JsonTextReader(sr);
+                    CompStarChart = serializer.Deserialize<ComparisonStarChart>(jsonTextReader);
+                } catch {
+                    Logger.Info("Couldn't process comparison stars.");
+                    comparisonTarget = string.Empty;
                 }
             } catch (OperationCanceledException) {
             } catch (Exception ex) {
                 Logger.Error(ex);
                 Notification.ShowError(ex.Message);
             } finally {
-                progress.Report(new ApplicationStatus() { Status = "" });
+                progress.Report(new ApplicationStatus() { Status = string.Empty });
             }
         }
 
-        private string simbadTarget = "";
+        private string simbadTarget = string.Empty;
 
-        private void findSimbadComparisonStars(IProgress<ApplicationStatus> progress, CancellationToken token, ExoPlanetInputTarget target, Coordinates solve_coords) {
+        private async void FindSimbadComparisonStars(IProgress<ApplicationStatus> progress, CancellationToken token, ExoPlanetInputTarget target) {
             // Check properties
             if (!exoPlanets.RetrieveComparisonStars)
                 return;
@@ -607,151 +631,122 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                 return;
 
             progress.Report(new ApplicationStatus() { Status = "Retrieving comparison stars from simbad" });
-            try {
-                using (var localCTS = CancellationTokenSource.CreateLinkedTokenSource(token)) {
-                    localCTS.CancelAfter(TimeSpan.FromSeconds(30));
-                    simbadTarget = target.TargetName;
-                    var url = $"http://simbad.u-strasbg.fr/simbad/sim-tap/sync";
 
-                    Dictionary<string, string> dictionary = new Dictionary<string, string>();
-                    dictionary.Add("request", "doQuery");
-                    dictionary.Add("lang", "adql");
-                    dictionary.Add("format", "json");
-                    dictionary.Add("maxrec", "100");
-                    dictionary.Add("runid", "");
-                    dictionary.Add("phase", "run");
-                    dictionary.Add("query", "SELECT distinct basic.oid as oid from basic WHERE otype = '*..' and CONTAINS(POINT('ICRS', basic.ra, basic.dec), CIRCLE('ICRS', " + target.InputCoordinates.Coordinates.RADegrees + ", " + target.InputCoordinates.Coordinates.Dec + ", 0.01)) = 1");
-                    VoTable voTable = PostForm(url, dictionary);
-                    if (voTable == null || voTable.Data == null || voTable.Data.Count == 0 || voTable.Data[0].Count == 0) return;
-                    double target_oid = Convert.ToDouble(voTable.Data[0][0]);
-                    dictionary.Remove("query");
-                    dictionary.Add("query", "SELECT distinct top 100 basic.main_id as main_id, allfluxes.B as B, allfluxes.V as V, allfluxes.R as R, basic.ra as ra, basic.dec as dec " +
-                        "from allfluxes JOIN ident USING(oidref) JOIN basic ON ident.oidref = basic.oid " +
-                        "join(SELECT distinct basic.oid as oid, B, V, R, (B - V) * 0.9 as bvlow, (B - V) * 1.1 as bvhigh, (V - R) * 0.9 as vrlow, (V - R) * 1.1 as vrhigh, V * 0.9 as vlow, V * 1.1 as vhigh, ra, dec from allfluxes JOIN ident USING(oidref) JOIN basic ON ident.oidref = basic.oid WHERE oid = " + target_oid + ") as target ON CONTAINS(POINT('ICRS', basic.ra, basic.dec), CIRCLE('ICRS', target.ra, target.dec, 1.0)) = 1 " +
-                        "WHERE basic.ra IS NOT NULL and basic.dec IS NOT NULL and allfluxes.v is not null and basic.otype = '*..' " +
-                        "and((allfluxes.b is not null and allfluxes.b - allfluxes.v >= target.bvlow and allfluxes.b - allfluxes.v <= target.bvhigh) or(allfluxes.r is not null and allfluxes.v - allfluxes.r >= target.vrlow and allfluxes.v - allfluxes.r <= target.vrhigh) or(allfluxes.v >= target.vlow and allfluxes.v <= target.vhigh)); ");
-                    voTable = PostForm(url, dictionary);
-                    if (voTable == null || voTable.Data == null || voTable.Data.Count == 0 || voTable.Data[0].Count == 0) return;
-                    foreach (List<object> obj in voTable.Data) {
-                        SimbadCompStarList.Add(new SimbadCompStar(obj));
-                    }
+            try {
+                using var localCTS = CancellationTokenSource.CreateLinkedTokenSource(token);
+                localCTS.CancelAfter(TimeSpan.FromSeconds(30));
+                simbadTarget = target.TargetName;
+                var url = $"http://simbad.u-strasbg.fr/simbad/sim-tap/sync";
+
+                var dictionary = new Dictionary<string, string> {
+                    { "request", "doQuery" },
+                    { "lang", "adql" },
+                    { "format", "json" },
+                    { "maxrec", "100" },
+                    { "runid", "" },
+                    { "phase", "run" },
+                    { "query", "SELECT distinct basic.oid as oid from basic WHERE otype = '*..' and CONTAINS(POINT('ICRS', basic.ra, basic.dec), CIRCLE('ICRS', " + target.InputCoordinates.Coordinates.RADegrees + ", " + target.InputCoordinates.Coordinates.Dec + ", 0.01)) = 1" }
+                };
+
+                VoTable voTable = await PostForm(url, dictionary);
+                if (voTable == null || voTable.Data == null || voTable.Data.Count == 0 || voTable.Data[0].Count == 0) return;
+                double target_oid = Convert.ToDouble(voTable.Data[0][0]);
+                dictionary.Remove("query");
+                dictionary.Add("query", "SELECT distinct top 100 basic.main_id as main_id, allfluxes.B as B, allfluxes.V as V, allfluxes.R as R, basic.ra as ra, basic.dec as dec " +
+                    "from allfluxes JOIN ident USING(oidref) JOIN basic ON ident.oidref = basic.oid " +
+                    "join(SELECT distinct basic.oid as oid, B, V, R, (B - V) * 0.9 as bvlow, (B - V) * 1.1 as bvhigh, (V - R) * 0.9 as vrlow, (V - R) * 1.1 as vrhigh, V * 0.9 as vlow, V * 1.1 as vhigh, ra, dec from allfluxes JOIN ident USING(oidref) JOIN basic ON ident.oidref = basic.oid WHERE oid = " + target_oid + ") as target ON CONTAINS(POINT('ICRS', basic.ra, basic.dec), CIRCLE('ICRS', target.ra, target.dec, 1.0)) = 1 " +
+                    "WHERE basic.ra IS NOT NULL and basic.dec IS NOT NULL and allfluxes.v is not null and basic.otype = '*..' " +
+                    "and((allfluxes.b is not null and allfluxes.b - allfluxes.v >= target.bvlow and allfluxes.b - allfluxes.v <= target.bvhigh) or(allfluxes.r is not null and allfluxes.v - allfluxes.r >= target.vrlow and allfluxes.v - allfluxes.r <= target.vrhigh) or(allfluxes.v >= target.vlow and allfluxes.v <= target.vhigh)); ");
+                voTable = await PostForm(url, dictionary);
+                if (voTable == null || voTable.Data == null || voTable.Data.Count == 0 || voTable.Data[0].Count == 0) return;
+                foreach (List<object> obj in voTable.Data) {
+                    SimbadCompStarList.Add(new SimbadCompStar(obj));
                 }
             } catch (OperationCanceledException) {
             } catch (Exception ex) {
                 Logger.Error(ex);
                 Notification.ShowError(ex.Message);
             } finally {
-                progress.Report(new ApplicationStatus() { Status = "" });
+                progress.Report(new ApplicationStatus() { Status = string.Empty });
             }
         }
 
-        private VoTable PostForm(string url, Dictionary<string, string> dictionary) {
+        private async Task<VoTable> PostForm(string url, Dictionary<string, string> dictionary) {
             var boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
-            string FormDataTemplate = "--{0}\r\nContent-Disposition: form-data; name=\"{1}\"\r\n\r\n{2}\r\n";
+            var contentType = "multipart/form-data; boundary=" + boundary;
+            var FormDataTemplate = "--{0}\r\nContent-Disposition: form-data; name=\"{1}\"\r\n\r\n{2}\r\n";
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.Timeout = 30 * 60 * 1000;
-            request.Method = "POST";
-            request.KeepAlive = true;
-            request.ContentType = "multipart/form-data; boundary=" + boundary;
-            Stream requestStream = request.GetRequestStream();
+            StringBuilder postData = new();
+
             foreach (string key in dictionary.Keys) {
-                string item = String.Format(FormDataTemplate, boundary, key, dictionary[key]);
-                byte[] itemBytes = System.Text.Encoding.UTF8.GetBytes(item);
-                requestStream.Write(itemBytes, 0, itemBytes.Length);
+                postData.Append(string.Format(FormDataTemplate, boundary, key, dictionary[key]));
             }
-            byte[] endBytes = System.Text.Encoding.UTF8.GetBytes("--" + boundary + "--");
-            requestStream.Write(endBytes, 0, endBytes.Length);
-            requestStream.Close();
-            WebResponse response = (WebResponse)request.GetResponse();
 
-            // For debugging
-/*            ITraceWriter traceWriter = new MemoryTraceWriter();
-
-            var settings = new JsonSerializerSettings {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore,
-                Formatting = Newtonsoft.Json.Formatting.None,
-                DateFormatHandling = DateFormatHandling.IsoDateFormat,
-                FloatParseHandling = FloatParseHandling.Decimal,
-                TraceWriter = traceWriter
-            };
-
-            using (Stream stream = response.GetResponseStream()) {
-                StreamReader reader = new StreamReader(stream, Encoding.UTF8);
-                String responseString = reader.ReadToEnd();
-                return JsonConvert.DeserializeObject<SimbadCompStarChart>(responseString, settings);
-            }*/
+            postData.Append("--" + boundary + "--");
 
             try {
+                var response = await HttpRequest.HttpRequestAsync(url, HttpMethod.Post, CancellationToken.None, body: postData.ToString(), contentType: contentType);
+
                 var serializer = new JsonSerializer();
 
-                using (var sr = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
-                using (var jsonTextReader = new JsonTextReader(sr)) {
-                    return serializer.Deserialize<VoTable>(jsonTextReader);
-                }
+                using var sr = new StreamReader(await response.Content?.ReadAsStreamAsync(), Encoding.UTF8);
+                using var jsonTextReader = new JsonTextReader(sr);
+                return serializer.Deserialize<VoTable>(jsonTextReader);
             } catch {
                 Logger.Info("Couldn't process simbad comparison stars.");
-                simbadTarget = "";
+                simbadTarget = string.Empty;
                 return null;
             }
         }
 
         private static void AppendUrlEncoded(StringBuilder sb, string name, string value) {
             if (sb.Length != 0)
-                sb.Append("&");
+                sb.Append('&');
             sb.Append(WebUtility.UrlEncode(name));
-            sb.Append("=");
+            sb.Append('=');
             sb.Append(WebUtility.UrlEncode(value));
         }
 
-        private string variableTarget = "";
+        private string variableTarget = string.Empty;
 
-        private void findVariableStars(IProgress<ApplicationStatus> progress, CancellationToken token, string targetName, Coordinates coords) {
+        private async void FindVariableStars(IProgress<ApplicationStatus> progress, CancellationToken token, string targetName, Coordinates coords) {
             // Check properties
             if (!exoPlanets.RetrieveVariableStars)
                 return;
 
             // Only retrieve the list once for the given target
-            if (variableTarget.Equals(targetName) && VariableStarList != null && VariableStarList.Count() > 0)
+            if (variableTarget.Equals(targetName) && VariableStarList != null && VariableStarList.Count > 0)
                 return;
 
             progress.Report(new ApplicationStatus() { Status = "Retrieving variable stars" });
             try {
-                using (var localCTS = CancellationTokenSource.CreateLinkedTokenSource(token)) {
-                    localCTS.CancelAfter(TimeSpan.FromSeconds(30));
+                using var localCTS = CancellationTokenSource.CreateLinkedTokenSource(token);
+                localCTS.CancelAfter(TimeSpan.FromSeconds(30));
 
-                    VariableStarList = new List<VSXObject>();
-                    variableTarget = targetName;
-                    // var url = $"https://www.aavso.org/vsx/index.php?view=query.votable&coords={coords.RADegrees}+{coords.Dec}&size=35.0&unit=2&order=9";
-                    var url = $"https://www.aavso.org/vsx/index.php?view=api.list&ra={coords.RADegrees}&dec={coords.Dec}&radius=3&tomag=18&format=json";
-                    WebRequest request = WebRequest.Create(url);
-                    request.Timeout = 30 * 60 * 1000;
-                    request.UseDefaultCredentials = true;
-                    request.Proxy.Credentials = request.Credentials;
-                    WebResponse response = (WebResponse)request.GetResponse();
+                VariableStarList = [];
+                variableTarget = targetName;
+                // var url = $"https://www.aavso.org/vsx/index.php?view=query.votable&coords={coords.RADegrees}+{coords.Dec}&size=35.0&unit=2&order=9";
+                var url = $"https://www.aavso.org/vsx/index.php?view=api.list&ra={coords.RADegrees}&dec={coords.Dec}&radius=3&tomag=18&format=json";
 
-                    try {
-                        var serializer = new JsonSerializer();
+                try {
+                    var response = await HttpRequest.HttpRequestAsync(url, HttpMethod.Get, token);
 
-                        using (var sr = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
-                        using (var jsonTextReader = new JsonTextReader(sr)) {
+                    var serializer = new JsonSerializer();
 
-                            var root = serializer.Deserialize<Root>(jsonTextReader);
-                            VariableStarList = root.VSXObjects.VSXObject;
-                        }
-                    } catch {
-                        Logger.Info("Couldn't process comparison stars.");
-                        comparisonTarget = "";
-                    }
-
+                    using var sr = new StreamReader(await response.Content?.ReadAsStreamAsync(), Encoding.UTF8);
+                    using var jsonTextReader = new JsonTextReader(sr);
+                    var root = serializer.Deserialize<Root>(jsonTextReader);
+                    VariableStarList = root.VSXObjects.VSXObject;
+                } catch {
+                    Logger.Info("Couldn't process comparison stars.");
+                    comparisonTarget = string.Empty;
                 }
             } catch (OperationCanceledException) {
             } catch (Exception ex) {
                 Logger.Error(ex);
                 Notification.ShowError(ex.Message);
             } finally {
-                progress.Report(new ApplicationStatus() { Status = "" });
+                progress.Report(new ApplicationStatus() { Status = string.Empty });
             }
         }
 

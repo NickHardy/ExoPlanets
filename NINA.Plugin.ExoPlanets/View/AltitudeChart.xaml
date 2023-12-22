@@ -46,7 +46,7 @@
                     AxislineColor="{Binding Path=Color, Source={StaticResource PrimaryBrush}}"
                     EndPosition="1"
                     IntervalLength="30"
-                    IsAxisVisible="{Binding AnnotateAltitudeAxis, ElementName=UC}"																				  
+                    IsAxisVisible="{Binding AnnotateAltitudeAxis, ElementName=UC}"
                     IsPanEnabled="False"
                     IsZoomEnabled="False"
                     MajorGridlineColor="{Binding Path=Color, Source={StaticResource PrimaryBrush}, Converter={StaticResource SetAlphaToColorConverter}, ConverterParameter=60}"
@@ -122,7 +122,6 @@
                     TrackerFormatString="X: {2:HH:mm}h&#x0a;Y: {4:0.00}&#176;"
                     Visibility="{Binding Moon.DisplayMoon, Converter={StaticResource BooleanToVisibilityHiddenConverter}}"
                     Color="{Binding Moon.Color}" />
-
             </oxy:Plot.Series>
             <oxy:Plot.Annotations>
                 <oxy:LineAnnotation
@@ -224,6 +223,5 @@
                 ToolTip="{ns:Loc LblMoonSeparation}"
                 Visibility="{Binding Moon.DisplayMoon, Converter={StaticResource BooleanToVisibilityHiddenConverter}}" />
         </Grid>
-
     </Grid>
 </UserControl>

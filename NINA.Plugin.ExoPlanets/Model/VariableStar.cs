@@ -12,40 +12,49 @@
 
 #endregion "copyright"
 
-using Newtonsoft.Json;
-using NINA.Core.Model;
-using NINA.Astrometry;
 using CsvHelper.Configuration;
+using Newtonsoft.Json;
+using NINA.Astrometry;
 using System;
 
-namespace NINA.Plugin.ExoPlanets.Model
-{
+namespace NINA.Plugin.ExoPlanets.Model {
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class VariableStar
-    {
+    public class VariableStar {
+
         [JsonProperty]
         public string Name { get; set; }
+
         [JsonProperty]
         public string Comments { get; set; }
+
         [JsonProperty]
         public double V { get; set; }
+
         [JsonProperty]
         public DateTime startTime { get; set; }
+
         [JsonProperty]
         public DateTime midTime { get; set; }
+
         [JsonProperty]
         public DateTime endTime { get; set; }
+
         [JsonProperty]
         public double jd_start { get; set; }
+
         [JsonProperty]
         public double jd_mid { get; set; }
+
         [JsonProperty]
         public double jd_end { get; set; }
+
         [JsonProperty]
         public string RA { get; set; }
+
         [JsonProperty]
         public string Dec { get; set; }
+
         [JsonProperty]
         public double epoch { get; set; }
 
@@ -63,32 +72,25 @@ namespace NINA.Plugin.ExoPlanets.Model
 
         [JsonProperty]
         public double Altitude { get; set; }
+
         [JsonProperty]
         public double Azimuth { get; set; }
 
-        public Coordinates Coordinates()
-        {
+        public Coordinates Coordinates() {
             return new Coordinates(Angle.ByDegree(AstroUtil.HMSToDegrees(RA)), Angle.ByDegree(AstroUtil.DMSToDegrees(Dec)), Epoch.J2000);
         }
 
-        public string formattedPeriod
-        {
-            get
-            {
-                if (period > 0)
-                {
-                    return period < 1.0 ? String.Format("{0}d ({1:F2}h)", period, period * 24.0) : String.Format("{0}d", period);
-                } else
-                {
+        public string formattedPeriod {
+            get {
+                if (period > 0) {
+                    return period < 1.0 ? string.Format("{0}d ({1:F2}h)", period, period * 24.0) : string.Format("{0}d", period);
+                } else {
                     return "--";
                 }
-                
             }
         }
 
-        
-        public void CalculateAltAz(double latitude, double longitude)
-        {
+        public void CalculateAltAz(double latitude, double longitude) {
             var siderealTime = AstroUtil.GetLocalSiderealTime(midTime, longitude);
             var hourAngle = AstroUtil.GetHourAngle(siderealTime, Coordinates().RA);
 
@@ -97,13 +99,12 @@ namespace NINA.Plugin.ExoPlanets.Model
             Azimuth = AstroUtil.GetAzimuth(degAngle, Altitude, latitude, Coordinates().Dec);
         }
 
-        public void NextEvent(double referenceJD, double span)
-        {
-            if(!HasEvents) return;
+        public void NextEvent(double referenceJD, double span) {
+            if (!HasEvents) return;
 
-            var shiftedEpoch = epoch + period * observedPhase;
+            var shiftedEpoch = epoch + (period * observedPhase);
             var cycle = Math.Floor((referenceJD - shiftedEpoch) / period);
-            var nextEvent = shiftedEpoch + period * (cycle + 1);
+            var nextEvent = shiftedEpoch + (period * (cycle + 1));
             var window = (span + OCRange) / 1440.0;
             jd_start = nextEvent - window;
             jd_mid = nextEvent;
@@ -114,53 +115,42 @@ namespace NINA.Plugin.ExoPlanets.Model
             endTime = JulianToDateTime(jd_end).ToLocalTime();
         }
 
-        public void AllNight(DateTime set, DateTime rise)
-        {
+        public void AllNight(DateTime set, DateTime rise) {
             var nightDuration = rise.Subtract(set).Ticks;
             startTime = set.AddMinutes(5);
             midTime = set.AddTicks(nightDuration / 2);
             endTime = rise.AddMinutes(-5);
         }
 
-        public bool HasEvents
-        {
-            get
-            {
+        public bool HasEvents {
+            get {
                 return epoch > 0;
             }
         }
 
-        public int CompareTo(VariableStar other)
-        {
-            if (this.HasEvents && other.HasEvents)
-            {
+        public int CompareTo(VariableStar other) {
+            if (this.HasEvents && other.HasEvents) {
                 return jd_start.CompareTo(other.jd_start);
-            } else
-            {
+            } else {
                 var RA = this.Coordinates().RA;
                 var otherRA = other.Coordinates().RA;
 
                 if ((RA > otherRA) && (RA - otherRA) > 12) {
                     return RA.CompareTo(otherRA + 24);
-                } 
-                else
-                {
+                } else {
                     return RA.CompareTo(otherRA);
                 }
             }
         }
 
-        private static DateTime JulianToDateTime(double julianDate)
-        {
+        private static DateTime JulianToDateTime(double julianDate) {
             return DateTime.FromOADate(julianDate - 2415018.5).ToLocalTime();
         }
     }
 
+    public sealed class VarStarMap : ClassMap<VariableStar> {
 
-    public sealed class VarStarMap : ClassMap<VariableStar>
-    {
-        public VarStarMap()
-        {
+        public VarStarMap() {
             Map(m => m.Name).Name("name");
             Map(m => m.Comments).Name("comments");
             Map(m => m.V).Name("v");

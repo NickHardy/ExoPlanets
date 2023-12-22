@@ -13,19 +13,20 @@
 #endregion "copyright"
 
 using Newtonsoft.Json;
+using NINA.Astrometry.Interfaces;
+using NINA.Core.Utility;
+using NINA.Plugin.ExoPlanets.Model;
+using NINA.Plugin.ExoPlanets.Sequencer.Utility;
+using NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider;
+using NINA.Sequencer.Conditions;
 using NINA.Sequencer.SequenceItem;
 using NINA.Sequencer.Utility.DateTimeProvider;
-using NINA.Core.Utility;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Threading.Tasks;
-using NINA.Sequencer.Conditions;
-using NINA.Plugin.ExoPlanets.Sequencer.Utility.DateTimeProvider;
-using NINA.Plugin.ExoPlanets.Model;
-using NINA.Plugin.ExoPlanets.Sequencer.Utility;
-using NINA.Astrometry.Interfaces;
+using TimeProvider = NINA.Sequencer.Utility.DateTimeProvider.TimeProvider;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Conditions {
 
@@ -42,16 +43,16 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Conditions {
         private int minutesOffset;
         private int seconds;
         private IDateTimeProvider selectedProvider;
-        private INighttimeCalculator nighttimeCalculator;
+        private readonly INighttimeCalculator nighttimeCalculator;
 
         [ImportingConstructor]
         public TransitCondition(IList<IDateTimeProvider> dateTimeProviders, INighttimeCalculator nighttimeCalculator) {
             this.nighttimeCalculator = nighttimeCalculator;
             DateTime = new SystemDateTime();
             DateTimeProviders = dateTimeProviders;
-            if (DateTimeProviders.Where(d => d is ObservationStartProvider).Count() == 0)
+            if (!DateTimeProviders.Where(d => d is ObservationStartProvider).Any())
                 DateTimeProviders.Add(new ObservationStartProvider(nighttimeCalculator));
-            if (DateTimeProviders.Where(d => d is ObservationEndProvider).Count() == 0)
+            if (!DateTimeProviders.Where(d => d is ObservationEndProvider).Any())
                 DateTimeProviders.Add(new ObservationEndProvider(nighttimeCalculator));
             this.SelectedProvider = DateTimeProviders.FirstOrDefault(d => d is ObservationEndProvider);
             ConditionWatchdog = new ConditionWatchdog(() => { Tick(); return Task.CompletedTask; }, TimeSpan.FromSeconds(1));
@@ -74,11 +75,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Conditions {
             }
         }
 
-        public bool HasFixedTimeProvider {
-            get {
-                return selectedProvider != null && !(selectedProvider is TimeProvider);
-            }
-        }
+        public bool HasFixedTimeProvider => selectedProvider is not null and not TimeProvider;
 
         [JsonProperty]
         public int Hours {
@@ -112,7 +109,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Conditions {
 
         public TimeSpan RemainingTime {
             get {
-                TimeSpan remaining = (CalculateRemainingTime() - DateTime.Now);
+                TimeSpan remaining = CalculateRemainingTime() - DateTime.Now;
                 if (remaining.TotalSeconds < 0) return new TimeSpan(0);
                 return remaining;
             }

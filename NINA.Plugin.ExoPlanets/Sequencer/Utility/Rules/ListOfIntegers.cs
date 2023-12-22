@@ -23,8 +23,8 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility.Rules {
 
         public override ValidationResult Validate(object value, CultureInfo cultureInfo) {
             try {
-                value.ToString().Split(',').Select(int.Parse).ToList();
-            } catch (Exception e) {
+                _ = value.ToString().Split(',').Select(int.Parse).ToList();
+            } catch (Exception) {
                 return new ValidationResult(false, "Must be a comma separated list of integers");
             }
 
@@ -32,12 +32,10 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility.Rules {
         }
     }
 
-    public class FileExist : ValidationRule
-    {
-        public override ValidationResult Validate(object value, CultureInfo cultureInfo)
-        {
+    public class FileExist : ValidationRule {
+
+        public override ValidationResult Validate(object value, CultureInfo cultureInfo) {
             return new ValidationResult(true, null);
         }
     }
-
 }

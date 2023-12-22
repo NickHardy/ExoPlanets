@@ -18,7 +18,9 @@ using Accord.Math.Geometry;
 using NINA.Core.Enum;
 using NINA.Core.Model;
 using NINA.Core.Utility;
+using NINA.Image.ImageAnalysis;
 using NINA.Image.ImageData;
+using NINA.Image.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -28,13 +30,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using NINA.Image.Interfaces;
-using NINA.Image.ImageAnalysis;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
     public class StarDetection : IStarDetection {
-        private static int _maxWidth = 1552;
+        private static readonly int _maxWidth = 1552;
 
         public string Name => "NINA";
 
@@ -68,13 +68,13 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             state._originalBitmapSource = renderedImage.Image;
 
             state._resizefactor = 1.0;
-/*            if (state.imageProperties.Width > _maxWidth) {
-                if (p.Sensitivity == StarSensitivityEnum.Highest) {
-                    state._resizefactor = Math.Max(0.625, (double)_maxWidth / state.imageProperties.Width);
-                } else {
-                    state._resizefactor = (double)_maxWidth / state.imageProperties.Width;
-                }
-            }*/
+            /*            if (state.imageProperties.Width > _maxWidth) {
+                            if (p.Sensitivity == StarSensitivityEnum.Highest) {
+                                state._resizefactor = Math.Max(0.625, (double)_maxWidth / state.imageProperties.Width);
+                            } else {
+                                state._resizefactor = (double)_maxWidth / state.imageProperties.Width;
+                            }
+                        }*/
             state._inverseResizefactor = 1.0 / state._resizefactor;
 
             state._minStarSize = (int)Math.Floor(5 * state._resizefactor);
@@ -97,13 +97,13 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
         }
 
         private BlobCounter _blobCounter;
-        
+
         public class Star {
             public double radius;
             public double HFR;
             public Accord.Point Position;
             public double meanBrightness;
-            private List<PixelData> pixelData;
+            private readonly List<PixelData> pixelData;
             public double Average { get; private set; } = 0;
             public double SurroundingMean { get; set; } = 0;
             public double maxPixelValue { get; set; } = 0;
@@ -152,8 +152,8 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                 this.pixelData.Clear();
             }
 
-            internal bool InsideCircle(double x, double y, double centerX, double centerY, double radius) {
-                return (Math.Pow(x - centerX, 2) + Math.Pow(y - centerY, 2) <= Math.Pow(radius, 2));
+            internal static bool InsideCircle(double x, double y, double centerX, double centerY, double radius) {
+                return Math.Pow(x - centerX, 2) + Math.Pow(y - centerY, 2) <= Math.Pow(radius, 2);
             }
 
             public DetectedStar ToDetectedStar() {
@@ -181,53 +181,57 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
         public async Task<StarDetectionResult> Detect(IRenderedImage image, PixelFormat pf, StarDetectionParams p, IProgress<ApplicationStatus> progress, CancellationToken token) {
             var result = new StarDetectionResult();
             Bitmap _bitmapToAnalyze = null;
-            try {
-                using (MyStopWatch.Measure()) {
-                    progress?.Report(new ApplicationStatus() { Status = "Preparing image for star detection" });
 
-                    var state = GetInitialState(image, pf, p);
-                    _bitmapToAnalyze = ImageUtility.Convert16BppTo8Bpp(state._originalBitmapSource);
+            await Task.Run(() => {
+                try {
+                    using (MyStopWatch.Measure()) {
+                        progress?.Report(new ApplicationStatus() { Status = "Preparing image for star detection" });
 
-                    token.ThrowIfCancellationRequested();
+                        var state = GetInitialState(image, pf, p);
+                        _bitmapToAnalyze = ImageUtility.Convert16BppTo8Bpp(state._originalBitmapSource);
 
-                    /* Resize to speed up manipulation */
-                    _bitmapToAnalyze = DetectionUtility.ResizeForDetection(_bitmapToAnalyze, _maxWidth, state._resizefactor);
+                        token.ThrowIfCancellationRequested();
 
-                    /* prepare image for structure detection */
-                    PrepareForStructureDetection(_bitmapToAnalyze, p, state, token);
+                        /* Resize to speed up manipulation */
+                        _bitmapToAnalyze = DetectionUtility.ResizeForDetection(_bitmapToAnalyze, _maxWidth, state._resizefactor);
 
-                    progress?.Report(new ApplicationStatus() { Status = "Detecting structures" });
+                        /* prepare image for structure detection */
+                        PrepareForStructureDetection(_bitmapToAnalyze, p, state, token);
 
-                    /* get structure info */
-                    _blobCounter = DetectStructures(_bitmapToAnalyze, token);
+                        progress?.Report(new ApplicationStatus() { Status = "Detecting structures" });
 
-                    progress?.Report(new ApplicationStatus() { Status = "Analyzing stars" });
+                        /* get structure info */
+                        _blobCounter = DetectStructures(_bitmapToAnalyze, token);
 
-                    result.StarList = IdentifyStars(p, state, _bitmapToAnalyze, result, token, out var detectedStars);
+                        progress?.Report(new ApplicationStatus() { Status = "Analyzing stars" });
 
-                    token.ThrowIfCancellationRequested();
+                        result.StarList = IdentifyStars(p, state, _bitmapToAnalyze, result, token, out var detectedStars);
 
-                    if (result.StarList.Count > 0) {
-                        var mean = (from star in result.StarList select star.HFR).Average();
-                        var stdDev = double.NaN;
-                        if (result.StarList.Count > 1) {
-                            stdDev = Math.Sqrt((from star in result.StarList select (star.HFR - mean) * (star.HFR - mean)).Sum() / (result.StarList.Count() - 1));
+                        token.ThrowIfCancellationRequested();
+
+                        if (result.StarList.Count > 0) {
+                            var mean = (from star in result.StarList select star.HFR).Average();
+                            var stdDev = double.NaN;
+                            if (result.StarList.Count > 1) {
+                                stdDev = Math.Sqrt((from star in result.StarList select (star.HFR - mean) * (star.HFR - mean)).Sum() / (result.StarList.Count - 1));
+                            }
+
+                            Logger.Info($"Average HFR: {mean}, HFR σ: {stdDev}, Detected Stars {detectedStars}");
+
+                            result.AverageHFR = mean;
+                            result.HFRStdDev = stdDev;
+                            result.DetectedStars = detectedStars;
                         }
 
-                        Logger.Info($"Average HFR: {mean}, HFR σ: {stdDev}, Detected Stars {detectedStars}");
-
-                        result.AverageHFR = mean;
-                        result.HFRStdDev = stdDev;
-                        result.DetectedStars = detectedStars;
+                        _blobCounter = null;
                     }
-
-                    _blobCounter = null;
+                } catch (OperationCanceledException) {
+                } finally {
+                    progress?.Report(new ApplicationStatus() { Status = string.Empty });
+                    _bitmapToAnalyze?.Dispose();
                 }
-            } catch (OperationCanceledException) {
-            } finally {
-                progress?.Report(new ApplicationStatus() { Status = string.Empty });
-                _bitmapToAnalyze?.Dispose();
-            }
+            }, token);
+
             return result;
         }
 
@@ -286,7 +290,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     for (int y = largeRect.Y; y < largeRect.Y + largeRect.Height; y++) {
                         var pixelValue = state._iarr.FlatArray[x + (state.imageProperties.Width * y)];
                         if (x >= s.Rectangle.X && x < s.Rectangle.X + s.Rectangle.Width && y >= s.Rectangle.Y && y < s.Rectangle.Y + s.Rectangle.Height) { //We're in the small rectangle directly surrounding the star
-                            if (s.InsideCircle(x, y, s.Position.X, s.Position.Y, s.radius)) { // We're in the inner sanctum of the star
+                            if (Star.InsideCircle(x, y, s.Position.X, s.Position.Y, s.radius)) { // We're in the inner sanctum of the star
                                 starPixelSum += pixelValue;
                                 starPixelCount++;
                                 innerStarPixelValues.Add(pixelValue);
@@ -303,13 +307,13 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                 }
 
                 s.meanBrightness = starPixelSum / (double)starPixelCount;
-                double largeRectPixelCount = largeRect.Height * largeRect.Width - rect.Height * rect.Width;
+                double largeRectPixelCount = (largeRect.Height * largeRect.Width) - (rect.Height * rect.Width);
                 double largeRectMean = largeRectPixelSum / largeRectPixelCount;
                 s.SurroundingMean = largeRectMean;
-                double largeRectStdev = Math.Sqrt((largeRectPixelSumSquares - largeRectPixelCount * largeRectMean * largeRectMean) / largeRectPixelCount);
+                double largeRectStdev = Math.Sqrt((largeRectPixelSumSquares - (largeRectPixelCount * largeRectMean * largeRectMean)) / largeRectPixelCount);
                 int minimumNumberOfPixels = (int)Math.Ceiling(Math.Max(state._originalBitmapSource.PixelWidth, state._originalBitmapSource.PixelHeight) / 1000d);
 
-                if (s.meanBrightness >= largeRectMean + Math.Min(0.1 * largeRectMean, largeRectStdev) && innerStarPixelValues.Count(pv => pv > largeRectMean + 1.5 * largeRectStdev) > minimumNumberOfPixels) { //It's a local maximum, and has enough bright pixels, so likely to be a star. Let's add it to our star dictionary.
+                if (s.meanBrightness >= largeRectMean + Math.Min(0.1 * largeRectMean, largeRectStdev) && innerStarPixelValues.Count(pv => pv > largeRectMean + (1.5 * largeRectStdev)) > minimumNumberOfPixels) { //It's a local maximum, and has enough bright pixels, so likely to be a star. Let's add it to our star dictionary.
                     sumRadius += s.radius;
                     sumSquares += s.radius * s.radius;
                     s.CalculateHfr();
@@ -318,24 +322,24 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             }
 
             // No stars could be found. Return.
-            if (starlist.Count() == 0) {
+            if (starlist.Count == 0) {
                 return new List<DetectedStar>();
             }
 
             // Ensure we provide the list of detected stars, even if NumberOfAF stars is used
             detectedStars = starlist.Count;
-          
+
             return starlist.Select(s => s.ToDetectedStar()).ToList();
         }
 
-        private double CalculateEccentricity(double width, double height) {
+        private static double CalculateEccentricity(double width, double height) {
             var x = Math.Max(width, height);
             var y = Math.Min(width, height);
             double focus = Math.Sqrt(Math.Pow(x, 2) - Math.Pow(y, 2));
             return focus / x;
         }
 
-        private BlobCounter DetectStructures(Bitmap bmp, CancellationToken token) {
+        private static BlobCounter DetectStructures(Bitmap bmp, CancellationToken token) {
             var sw = Stopwatch.StartNew();
 
             /* detect structures */
@@ -351,7 +355,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             return blobCounter;
         }
 
-        private void PrepareForStructureDetection(Bitmap bmp, StarDetectionParams p, State state, CancellationToken token) {
+        private static void PrepareForStructureDetection(Bitmap bmp, StarDetectionParams p, State state, CancellationToken token) {
             var sw = Stopwatch.StartNew();
 
             if (p.Sensitivity == StarSensitivityEnum.Normal) {
