@@ -12,7 +12,9 @@
 
 #endregion "copyright"
 
+using CsvHelper;
 using CsvHelper.Configuration;
+using CsvHelper.TypeConversion;
 using Newtonsoft.Json;
 using NINA.Astrometry;
 using System;
@@ -92,10 +94,23 @@ namespace NINA.Plugin.ExoPlanets.Model {
             Map(m => m.jd_start).Name("jd_start");
             Map(m => m.jd_mid).Name("jd_mid");
             Map(m => m.jd_end).Name("jd_end");
-            Map(m => m.coords).Name("coords(J2000)");
+            Map(m => m.coords).Name("coords(J2000)").TypeConverter<CoordinatesTypeConverter>();
             Map(m => m.depth).Name("depth(ppt)");
             Map(m => m.pto).Name("percent_transit_observable");
             Map(m => m.pbo).Name("percent_baseline_observable");
         }
+
+        private class CoordinatesTypeConverter : DefaultTypeConverter {
+            public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData) {
+                string RaString = text.Split(' ')[0];
+                string DecString = text.Split(' ')[1];
+                return new Coordinates(Angle.ByDegree(AstroUtil.HMSToDegrees(RaString)), Angle.ByDegree(AstroUtil.DMSToDegrees(DecString)), Epoch.J2000);
+
+                // If conversion fails, throw an exception or return a default value
+                throw new TypeConverterException(this, memberMapData, $"Cannot convert '{text}' to {memberMapData.Member.Name}.", row.Context);
+            }
+        }
+
     }
+
 }

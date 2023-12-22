@@ -306,12 +306,10 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
             // Check if transit has already finished
             ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.endTime > DateTime.Now));
-            FilteredTargets = RetrievedTargets - ExoPlanetTargets.Count;
 
             // Check magnitude
             if (exoPlanetsPlugin.CheckMagnitude) {
                 ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.V < exoPlanetsPlugin.MaxMagnitude));
-                FilteredTargets = RetrievedTargets - ExoPlanetTargets.Count;
             }
 
             // check twilight
@@ -325,7 +323,6 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 } else {
                     ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.midTime > set && ep.midTime < rise));
                 }
-                FilteredTargets = RetrievedTargets - ExoPlanetTargets.Count;
             }
 
             // check nautical
@@ -339,7 +336,6 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 } else {
                     ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.midTime > set && ep.midTime < rise));
                 }
-                FilteredTargets = RetrievedTargets - ExoPlanetTargets.Count;
             }
 
             // check horizon
@@ -358,7 +354,6 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                         CheckAboveHorizon(horizon, ep.coords, ep.endTime)
                     ));
                 }
-                FilteredTargets = RetrievedTargets - ExoPlanetTargets.Count;
             }
 
             // Check meridian
@@ -367,9 +362,10 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                     var meridianTime = GetMeridianTime(ep.coords, ep.startTime.AddHours(-1d));
                     return !(ep.startTime < meridianTime && ep.endTime > meridianTime);
                 }));
-                FilteredTargets = RetrievedTargets - ExoPlanetTargets.Count;
             }
 
+            ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.OrderBy(x => x.startTime));
+            FilteredTargets = RetrievedTargets - ExoPlanetTargets.Count;
             Logger.Debug($"Filters accepted {FilteredTargets} out of {RetrievedTargets} total targets. {RetrievedTargets - FilteredTargets} were removed");
         }
 
