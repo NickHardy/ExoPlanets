@@ -532,6 +532,10 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     }
 
                     outputs.Add(ExposureTime);
+                    foreach(var input in inputs) {
+                        // Just make sure the inputs are different to eachother
+                        if (input == TargetStar.MaxBrightness) { TargetStar.MaxBrightness++; }
+                    }
                     inputs.Add(TargetStar.MaxBrightness);
 
                     if (TargetStar.MaxBrightness > (CameraMaxAdu * (TargetADU - 0.1d)) && TargetStar.MaxBrightness < (CameraMaxAdu * (TargetADU + 0.1d))) {
@@ -636,19 +640,20 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                 using var localCTS = CancellationTokenSource.CreateLinkedTokenSource(token);
                 localCTS.CancelAfter(TimeSpan.FromSeconds(30));
                 simbadTarget = target.TargetName;
-                var url = $"http://simbad.u-strasbg.fr/simbad/sim-tap/sync";
+                var url = $"https://simbad.cds.unistra.fr/simbad/sim-tap/sync";
 
                 var dictionary = new Dictionary<string, string> {
                     { "request", "doQuery" },
                     { "lang", "adql" },
                     { "format", "json" },
                     { "maxrec", "100" },
-                    { "runid", "" },
+                    { "runid", new Guid().ToString() },
+                    { "upload", "" },
                     { "phase", "run" },
                     { "query", "SELECT distinct basic.oid as oid from basic WHERE otype = '*..' and CONTAINS(POINT('ICRS', basic.ra, basic.dec), CIRCLE('ICRS', " + target.InputCoordinates.Coordinates.RADegrees + ", " + target.InputCoordinates.Coordinates.Dec + ", 0.01)) = 1" }
                 };
 
-                VoTable voTable = await PostForm(url, dictionary);
+                VoTable voTable = await PostForm(url, dictionary, localCTS.Token);
                 if (voTable == null || voTable.Data == null || voTable.Data.Count == 0 || voTable.Data[0].Count == 0) return;
                 double target_oid = Convert.ToDouble(voTable.Data[0][0]);
                 dictionary.Remove("query");
@@ -657,7 +662,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     "join(SELECT distinct basic.oid as oid, B, V, R, (B - V) * 0.9 as bvlow, (B - V) * 1.1 as bvhigh, (V - R) * 0.9 as vrlow, (V - R) * 1.1 as vrhigh, V * 0.9 as vlow, V * 1.1 as vhigh, ra, dec from allfluxes JOIN ident USING(oidref) JOIN basic ON ident.oidref = basic.oid WHERE oid = " + target_oid + ") as target ON CONTAINS(POINT('ICRS', basic.ra, basic.dec), CIRCLE('ICRS', target.ra, target.dec, 1.0)) = 1 " +
                     "WHERE basic.ra IS NOT NULL and basic.dec IS NOT NULL and allfluxes.v is not null and basic.otype = '*..' " +
                     "and((allfluxes.b is not null and allfluxes.b - allfluxes.v >= target.bvlow and allfluxes.b - allfluxes.v <= target.bvhigh) or(allfluxes.r is not null and allfluxes.v - allfluxes.r >= target.vrlow and allfluxes.v - allfluxes.r <= target.vrhigh) or(allfluxes.v >= target.vlow and allfluxes.v <= target.vhigh)); ");
-                voTable = await PostForm(url, dictionary);
+                voTable = await PostForm(url, dictionary, localCTS.Token);
                 if (voTable == null || voTable.Data == null || voTable.Data.Count == 0 || voTable.Data[0].Count == 0) return;
                 foreach (List<object> obj in voTable.Data) {
                     SimbadCompStarList.Add(new SimbadCompStar(obj));
@@ -671,21 +676,19 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             }
         }
 
-        private async Task<VoTable> PostForm(string url, Dictionary<string, string> dictionary) {
-            var boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
-            var contentType = "multipart/form-data; boundary=" + boundary;
-            var FormDataTemplate = "--{0}\r\nContent-Disposition: form-data; name=\"{1}\"\r\n\r\n{2}\r\n";
+        private async Task<VoTable> PostForm(string url, Dictionary<string, string> dictionary, CancellationToken token) {
 
-            StringBuilder postData = new();
+            using var httpClient = new HttpClient();
+
+            // Define your form data
+            var formData = new MultipartFormDataContent();
 
             foreach (string key in dictionary.Keys) {
-                postData.Append(string.Format(FormDataTemplate, boundary, key, dictionary[key]));
+                formData.Add(new StringContent(dictionary[key]), key);
             }
 
-            postData.Append("--" + boundary + "--");
-
             try {
-                var response = await HttpRequest.HttpRequestAsync(url, HttpMethod.Post, CancellationToken.None, body: postData.ToString(), contentType: contentType);
+                HttpResponseMessage response = await httpClient.PostAsync(url, formData, token);
 
                 var serializer = new JsonSerializer();
 

@@ -241,7 +241,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
         [RelayCommand]
         private void SearchExoPlanetTargets(object obj) {
-            ExoPlanetTargetsList = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.Name.ToLower().Contains(FilterTargets.ToLower())));
+            ExoPlanetTargetsList = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.Name.ToLower().Contains(FilterTargets.ToLower())).OrderBy(x => x.startTime));
             SelectedExoPlanet = ExoPlanetTargetsList.FirstOrDefault();
         }
 
