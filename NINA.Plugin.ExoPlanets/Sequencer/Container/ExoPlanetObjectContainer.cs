@@ -119,7 +119,15 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
         [JsonProperty]
         public ExoPlanetDeepSkyObject ExoPlanetDSO {
-            get => exoPlanetDSO;
+            get {
+                if (exoPlanetDSO != null && exoPlanetDSO.ReferenceDate > DateTime.Now.AddHours(-12)) {
+                    return exoPlanetDSO;
+                } else {
+                    ExoPlanetDSO = new ExoPlanetDeepSkyObject(string.Empty, new Coordinates(Angle.Zero, Angle.Zero, Epoch.J2000), string.Empty, profileService.ActiveProfile.AstrometrySettings.Horizon);
+                    ExoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now.AddHours(4)), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
+                    return exoPlanetDSO;
+                }
+            }
             set {
                 exoPlanetDSO = value;
                 RaisePropertyChanged();
