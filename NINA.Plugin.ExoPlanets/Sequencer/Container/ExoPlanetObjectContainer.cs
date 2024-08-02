@@ -14,6 +14,7 @@
 
 using CommunityToolkit.Mvvm.Input;
 using CsvHelper;
+using CsvHelper.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using NINA.Astrometry;
@@ -44,6 +45,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -84,6 +86,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             Task.Run(() => NighttimeData = nighttimeCalculator.Calculate(DateTime.Now.AddHours(4)));
             CoordsToFramingCommand = new AsyncRelayCommand(() => Task.Run(CoordsToFraming));
             exoPlanetsPlugin = new ExoPlanets();
+            _pandoraStars = new List<PandoraStar>();
 
             ExoPlanetInputTarget = new ExoPlanetInputTarget(Angle.ByDegree(profileService.ActiveProfile.AstrometrySettings.Latitude), Angle.ByDegree(profileService.ActiveProfile.AstrometrySettings.Longitude), profileService.ActiveProfile.AstrometrySettings.Horizon);
             LoadTargetsCommand = new AsyncRelayCommand(LoadTargets);
@@ -213,6 +216,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             }
         }
 
+
         public DateTime StartTimeUtc => SelectedExoPlanet.startTime.ToUniversalTime();
         public DateTime EndTimeUtc => SelectedExoPlanet.endTime.ToUniversalTime();
         public TimeSpan TransitDuration => SelectedExoPlanet.endTime.Subtract(SelectedExoPlanet.startTime);
@@ -300,6 +304,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 RetrievedTargets = ExoPlanetTargets.Count;
 
                 PreFilterTargets();
+                CheckPanadoraStars();
                 SearchExoPlanetTargets(null);
 
                 LoadingTargets = false;
@@ -407,6 +412,32 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 start = start.AddHours(0.1);
             }
             return altList.OrderByDescending((x) => x.Alt).FirstOrDefault().Datetime;
+        }
+
+        private List<PandoraStar> _pandoraStars;
+        private void CheckPanadoraStars() {
+            if (_pandoraStars.Count == 0) {
+                List<PandoraStar> pandoraStars = new List<PandoraStar>();
+                var assemblyFolder = new Uri(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)).LocalPath;
+
+                var config = new CsvConfiguration(CultureInfo.InvariantCulture);
+                config.MissingFieldFound = null;
+                using (var reader = new StreamReader(Path.Combine(assemblyFolder, "pandora_website_2024.csv")))
+                using (var csv = new CsvReader(reader, config)) {
+                    csv.Context.RegisterClassMap<PandoraStarMap>();
+                    var records = csv.GetRecords<PandoraStar>();
+                    foreach (var record in records) {
+                        _pandoraStars.Add(record);
+                    }
+                }
+            }
+            foreach(var target in ExoPlanetTargets) {
+                var pStar = _pandoraStars.Where(x => x.Star.Replace(" ", "") + x.Planet == target.Name || x.Star + " " + x.Planet == target.Name).FirstOrDefault();
+                if (pStar != null) {
+                    target.Comments += target.Comments.Length > 0 ? $"{Environment.NewLine}" : "";
+                    target.Comments += "Pandora target";
+                }
+            }
         }
 
         private async Task RetrieveTargetsFromExoClock() {

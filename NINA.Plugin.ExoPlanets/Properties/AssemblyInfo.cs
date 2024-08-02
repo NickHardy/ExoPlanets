@@ -26,8 +26,8 @@ using System.Runtime.InteropServices;
 
 //The assembly versioning
 //Should be incremented for each new release build of a plugin
-[assembly: AssemblyVersion("2.0.3.1")]
-[assembly: AssemblyFileVersion("2.0.3.1")]
+[assembly: AssemblyVersion("2.0.4.0")]
+[assembly: AssemblyFileVersion("2.0.4.0")]
 
 //The minimum Version of N.I.N.A. that this plugin is compatible with
 [assembly: AssemblyMetadata("MinimumApplicationVersion", "3.0.0.9001")]
@@ -95,13 +95,17 @@ using System.Runtime.InteropServices;
 * [ExoClock](https://www.exoclock.space/)
 * [Exoplanet-watch](https://exoplanets.nasa.gov/exoplanet-watch)
 * [AAVSO](https://www.aavso.org/)
-* [Siril Processing](https://siril.readthedocs.io/en/latest/photometry/lightcurves.html#nina-exoplanet-button)
+* [Siril Processing](https://siril.readthedocs.io/en/latest/photometry/lightcurves.html#nina-exoplanet-button)  
   A Nina Exoplanet button has been added to easily process the data collected. Make sure to select save the csv starlist in the options.
 
 This plugin uses online data from:
 * [https://astro.swarthmore.edu/transits/](https://astro.swarthmore.edu/transits/)
 * [https://app.aavso.org/vsp/](https://app.aavso.org/vsp/)
 * [http://simbad.u-strasbg.fr/simbad/](http://simbad.u-strasbg.fr/simbad/)
+
+This plugin also support the Pandora mission:
+* [https://pandoramission.github.io/pandorawebsite/](https://pandoramission.github.io/pandorawebsite/)  
+  If a target is in the target list for the Pandora mission, it will show in the comment. It would be great if you could grab data for those targets and upload it to the AAVSO. Thx.
 
 Tutorials:
 * [Patriot Astro: Imaging](https://www.youtube.com/watch?v=dN_s_4HjSZU)
