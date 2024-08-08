@@ -404,7 +404,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     var center = new Point(width / 2, height / 2);
 
                     //Translate your coordinates to x/y in relation to center coordinates
-                    Point targetPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(plateSolveResult.Coordinates, center, arcsecPerPix, arcsecPerPix, plateSolveResult.PositionAngle, ProjectionType.Stereographic);
+                    Point targetPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(plateSolveResult.Coordinates, center, arcsecPerPix, arcsecPerPix, -plateSolveResult.PositionAngle, ProjectionType.Stereographic);
                     TargetStar = starDetectionResult.StarList
                         .GroupBy(p => Math.Pow(targetPoint.X - p.Position.X, 2) + Math.Pow(targetPoint.Y - p.Position.Y, 2))
                         .OrderBy(p => p.Key)
