@@ -148,9 +148,9 @@ namespace NINA.Plugin.ExoPlanets.Model {
         }
     }
 
-    public sealed class VarStarMap : ClassMap<VariableStar> {
+    public sealed class ManualVarStarMap : ClassMap<VariableStar> {
 
-        public VarStarMap() {
+        public ManualVarStarMap() {
             Map(m => m.Name).Name("name");
             Map(m => m.Comments).Name("comments");
             Map(m => m.V).Name("v");
@@ -161,6 +161,46 @@ namespace NINA.Plugin.ExoPlanets.Model {
             Map(m => m.amplitude).Name("amplitude").Default(1);
             Map(m => m.OCRange).Name("ocrange").Default(0);
             Map(m => m.observedPhase).Name("phase").Default(0);
+        }
+    }
+
+    public sealed class AavsoVarStarMap : ClassMap<AavsoDTO> {
+
+        public AavsoVarStarMap() {
+            Map(m => m.Name).Name("Star Name");
+            Map(m => m.Comments).Name("Notes");
+            Map(m => m.MaxMag).Name("Max Mag");
+            Map(m => m.MinMag).Name("Min Mag");
+            Map(m => m.RA).Name("RA (J2000.0)");
+            Map(m => m.Dec).Name("Dec (J2000.0)");
+            Map(m => m.Period).Name("Period (d)");
+        }
+    }
+
+    public sealed class AavsoDTO {
+        public string Name;
+        public string Comments;
+        public string MinMag;
+        public string MaxMag;
+        public string RA;
+        public string Dec;
+        public string Period;
+
+        public VariableStar AsVariableStar() {
+            VariableStar newStar = new VariableStar {
+                Name = Name,
+                Comments = Comments,
+                RA = RA,
+                Dec = Dec
+            };
+
+
+            if (Double.TryParse(Period, out double period)) {
+                newStar.period = period;
+            } else {
+                newStar.period = 0;
+            }
+            return newStar;
         }
     }
 }
