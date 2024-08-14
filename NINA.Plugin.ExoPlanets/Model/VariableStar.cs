@@ -135,11 +135,7 @@ namespace NINA.Plugin.ExoPlanets.Model {
                 var RA = this.Coordinates().RA;
                 var otherRA = other.Coordinates().RA;
 
-                if ((RA > otherRA) && (RA - otherRA) > 12) {
-                    return RA.CompareTo(otherRA + 24);
-                } else {
-                    return RA.CompareTo(otherRA);
-                }
+                return RA.CompareTo(otherRA);
             }
         }
 
@@ -174,6 +170,7 @@ namespace NINA.Plugin.ExoPlanets.Model {
             Map(m => m.RA).Name("RA (J2000.0)");
             Map(m => m.Dec).Name("Dec (J2000.0)");
             Map(m => m.Period).Name("Period (d)");
+            Map(m => m.Filter).Name("Filter/Mode");
         }
     }
 
@@ -185,10 +182,11 @@ namespace NINA.Plugin.ExoPlanets.Model {
         public string RA;
         public string Dec;
         public string Period;
+        public string Filter;
 
         public VariableStar AsVariableStar() {
             VariableStar newStar = new VariableStar {
-                Name = Name,
+                Name = Name + '-' +Filter,
                 Comments = Comments,
                 RA = RA,
                 Dec = Dec
