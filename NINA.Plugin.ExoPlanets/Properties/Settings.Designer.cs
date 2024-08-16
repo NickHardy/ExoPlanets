@@ -226,5 +226,17 @@ namespace NINA.Plugin.ExoPlanets.Properties {
                 this["VarStarCatalogTypeIndex"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int VarStarSortingCriteria {
+            get {
+                return ((int)(this["VarStarSortingCriteria"]));
+            }
+            set {
+                this["VarStarSortingCriteria"] = value;
+            }
+        }
     }
 }

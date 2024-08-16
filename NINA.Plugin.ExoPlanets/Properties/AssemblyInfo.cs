@@ -81,17 +81,21 @@ using System.Runtime.InteropServices;
   Make sure the coordinates for the target star are correct and that the correct pixel size and focal length are used in the Nina options.
 
 *Variable Stars Catalog:*
-* We support two kind of files:
-** Manual Catalog: This is a simple [CSV file](https://bitbucket.org/NickHardy/exoplanets/downloads/geos.csv) with the mandatory columns name,ra,dec,v,epoch and period
-  Optionally you can add:
-	- amplitude: if you want to show each variable with different variation height.
-	- ocrange: to compensate for variable O-C like on RRab with Blazhko effect.
-	- phase: use a number between 0 and 1 to observe different portions of the light curve.
+
+We support two kind of files
+
+* Manual Catalog.
+    - This is a simple [CSV file](https://bitbucket.org/NickHardy/exoplanets/downloads/geos.csv) with the mandatory columns name,ra,dec,v,epoch and period.
+	- amplitude (optional): if you want to show each variable with different variation height.
+	- ocrange (optional): to compensate for variable O-C like on RRab with Blazhko effect.
+	- phase (optional): use a number between 0 and 1 to observe different portions of the light curve.
 
   if you set the epoch to zero, no min or max will be computed and the star will be shown always it meets the observability criteria.
 
-** AAVSO CSV catalog.
+* AAVSO CSV catalog.
+    - The expected file format is the one downloaded from AVVSO's [Observation Planner Too](https://www.aavso.org/observation-planner-tool)
     - On this dataset, no epoch is given, so no min or max could be computed.
+    - You have three criteria to sort the stars: Visibility, Culmination and Name.
 
 *Template*
 * [Example exoplanet sequence](https://bitbucket.org/NickHardy/exoplanets/downloads/TransitPlanetImagingSequence.json)

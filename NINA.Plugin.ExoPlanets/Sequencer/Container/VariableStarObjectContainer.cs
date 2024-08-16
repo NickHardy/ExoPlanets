@@ -259,10 +259,15 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
             return Task.Run(async () => {
                 try {
-                    if (exoPlanetsPlugin.VarStarCatalogTypeIndex == 0) {
-                        await RetrieveTargetsFromManualCSVFile(exoPlanetsPlugin.VarStarCatalog);
-                    } else {
-                        await RetrieveTargetsFromAavsoCSVFile(exoPlanetsPlugin.VarStarCatalog);
+                    switch (exoPlanetsPlugin.VarStarCatalogTypeIndex) {
+                        case 0:
+                            await RetrieveTargetsFromManualCSVFile(exoPlanetsPlugin.VarStarCatalog);
+                            break;
+                        case 1:
+                            await RetrieveTargetsFromAavsoCSVFile(exoPlanetsPlugin.VarStarCatalog);
+                            break;
+                        default:
+                            return false;
                     }
                 } catch (Exception ex) {
                     Logger.Error(ex);
@@ -360,7 +365,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
         }
 
         private DateTime GetMeridianTime(Coordinates coords, DateTime startTime) {
-            var start = new DateTime(Math.Min(startTime.Ticks, DateTime.Now.Ticks));
+            var start = startTime; //new DateTime(Math.Min(startTime.Ticks, DateTime.Now.Ticks));
             var siderealTime = AstroUtil.GetLocalSiderealTime(start, profileService.ActiveProfile.AstrometrySettings.Longitude);
             var hourAngle = AstroUtil.GetHourAngle(siderealTime, coords.RA);
 
@@ -428,12 +433,12 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             var sunRiseLocal = NighttimeData.TwilightRiseAndSet.Rise ?? DateTime.Now;
 
             var sunSetUT = sunSetLocal.ToUniversalTime();
+            var sunRiseUT = sunRiseLocal.ToUniversalTime();
             var tNowUT = DateTime.Now.ToUniversalTime();
             var date = (sunSetUT.CompareTo(tNowUT) < 0) ? tNowUT : sunSetUT;
             var baseJd = date.ToOADate() + 2415018.5;
             var span = exoPlanetsPlugin.VarStarObservationSpan;
 
-            var withEvents = new List<VariableStar>();
             var withoutEvents = new List<VariableStar>();
 
             Core.Model.CustomHorizon horizon = profileService.ActiveProfile.AstrometrySettings.Horizon;
@@ -449,40 +454,50 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 while (csv.Read()) {
                     if (csv.GetRecord<AavsoDTO>() is AavsoDTO newDto) {
                         VariableStar newStar = newDto.AsVariableStar();
-                        if (newStar.HasEvents) {
-                            newStar.NextEvent(baseJd, span);
-                            withEvents.Add(newStar);
-                        } else {
-                            var starRise = GetNextRiseTime(horizon, newStar.Coordinates(), sunSetLocal);
-                            starRise = new DateTime(Math.Min(starRise.Ticks, sunRiseLocal.Ticks));
-                            var starSet = GetNextSettingTime(horizon, newStar.Coordinates(), starRise.AddMinutes(10d));
-                            starSet = new DateTime(Math.Min(starSet.Ticks, sunRiseLocal.Ticks));
-                            newStar.AllNight(starRise, starSet);
-                            withoutEvents.Add(newStar);
-                        }
+                        var starRise = GetNextRiseTime(horizon, newStar.Coordinates(), sunSetLocal);
+                        starRise = new DateTime(Math.Min(starRise.Ticks, sunRiseLocal.Ticks));
+                        var starSet = GetNextSettingTime(horizon, newStar.Coordinates(), starRise.AddMinutes(10d));
+                        starSet = new DateTime(Math.Min(starSet.Ticks, sunRiseLocal.Ticks));
+                        newStar.AllNight(starRise, starSet);
+                        withoutEvents.Add(newStar);
                     }
                 }
             }
 
-            withEvents.Sort((a, b) => a.CompareTo(b));
-            withoutEvents = withoutEvents
+
+            var final = withoutEvents
                 .GroupBy(s => s.Name)
                 .Select(g => {
                     var star = g.First();
                     var filters = g.Select(s => s.Comments).Order().Aggregate((acc, f) => acc.Length == 0 ? f : acc + ", " + f);
-                    var comment = g.Aggregate("",(acc, s) => acc.Length == 0 ? s.Comments : acc + ", " + s.Comments);
+                    var comment = g.Aggregate("", (acc, s) => acc.Length == 0 ? s.Comments : acc + ", " + s.Comments);
                     star.Comments = filters;
+                    star.MeridianTime = GetMeridianTime(star.Coordinates(), star.startTime.AddHours(-2));
                     return star;
-                 })
-                .OrderBy(v => {
-                var meridianTime = GetMeridianTime(v.Coordinates(), v.startTime.AddHours(-1d));
-                return meridianTime;
-                })
-                .ToList<VariableStar>();
+                });
 
             VariableStarTargets.Clear();
-            VariableStarTargets.AddRange(withEvents);
-            VariableStarTargets.AddRange(withoutEvents);
+            switch (exoPlanetsPlugin.VarStarSortingCriteria) {
+                case 0:
+                    var orderCriteria = new VarStarComparer();
+                    var sorted = final.Order(orderCriteria);
+                    VariableStarTargets.AddRange(sorted.ToList());
+                    break;
+                case 1:
+                    var byMeridian = final.OrderBy(s => s.MeridianTime);
+                    VariableStarTargets.AddRange(byMeridian.ToList());
+                    break;
+                case 2:
+                    var byName = final.OrderBy(s => s.Name);
+                    VariableStarTargets.AddRange(byName.ToList());
+                    break;
+
+                default:
+                    VariableStarTargets.AddRange(final.ToList());
+                    break;
+
+
+            }
 
             return Task.CompletedTask;
         }

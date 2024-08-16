@@ -16,14 +16,21 @@ using CsvHelper.Configuration;
 using Newtonsoft.Json;
 using NINA.Astrometry;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace NINA.Plugin.ExoPlanets.Model {
 
     [JsonObject(MemberSerialization.OptIn)]
     public class VariableStar {
 
+        private string _magRange;
+
         [JsonProperty]
         public string Name { get; set; }
+
+        [JsonProperty]
+        public string VarType { get; set; } = "--";
 
         [JsonProperty]
         public string Comments { get; set; }
@@ -39,6 +46,9 @@ namespace NINA.Plugin.ExoPlanets.Model {
 
         [JsonProperty]
         public DateTime endTime { get; set; }
+
+        [JsonProperty] 
+        public DateTime MeridianTime { get; set; }
 
         [JsonProperty]
         public double jd_start { get; set; }
@@ -77,7 +87,17 @@ namespace NINA.Plugin.ExoPlanets.Model {
         public double Azimuth { get; set; }
 
         [JsonProperty]
-        public string MagRange { get; set; }
+        public string MagRange { 
+            get {
+                if (_magRange == null) {
+                    _magRange = this.V + " - " + Math.Round(this.V - this.amplitude, 2);
+                }
+                return _magRange;
+            }
+            set {
+                _magRange = value;
+            }
+        }
 
         public Coordinates Coordinates() {
             return new Coordinates(Angle.ByDegree(AstroUtil.HMSToDegrees(RA)), Angle.ByDegree(AstroUtil.DMSToDegrees(Dec)), Epoch.J2000);
@@ -147,11 +167,22 @@ namespace NINA.Plugin.ExoPlanets.Model {
         }
     }
 
+    public sealed class VarStarComparer : IComparer<VariableStar> {
+        public int Compare(VariableStar x, VariableStar y) {
+            if (x.midTime == y.midTime) {
+                return x.MeridianTime.CompareTo(y.MeridianTime);
+            } else {
+                return x.midTime.CompareTo(y.midTime);
+            }
+        }
+    }
+
     public sealed class ManualVarStarMap : ClassMap<VariableStar> {
 
         public ManualVarStarMap() {
             Map(m => m.Name).Name("name");
             Map(m => m.Comments).Name("comments");
+            Map(m => m.VarType).Name("type").Default("--");
             Map(m => m.V).Name("v");
             Map(m => m.RA).Name("ra");
             Map(m => m.Dec).Name("dec");
@@ -174,12 +205,14 @@ namespace NINA.Plugin.ExoPlanets.Model {
             Map(m => m.Dec).Name("Dec (J2000.0)");
             Map(m => m.Period).Name("Period (d)");
             Map(m => m.Filter).Name("Filter/Mode");
+            Map(m => m.VarType).Name("Var. Type").Default("--");
         }
     }
 
     public sealed class AavsoDTO {
         public string Name;
         public string Comments;
+        public string VarType;
         public string MinMag;
         public string MaxMag;
         public string RA;
@@ -191,6 +224,7 @@ namespace NINA.Plugin.ExoPlanets.Model {
             VariableStar newStar = new VariableStar {
                 Name = Name,
                 Comments = Filter,
+                VarType = VarType,
                 RA = RA,
                 Dec = Dec,
                 MagRange = MinMag + " - " + MaxMag

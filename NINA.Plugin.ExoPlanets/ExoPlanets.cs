@@ -163,6 +163,15 @@ namespace NINA.Plugin.ExoPlanets {
             }
         }
 
+        public int VarStarSortingCriteria {
+            get => Properties.Settings.Default.VarStarSortingCriteria;
+            set {
+                Properties.Settings.Default.VarStarSortingCriteria = value;
+                CoreUtil.SaveSettings(Properties.Settings.Default);
+                RaisePropertyChanged();
+            }
+        }
+
         public string VarStarCatalog {
             get => Properties.Settings.Default.VarStarCatalog;
             set {
