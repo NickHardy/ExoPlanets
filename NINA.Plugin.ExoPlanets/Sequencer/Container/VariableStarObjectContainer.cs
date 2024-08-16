@@ -259,8 +259,11 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
             return Task.Run(async () => {
                 try {
-                    // await RetrieveTargetsFromManualCSVFile(exoPlanetsPlugin.VarStarCatalog);
-                    await RetrieveTargetsFromAavsoCSVFile(exoPlanetsPlugin.VarStarCatalog);
+                    if (exoPlanetsPlugin.VarStarCatalogTypeIndex == 0) {
+                        await RetrieveTargetsFromManualCSVFile(exoPlanetsPlugin.VarStarCatalog);
+                    } else {
+                        await RetrieveTargetsFromAavsoCSVFile(exoPlanetsPlugin.VarStarCatalog);
+                    }
                 } catch (Exception ex) {
                     Logger.Error(ex);
                 }
@@ -462,7 +465,20 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             }
 
             withEvents.Sort((a, b) => a.CompareTo(b));
-            withoutEvents.Sort((a, b) => a.CompareTo(b));
+            withoutEvents = withoutEvents
+                .GroupBy(s => s.Name)
+                .Select(g => {
+                    var star = g.First();
+                    var filters = g.Select(s => s.Comments).Order().Aggregate((acc, f) => acc.Length == 0 ? f : acc + ", " + f);
+                    var comment = g.Aggregate("",(acc, s) => acc.Length == 0 ? s.Comments : acc + ", " + s.Comments);
+                    star.Comments = filters;
+                    return star;
+                 })
+                .OrderBy(v => {
+                var meridianTime = GetMeridianTime(v.Coordinates(), v.startTime.AddHours(-1d));
+                return meridianTime;
+                })
+                .ToList<VariableStar>();
 
             VariableStarTargets.Clear();
             VariableStarTargets.AddRange(withEvents);

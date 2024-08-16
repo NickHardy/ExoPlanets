@@ -76,6 +76,9 @@ namespace NINA.Plugin.ExoPlanets.Model {
         [JsonProperty]
         public double Azimuth { get; set; }
 
+        [JsonProperty]
+        public string MagRange { get; set; }
+
         public Coordinates Coordinates() {
             return new Coordinates(Angle.ByDegree(AstroUtil.HMSToDegrees(RA)), Angle.ByDegree(AstroUtil.DMSToDegrees(Dec)), Epoch.J2000);
         }
@@ -186,12 +189,12 @@ namespace NINA.Plugin.ExoPlanets.Model {
 
         public VariableStar AsVariableStar() {
             VariableStar newStar = new VariableStar {
-                Name = Name + '-' +Filter,
-                Comments = Comments,
+                Name = Name,
+                Comments = Filter,
                 RA = RA,
-                Dec = Dec
+                Dec = Dec,
+                MagRange = MinMag + " - " + MaxMag
             };
-
 
             if (Double.TryParse(Period, out double period)) {
                 newStar.period = period;
