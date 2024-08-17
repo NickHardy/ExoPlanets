@@ -40,6 +40,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Data;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -258,7 +259,16 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
             return Task.Run(async () => {
                 try {
-                    await RetrieveTargetsFromFile(exoPlanetsPlugin.VarStarCatalog);
+                    switch (exoPlanetsPlugin.VarStarCatalogTypeIndex) {
+                        case 0:
+                            await RetrieveTargetsFromManualCSVFile(exoPlanetsPlugin.VarStarCatalog);
+                            break;
+                        case 1:
+                            await RetrieveTargetsFromAavsoCSVFile(exoPlanetsPlugin.VarStarCatalog);
+                            break;
+                        default:
+                            return false;
+                    }
                 } catch (Exception ex) {
                     Logger.Error(ex);
                 }
@@ -355,7 +365,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
         }
 
         private DateTime GetMeridianTime(Coordinates coords, DateTime startTime) {
-            var start = new DateTime(Math.Min(startTime.Ticks, DateTime.Now.Ticks));
+            var start = startTime; //new DateTime(Math.Min(startTime.Ticks, DateTime.Now.Ticks));
             var siderealTime = AstroUtil.GetLocalSiderealTime(start, profileService.ActiveProfile.AstrometrySettings.Longitude);
             var hourAngle = AstroUtil.GetHourAngle(siderealTime, coords.RA);
 
@@ -411,7 +421,88 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             return start;
         }
 
-        private Task RetrieveTargetsFromFile(string fileName) {
+        private Task RetrieveTargetsFromAavsoCSVFile(string fileName) {
+            if (!File.Exists(fileName)) {
+                var errorStr = $"Variable star list {fileName} does not exist.";
+                Logger.Error(errorStr);
+                Notification.ShowError(errorStr);
+                return Task.CompletedTask;
+            }
+
+            var sunSetLocal = NighttimeData.TwilightRiseAndSet.Set ?? DateTime.Now;
+            var sunRiseLocal = NighttimeData.TwilightRiseAndSet.Rise ?? DateTime.Now;
+
+            var sunSetUT = sunSetLocal.ToUniversalTime();
+            var sunRiseUT = sunRiseLocal.ToUniversalTime();
+            var tNowUT = DateTime.Now.ToUniversalTime();
+            var date = (sunSetUT.CompareTo(tNowUT) < 0) ? tNowUT : sunSetUT;
+            var baseJd = date.ToOADate() + 2415018.5;
+            var span = exoPlanetsPlugin.VarStarObservationSpan;
+
+            var withoutEvents = new List<VariableStar>();
+
+            Core.Model.CustomHorizon horizon = profileService.ActiveProfile.AstrometrySettings.Horizon;
+
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture) {
+                MissingFieldFound = null,
+                BadDataFound = null,
+            };
+
+            using (var reader = new StreamReader(fileName))
+            using (var csv = new CsvReader(reader, config)) {
+                csv.Context.RegisterClassMap<AavsoVarStarMap>();
+                while (csv.Read()) {
+                    if (csv.GetRecord<AavsoDTO>() is AavsoDTO newDto) {
+                        VariableStar newStar = newDto.AsVariableStar();
+                        var starRise = GetNextRiseTime(horizon, newStar.Coordinates(), sunSetLocal);
+                        starRise = new DateTime(Math.Min(starRise.Ticks, sunRiseLocal.Ticks));
+                        var starSet = GetNextSettingTime(horizon, newStar.Coordinates(), starRise.AddMinutes(10d));
+                        starSet = new DateTime(Math.Min(starSet.Ticks, sunRiseLocal.Ticks));
+                        newStar.AllNight(starRise, starSet);
+                        withoutEvents.Add(newStar);
+                    }
+                }
+            }
+
+
+            var final = withoutEvents
+                .GroupBy(s => s.Name)
+                .Select(g => {
+                    var star = g.First();
+                    var filters = g.Select(s => s.Comments).Order().Aggregate((acc, f) => acc.Length == 0 ? f : acc + ", " + f);
+                    var comment = g.Aggregate("", (acc, s) => acc.Length == 0 ? s.Comments : acc + ", " + s.Comments);
+                    star.Comments = filters;
+                    star.MeridianTime = GetMeridianTime(star.Coordinates(), star.startTime.AddHours(-2));
+                    return star;
+                });
+
+            VariableStarTargets.Clear();
+            switch (exoPlanetsPlugin.VarStarSortingCriteria) {
+                case 0:
+                    var orderCriteria = new VarStarComparer();
+                    var sorted = final.Order(orderCriteria);
+                    VariableStarTargets.AddRange(sorted.ToList());
+                    break;
+                case 1:
+                    var byMeridian = final.OrderBy(s => s.MeridianTime);
+                    VariableStarTargets.AddRange(byMeridian.ToList());
+                    break;
+                case 2:
+                    var byName = final.OrderBy(s => s.Name);
+                    VariableStarTargets.AddRange(byName.ToList());
+                    break;
+
+                default:
+                    VariableStarTargets.AddRange(final.ToList());
+                    break;
+
+
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private Task RetrieveTargetsFromManualCSVFile(string fileName) {
             if (!File.Exists(fileName)) {
                 var errorStr = $"Variable star list {fileName} does not exist.";
                 Logger.Error(errorStr);
@@ -439,7 +530,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
             using (var reader = new StreamReader(fileName))
             using (var csv = new CsvReader(reader, config)) {
-                csv.Context.RegisterClassMap<VarStarMap>();
+                csv.Context.RegisterClassMap<ManualVarStarMap>();
                 while (csv.Read()) {
                     if (csv.GetRecord<VariableStar>() is VariableStar newStar) {
                         if (newStar.HasEvents) {

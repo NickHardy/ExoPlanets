@@ -305,6 +305,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition MinHeight="25" />
@@ -326,6 +327,16 @@
                             Grid.Row="0"
                             Grid.Column="1"
                             Orientation="Horizontal">
+                            <ComboBox
+                                Height="25"
+                                MinWidth="70"
+                                Margin="10,0,2,0"
+                                IsEditable="False"
+                                IsTextSearchEnabled="False"
+                                SelectedIndex="{Binding VarStarCatalogTypeIndex, Mode=TwoWay}">
+                                    <ComboBoxItem>Manual</ComboBoxItem>
+                                    <ComboBoxItem>AAVSO</ComboBoxItem>
+                            </ComboBox>
                             <TextBox
                                 MinWidth="250"
                                 Margin="5,5,0,0"
@@ -355,12 +366,29 @@
                             </Button>
                         </StackPanel>
                         <TextBlock
-                            Grid.Row="1"
+                            Grid.Row="2"
                             Grid.Column="0"
                             VerticalAlignment="Center"
-                            Text="Observation Span" />
+                            Text="Order by" />
+                        <ComboBox
+                            Grid.Row="2"
+                            Grid.Column="1"
+                             Height="25"
+                             Margin="10,0,2,0"
+                             IsEditable="False"
+                             IsTextSearchEnabled="False"
+                             SelectedIndex="{Binding VarStarSortingCriteria, Mode=TwoWay}">
+                                <ComboBoxItem>Visibility</ComboBoxItem>
+                                <ComboBoxItem>Culmination</ComboBoxItem>
+                                <ComboBoxItem>Name</ComboBoxItem>
+                        </ComboBox>
+                        <TextBlock
+                           Grid.Row="3"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Text="Observation Span" />
                         <StackPanel
-                            Grid.Row="1"
+                            Grid.Row="3"
                             Grid.Column="1"
                             Orientation="Horizontal">
                             <TextBox
