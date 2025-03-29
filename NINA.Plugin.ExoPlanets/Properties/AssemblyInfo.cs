@@ -26,8 +26,8 @@ using System.Runtime.InteropServices;
 
 //The assembly versioning
 //Should be incremented for each new release build of a plugin
-[assembly: AssemblyVersion("2.0.6.0")]
-[assembly: AssemblyFileVersion("2.0.6.0")]
+[assembly: AssemblyVersion("2.0.6.1")]
+[assembly: AssemblyFileVersion("2.0.6.1")]
 
 //The minimum Version of N.I.N.A. that this plugin is compatible with
 [assembly: AssemblyMetadata("MinimumApplicationVersion", "3.1.2.9001")]
@@ -93,7 +93,7 @@ We support two kind of files
   if you set the epoch to zero, no min or max will be computed and the star will be shown always it meets the observability criteria.
 
 * AAVSO CSV catalog. [CSV example file](https://bitbucket.org/NickHardy/exoplanets/downloads/aavso.csv)
-    - The expected file format is the one downloaded from AVVSO's [Observation Planner Tool](https://www.aavso.org/observation-planner-tool)
+    - The expected file format is the one downloaded from AVVSO's [Target Tool](https://targettool.aavso.org/TargetTool)
     - On this dataset, no epoch is given, so no min or max could be computed.
     - You have three criteria to sort the stars: Visibility, Culmination and Name.
 
