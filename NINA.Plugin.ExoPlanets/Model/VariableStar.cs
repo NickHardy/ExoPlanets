@@ -12,40 +12,59 @@
 
 #endregion "copyright"
 
-using Newtonsoft.Json;
-using NINA.Core.Model;
-using NINA.Astrometry;
 using CsvHelper.Configuration;
+using Newtonsoft.Json;
+using NINA.Astrometry;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
-namespace NINA.Plugin.ExoPlanets.Model
-{
+namespace NINA.Plugin.ExoPlanets.Model {
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class VariableStar
-    {
+    public class VariableStar {
+
+        private string _magRange;
+
         [JsonProperty]
         public string Name { get; set; }
+
+        [JsonProperty]
+        public string VarType { get; set; } = "--";
+
         [JsonProperty]
         public string Comments { get; set; }
+
         [JsonProperty]
         public double V { get; set; }
+
         [JsonProperty]
         public DateTime startTime { get; set; }
+
         [JsonProperty]
         public DateTime midTime { get; set; }
+
         [JsonProperty]
         public DateTime endTime { get; set; }
+
+        [JsonProperty] 
+        public DateTime MeridianTime { get; set; }
+
         [JsonProperty]
         public double jd_start { get; set; }
+
         [JsonProperty]
         public double jd_mid { get; set; }
+
         [JsonProperty]
         public double jd_end { get; set; }
+
         [JsonProperty]
         public string RA { get; set; }
+
         [JsonProperty]
         public string Dec { get; set; }
+
         [JsonProperty]
         public double epoch { get; set; }
 
@@ -63,32 +82,38 @@ namespace NINA.Plugin.ExoPlanets.Model
 
         [JsonProperty]
         public double Altitude { get; set; }
+
         [JsonProperty]
         public double Azimuth { get; set; }
 
-        public Coordinates Coordinates()
-        {
-            return new Coordinates(Angle.ByDegree(AstroUtil.HMSToDegrees(RA)), Angle.ByDegree(AstroUtil.DMSToDegrees(Dec)), Epoch.J2000);
-        }
-
-        public string formattedPeriod
-        {
-            get
-            {
-                if (period > 0)
-                {
-                    return period < 1.0 ? String.Format("{0}d ({1:F2}h)", period, period * 24.0) : String.Format("{0}d", period);
-                } else
-                {
-                    return "--";
+        [JsonProperty]
+        public string MagRange { 
+            get {
+                if (_magRange == null) {
+                    _magRange = this.V + " - " + Math.Round(this.V - this.amplitude, 2);
                 }
-                
+                return _magRange;
+            }
+            set {
+                _magRange = value;
             }
         }
 
-        
-        public void CalculateAltAz(double latitude, double longitude)
-        {
+        public Coordinates Coordinates() {
+            return new Coordinates(Angle.ByDegree(AstroUtil.HMSToDegrees(RA)), Angle.ByDegree(AstroUtil.DMSToDegrees(Dec)), Epoch.J2000);
+        }
+
+        public string formattedPeriod {
+            get {
+                if (period > 0) {
+                    return period < 1.0 ? string.Format("{0}d ({1:F2}h)", period, period * 24.0) : string.Format("{0}d", period);
+                } else {
+                    return "--";
+                }
+            }
+        }
+
+        public void CalculateAltAz(double latitude, double longitude) {
             var siderealTime = AstroUtil.GetLocalSiderealTime(midTime, longitude);
             var hourAngle = AstroUtil.GetHourAngle(siderealTime, Coordinates().RA);
 
@@ -97,13 +122,12 @@ namespace NINA.Plugin.ExoPlanets.Model
             Azimuth = AstroUtil.GetAzimuth(degAngle, Altitude, latitude, Coordinates().Dec);
         }
 
-        public void NextEvent(double referenceJD, double span)
-        {
-            if(!HasEvents) return;
+        public void NextEvent(double referenceJD, double span) {
+            if (!HasEvents) return;
 
-            var shiftedEpoch = epoch + period * observedPhase;
+            var shiftedEpoch = epoch + (period * observedPhase);
             var cycle = Math.Floor((referenceJD - shiftedEpoch) / period);
-            var nextEvent = shiftedEpoch + period * (cycle + 1);
+            var nextEvent = shiftedEpoch + (period * (cycle + 1));
             var window = (span + OCRange) / 1440.0;
             jd_start = nextEvent - window;
             jd_mid = nextEvent;
@@ -114,55 +138,51 @@ namespace NINA.Plugin.ExoPlanets.Model
             endTime = JulianToDateTime(jd_end).ToLocalTime();
         }
 
-        public void AllNight(DateTime set, DateTime rise)
-        {
+        public void AllNight(DateTime set, DateTime rise) {
             var nightDuration = rise.Subtract(set).Ticks;
             startTime = set.AddMinutes(5);
             midTime = set.AddTicks(nightDuration / 2);
             endTime = rise.AddMinutes(-5);
         }
 
-        public bool HasEvents
-        {
-            get
-            {
+        public bool HasEvents {
+            get {
                 return epoch > 0;
             }
         }
 
-        public int CompareTo(VariableStar other)
-        {
-            if (this.HasEvents && other.HasEvents)
-            {
+        public int CompareTo(VariableStar other) {
+            if (this.HasEvents && other.HasEvents) {
                 return jd_start.CompareTo(other.jd_start);
-            } else
-            {
+            } else {
                 var RA = this.Coordinates().RA;
                 var otherRA = other.Coordinates().RA;
 
-                if ((RA > otherRA) && (RA - otherRA) > 12) {
-                    return RA.CompareTo(otherRA + 24);
-                } 
-                else
-                {
-                    return RA.CompareTo(otherRA);
-                }
+                return RA.CompareTo(otherRA);
             }
         }
 
-        private static DateTime JulianToDateTime(double julianDate)
-        {
+        private static DateTime JulianToDateTime(double julianDate) {
             return DateTime.FromOADate(julianDate - 2415018.5).ToLocalTime();
         }
     }
 
+    public sealed class VarStarComparer : IComparer<VariableStar> {
+        public int Compare(VariableStar x, VariableStar y) {
+            if (x.midTime == y.midTime) {
+                return x.MeridianTime.CompareTo(y.MeridianTime);
+            } else {
+                return x.midTime.CompareTo(y.midTime);
+            }
+        }
+    }
 
-    public sealed class VarStarMap : ClassMap<VariableStar>
-    {
-        public VarStarMap()
-        {
+    public sealed class ManualVarStarMap : ClassMap<VariableStar> {
+
+        public ManualVarStarMap() {
             Map(m => m.Name).Name("name");
             Map(m => m.Comments).Name("comments");
+            Map(m => m.VarType).Name("type").Default("--");
             Map(m => m.V).Name("v");
             Map(m => m.RA).Name("ra");
             Map(m => m.Dec).Name("dec");
@@ -171,6 +191,51 @@ namespace NINA.Plugin.ExoPlanets.Model
             Map(m => m.amplitude).Name("amplitude").Default(1);
             Map(m => m.OCRange).Name("ocrange").Default(0);
             Map(m => m.observedPhase).Name("phase").Default(0);
+        }
+    }
+
+    public sealed class AavsoVarStarMap : ClassMap<AavsoDTO> {
+
+        public AavsoVarStarMap() {
+            Map(m => m.Name).Name("Star Name");
+            Map(m => m.Comments).Name("Notes");
+            Map(m => m.MaxMag).Name("Max Mag");
+            Map(m => m.MinMag).Name("Min Mag");
+            Map(m => m.RA).Name("RA (J2000.0)");
+            Map(m => m.Dec).Name("Dec (J2000.0)");
+            Map(m => m.Period).Name("Period (d)");
+            Map(m => m.Filter).Name("Filter/Mode");
+            Map(m => m.VarType).Name("Var. Type").Default("--");
+        }
+    }
+
+    public sealed class AavsoDTO {
+        public string Name;
+        public string Comments;
+        public string VarType;
+        public string MinMag;
+        public string MaxMag;
+        public string RA;
+        public string Dec;
+        public string Period;
+        public string Filter;
+
+        public VariableStar AsVariableStar() {
+            VariableStar newStar = new VariableStar {
+                Name = Name,
+                Comments = Filter,
+                VarType = VarType,
+                RA = RA,
+                Dec = Dec,
+                MagRange = MinMag + " - " + MaxMag
+            };
+
+            if (Double.TryParse(Period, out double period)) {
+                newStar.period = period;
+            } else {
+                newStar.period = 0;
+            }
+            return newStar;
         }
     }
 }

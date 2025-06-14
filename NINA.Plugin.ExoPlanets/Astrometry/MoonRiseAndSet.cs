@@ -23,10 +23,7 @@ using System.Threading.Tasks;
 
 namespace NINA.Plugin.ExoPlanets.RiseAndSet {
 
-    public class MoonRiseAndSet : RiseAndSetEvent {
-
-        public MoonRiseAndSet(DateTime date, double latitude, double longitude) : base(date, latitude, longitude) {
-        }
+    public class MoonRiseAndSet(DateTime date, double latitude, double longitude) : RiseAndSetEvent(date, latitude, longitude) {
 
         protected override double AdjustAltitude(BasicBody body) {
             /* Readjust moon altitude based on earth radius and refraction */
@@ -36,7 +33,7 @@ namespace NINA.Plugin.ExoPlanets.RiseAndSet {
                 Longitude = Longitude
             };
             var refraction = NOVAS.Refract(ref location, NOVAS.RefractionOption.StandardRefraction, horizon); ;
-            var altitude = body.Altitude - AstroUtil.ToDegree(Earth.Radius) / body.Distance + AstroUtil.ToDegree(body.Radius) / body.Distance + refraction;
+            var altitude = body.Altitude - (AstroUtil.ToDegree(Earth.Radius) / body.Distance) + (AstroUtil.ToDegree(body.Radius) / body.Distance) + refraction;
             return altitude;
         }
 
@@ -45,11 +42,11 @@ namespace NINA.Plugin.ExoPlanets.RiseAndSet {
         }
 
         public async Task<List<DataPoint>> CalculateTransitAsync(DateTime start) {
-            List<DataPoint> _transit = new List<DataPoint>();
+            var _transit = new List<DataPoint>();
             DateTime time = start;
             for (int i = 1; i <= 240; i++) {
                 BasicBody moon = GetBody(time);
-                await Task.WhenAll(moon.Calculate());
+                await moon.Calculate();
                 _transit.Add(new DataPoint(DateTimeAxis.ToDouble(time), AdjustAltitude(moon)));
                 time = time.AddHours(0.1d);
             }

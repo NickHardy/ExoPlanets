@@ -12,19 +12,11 @@
 
 #endregion "copyright"
 
-using NINA.Sequencer.Container;
-using NINA.Astrometry;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NINA.Plugin.ExoPlanets.Sequencer.Container;
-using NINA.Plugin.ExoPlanets.Model;
-using NINA.Sequencer.Interfaces;
-using NINA.Sequencer.SequenceItem.Imaging;
 using NINA.Equipment.Model;
 using NINA.Plugin.ExoPlanets.Interfaces;
+using NINA.Plugin.ExoPlanets.Model;
+using NINA.Sequencer.Container;
+using NINA.Sequencer.SequenceItem.Imaging;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 

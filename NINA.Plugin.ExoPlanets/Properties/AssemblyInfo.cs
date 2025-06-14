@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
@@ -13,7 +12,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCompany("Nick Hardy & Rafa Barbera")]
 //The product name that this plugin is part of
 [assembly: AssemblyProduct("NINA Plugin ExoPlanets")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyCopyright("Copyright © 2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -27,11 +26,11 @@ using System.Runtime.InteropServices;
 
 //The assembly versioning
 //Should be incremented for each new release build of a plugin
-[assembly: AssemblyVersion("1.1.8.0")]
-[assembly: AssemblyFileVersion("1.1.8.0")]
+[assembly: AssemblyVersion("2.0.6.1")]
+[assembly: AssemblyFileVersion("2.0.6.1")]
 
 //The minimum Version of N.I.N.A. that this plugin is compatible with
-[assembly: AssemblyMetadata("MinimumApplicationVersion", "2.0.0.9001")]
+[assembly: AssemblyMetadata("MinimumApplicationVersion", "3.1.2.9001")]
 
 //Your plugin homepage - omit if not applicaple
 [assembly: AssemblyMetadata("Homepage", "https://nighttime-imaging.eu/")]
@@ -82,11 +81,21 @@ using System.Runtime.InteropServices;
   Make sure the coordinates for the target star are correct and that the correct pixel size and focal length are used in the Nina options.
 
 *Variable Stars Catalog:*
-* This is a simple [CSV file](https://bitbucket.org/NickHardy/exoplanets/downloads/geos.csv) with the mandatory columns name,ra,dec,v,epoch and period
-  Optionally you can add:
-	- amplitude: if you want to show each variable with different variation height.
-	- ocrange: to compensate for variable O-C like on RRab with Blazhko effect.
-	- phase: use a number between 0 and 1 to observe different portions of the light curve.
+
+We support two kind of files
+
+* Manual Catalog.
+    - This is a simple [CSV file](https://bitbucket.org/NickHardy/exoplanets/downloads/geos.csv) with the mandatory columns name,ra,dec,v,epoch and period.
+	- amplitude (optional): if you want to show each variable with different variation height.
+	- ocrange (optional): to compensate for variable O-C like on RRab with Blazhko effect.
+	- phase (optional): use a number between 0 and 1 to observe different portions of the light curve.
+
+  if you set the epoch to zero, no min or max will be computed and the star will be shown always it meets the observability criteria.
+
+* AAVSO CSV catalog. [CSV example file](https://bitbucket.org/NickHardy/exoplanets/downloads/aavso.csv)
+    - The expected file format is the one downloaded from AVVSO's [Target Tool](https://targettool.aavso.org/TargetTool)
+    - On this dataset, no epoch is given, so no min or max could be computed.
+    - You have three criteria to sort the stars: Visibility, Culmination and Name.
 
 *Template*
 * [Example exoplanet sequence](https://bitbucket.org/NickHardy/exoplanets/downloads/TransitPlanetImagingSequence.json)
@@ -96,11 +105,17 @@ using System.Runtime.InteropServices;
 * [ExoClock](https://www.exoclock.space/)
 * [Exoplanet-watch](https://exoplanets.nasa.gov/exoplanet-watch)
 * [AAVSO](https://www.aavso.org/)
+* [Siril Processing](https://siril.readthedocs.io/en/latest/photometry/lightcurves.html#nina-exoplanet-button)  
+  A Nina Exoplanet button has been added to easily process the data collected. Make sure to select save the csv starlist in the options.
 
 This plugin uses online data from:
 * [https://astro.swarthmore.edu/transits/](https://astro.swarthmore.edu/transits/)
 * [https://app.aavso.org/vsp/](https://app.aavso.org/vsp/)
 * [http://simbad.u-strasbg.fr/simbad/](http://simbad.u-strasbg.fr/simbad/)
+
+This plugin also support the Pandora mission:
+* [https://pandoramission.github.io/pandorawebsite/](https://pandoramission.github.io/pandorawebsite/)  
+  If a target is in the target list for the Pandora mission, it will show in the comment. It would be great if you could grab data for those targets and upload it to the AAVSO. Thx.
 
 Tutorials:
 * [Patriot Astro: Imaging](https://www.youtube.com/watch?v=dN_s_4HjSZU)

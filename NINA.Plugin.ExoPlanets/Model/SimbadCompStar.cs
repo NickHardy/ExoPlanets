@@ -12,10 +12,9 @@
 
 #endregion "copyright"
 
-using Newtonsoft.Json;
-using NINA.Core.Model;
-using NINA.Astrometry;
 using CsvHelper.Configuration;
+using Newtonsoft.Json;
+using NINA.Astrometry;
 using System;
 using System.Collections.Generic;
 
@@ -23,6 +22,7 @@ namespace NINA.Plugin.ExoPlanets.Model {
 
     [JsonObject(MemberSerialization.OptIn)]
     public class SimbadCompStar {
+
         public SimbadCompStar(List<object> obj) {
             this.main_id = (string)obj[0];
             this.b = Convert.ToDouble(obj[1]);
@@ -34,21 +34,25 @@ namespace NINA.Plugin.ExoPlanets.Model {
 
         [JsonProperty]
         public string main_id { get; set; }
+
         [JsonProperty]
         public double b { get; set; }
+
         [JsonProperty]
         public double v { get; set; }
+
         [JsonProperty]
         public double r { get; set; }
+
         [JsonProperty]
         public double ra { get; set; }
+
         [JsonProperty]
         public double dec { get; set; }
 
         public Coordinates Coordinates() {
             return new Coordinates(Angle.ByDegree(ra), Angle.ByDegree(dec), Epoch.J2000);
         }
-
     }
 
     public sealed class SimbadCompStarMap : ClassMap<SimbadCompStar> {
