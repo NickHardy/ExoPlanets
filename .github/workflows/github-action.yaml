@@ -53,8 +53,8 @@ jobs:
         run: |
           Copy-Item "NINA.Plugin.ExoPlanets/bin/Release/net8.0-windows/${{ env.PLUGIN_DLL_NAME }}.dll" "packages/${{ env.PLUGIN_NAME }}/${{ env.PLUGIN_DLL_NAME }}.dll" -Force
           Copy-Item "NINA.Plugin.ExoPlanets/bin/Release/net8.0-windows/${{ env.PLUGIN_DLL_NAME }}.pdb" "packages/${{ env.PLUGIN_NAME }}/${{ env.PLUGIN_DLL_NAME }}.pdb" -Force
-          Copy-Item "NINA.Plugin.ExoPlanets/resources/pandora_website_2024.csv" "packages/pandora_website_2024.csv" -Force
-          Copy-Item "NINA.Plugin.ExoPlanets/resources/pandora_website_top40.csv" "packages/pandora_website_top40.csv" -Force
+          Copy-Item "NINA.Plugin.ExoPlanets/resources/pandora_website_2024.csv" "packages/${{ env.PLUGIN_NAME }}/pandora_website_2024.csv" -Force
+          Copy-Item "NINA.Plugin.ExoPlanets/resources/pandora_website_top40.csv" "packages/${{ env.PLUGIN_NAME }}/pandora_website_top40.csv" -Force
       - name: Create Plugin archives and manifests
         run: |
           curl -LO https://raw.githubusercontent.com/isbeorn/nina.plugin.manifests/refs/heads/main/tools/CreateManifest.ps1?raw=true
