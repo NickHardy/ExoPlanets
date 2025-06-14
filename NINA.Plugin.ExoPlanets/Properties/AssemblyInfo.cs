@@ -4,14 +4,14 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ExoPlanets")]
+//[assembly: AssemblyTitle("ExoPlanets")]
 [assembly: AssemblyDescription("A plugin to help get exoplanet or variable star data.")]
-[assembly: AssemblyConfiguration("")]
+//[assembly: AssemblyConfiguration("")]
 
 //Your name
-[assembly: AssemblyCompany("Nick Hardy & Rafa Barbera")]
+//[assembly: AssemblyCompany("Nick Hardy & Rafa Barbera")]
 //The product name that this plugin is part of
-[assembly: AssemblyProduct("NINA Plugin ExoPlanets")]
+//[assembly: AssemblyProduct("NINA Plugin ExoPlanets")]
 [assembly: AssemblyCopyright("Copyright © 2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -26,8 +26,8 @@ using System.Runtime.InteropServices;
 
 //The assembly versioning
 //Should be incremented for each new release build of a plugin
-[assembly: AssemblyVersion("2.0.6.1")]
-[assembly: AssemblyFileVersion("2.0.6.1")]
+//[assembly: AssemblyVersion("2.0.6.1")]
+//[assembly: AssemblyFileVersion("2.0.6.1")]
 
 //The minimum Version of N.I.N.A. that this plugin is compatible with
 [assembly: AssemblyMetadata("MinimumApplicationVersion", "3.1.2.9001")]
