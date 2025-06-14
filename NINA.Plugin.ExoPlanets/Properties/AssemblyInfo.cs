@@ -39,17 +39,17 @@ using System.Runtime.InteropServices;
 //The url to the license
 [assembly: AssemblyMetadata("LicenseURL", "https://www.mozilla.org/en-US/MPL/2.0/")]
 //The repository where your pluggin is hosted
-[assembly: AssemblyMetadata("Repository", "https://bitbucket.org/NickHardy/exoplanets/src/main/")]
+[assembly: AssemblyMetadata("Repository", "https://github.com/NickHardy/ExoPlanets")]
 
 //Common tags that quickly describe your plugin
 [assembly: AssemblyMetadata("Tags", "ExoPlanet,VariableStar,Sequencer")]
 
 //The featured logo that will be displayed in the plugin list next to the name
-[assembly: AssemblyMetadata("FeaturedImageURL", "https://bitbucket.org/NickHardy/exoplanets/downloads/FinalLightCurve_TrES-2b.png")]
+[assembly: AssemblyMetadata("FeaturedImageURL", "https://github.com/NickHardy/ExoPlanets/blob/main/NINA.Plugin.ExoPlanets/resources/FinalLightCurve_TrES-2b.png?raw=true")]
 //An example screenshot of your plugin in action
-[assembly: AssemblyMetadata("ScreenshotURL", "https://bitbucket.org/NickHardy/exoplanets/downloads/TransitDSOcontainerScreenShot.png")]
+[assembly: AssemblyMetadata("ScreenshotURL", "https://github.com/NickHardy/ExoPlanets/blob/main/NINA.Plugin.ExoPlanets/resources/TransitDSOcontainerScreenShot.png?raw=true")]
 //An additional example screenshot of your plugin in action
-[assembly: AssemblyMetadata("AltScreenshotURL", "https://bitbucket.org/NickHardy/exoplanets/downloads/Tres-1b-fov.png")]
+[assembly: AssemblyMetadata("AltScreenshotURL", "https://github.com/NickHardy/ExoPlanets/blob/main/NINA.Plugin.ExoPlanets/resources/Tres-1b-fov.png?raw=true")]
 [assembly: AssemblyMetadata("LongDescription", @"# N.I.N.A. - Nighttime Imaging 'N' Astronomy ExoPlanet and Variable star Plugin#
 
 [https://nighttime-imaging.eu/](https://nighttime-imaging.eu/)
@@ -85,7 +85,7 @@ using System.Runtime.InteropServices;
 We support two kind of files
 
 * Manual Catalog.
-    - This is a simple [CSV file](https://bitbucket.org/NickHardy/exoplanets/downloads/geos.csv) with the mandatory columns name,ra,dec,v,epoch and period.
+    - This is a simple [CSV file](https://github.com/NickHardy/ExoPlanets/raw/refs/heads/main/NINA.Plugin.ExoPlanets/resources/geos.csv) with the mandatory columns name,ra,dec,v,epoch and period.
 	- amplitude (optional): if you want to show each variable with different variation height.
 	- ocrange (optional): to compensate for variable O-C like on RRab with Blazhko effect.
 	- phase (optional): use a number between 0 and 1 to observe different portions of the light curve.
@@ -98,8 +98,8 @@ We support two kind of files
     - You have three criteria to sort the stars: Visibility, Culmination and Name.
 
 *Template*
-* [Example exoplanet sequence](https://bitbucket.org/NickHardy/exoplanets/downloads/TransitPlanetImagingSequence.json)
-* [Example variable star sequence](https://bitbucket.org/NickHardy/exoplanets/downloads/VariableStarImagingSequence.json)
+* [Example exoplanet sequence](https://github.com/NickHardy/ExoPlanets/raw/refs/heads/main/NINA.Plugin.ExoPlanets/resources/TransitPlanetImagingSequence.json)
+* [Example variable star sequence](https://github.com/NickHardy/ExoPlanets/raw/refs/heads/main/NINA.Plugin.ExoPlanets/resources/VariableStarImagingSequence.json)
 
 *More to read*
 * [ExoClock](https://www.exoclock.space/)
