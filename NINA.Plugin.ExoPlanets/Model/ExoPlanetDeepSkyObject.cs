@@ -102,7 +102,6 @@ namespace NINA.Plugin.ExoPlanets.Model {
             LightCurve = lightCurve;
             RaisePropertyChanged();
         }
-
         private static DateTime JulianToDateTime(double julianDate) {
             return DateTime.FromOADate(julianDate - 2415018.5).ToLocalTime();
         }
