@@ -139,4 +139,70 @@
             </view:SequenceBlockView.SequenceItemProgressContent>
         </view:SequenceBlockView>
     </DataTemplate>
+
+    <DataTemplate x:Key="NINA.Plugin.ExoPlanets.Sequencer.Conditions.DuringTransitCondition_Mini">
+        <mini:MiniCondition>
+            <mini:MiniCondition.ConditionProgressContent>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center" Text="In Transit" />
+                    <CheckBox
+                        Height="20"
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Center"
+                        IsChecked="{Binding DuringTransit, Mode=OneWay, FallbackValue=False}"
+                        IsEnabled="False"
+                        Style="{StaticResource CheckmarkCheckbox}" />
+                    <TextBlock
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Center"
+                        Text="{ns:Loc LblIterations}" />
+                    <TextBlock
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Center"
+                        Text="{Binding CompletedIterations}" />
+                    <TextBlock VerticalAlignment="Center">/</TextBlock>
+                    <TextBlock VerticalAlignment="Center" Text="{Binding Iterations}" />
+                </StackPanel>
+            </mini:MiniCondition.ConditionProgressContent>
+        </mini:MiniCondition>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type local:DuringTransitCondition}">
+        <view:SequenceBlockView>
+            <view:SequenceBlockView.SequenceItemContent>
+                <StackPanel Orientation="Horizontal">
+                    <TextBox
+                        MinWidth="40"
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Center"
+                        Text="{Binding Iterations, Mode=TwoWay}" />
+                    <TextBlock VerticalAlignment="Center" Text="{ns:Loc LblIterations}" />
+                </StackPanel>
+            </view:SequenceBlockView.SequenceItemContent>
+            <view:SequenceBlockView.SequenceItemProgressContent>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center" Text="In Transit" />
+                    <CheckBox
+                        Height="20"
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Center"
+                        IsChecked="{Binding DuringTransit, Mode=OneWay, FallbackValue=False}"
+                        IsEnabled="False"
+                        Style="{StaticResource CheckmarkCheckbox}" />
+                    <TextBlock VerticalAlignment="Center" Text="{Binding Iterations}" />
+                    <TextBlock
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Center"
+                        Text="{ns:Loc LblIterations}" />
+                    <TextBlock
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Center"
+                        Text="{Binding CompletedIterations}" />
+                    <TextBlock VerticalAlignment="Center">/</TextBlock>
+                    <TextBlock VerticalAlignment="Center" Text="{Binding Iterations}" />
+                </StackPanel>
+            </view:SequenceBlockView.SequenceItemProgressContent>
+        </view:SequenceBlockView>
+    </DataTemplate>
+
 </ResourceDictionary>

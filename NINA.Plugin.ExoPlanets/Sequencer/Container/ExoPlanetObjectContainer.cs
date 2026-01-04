@@ -325,6 +325,9 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.V < exoPlanetsPlugin.MaxMagnitude));
             }
 
+            // Check depth
+            ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.depth > 0 && ep.depth >= exoPlanetsPlugin.MinDepth));
+
             // check twilight
             if (exoPlanetsPlugin.WithinTwilight) {
                 var rise = NighttimeData.TwilightRiseAndSet.Rise;

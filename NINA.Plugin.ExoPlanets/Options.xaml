@@ -63,6 +63,7 @@
                             <RowDefinition MinHeight="25" />
                             <RowDefinition MinHeight="25" />
                             <RowDefinition MinHeight="25" />
+                            <RowDefinition MinHeight="25" />
                         </Grid.RowDefinitions>
                         <TextBlock
                             Grid.Row="0"
@@ -105,9 +106,22 @@
                         <TextBlock
                             Grid.Row="2"
                             VerticalAlignment="Center"
+                            Text="Minimum depth" />
+                        <ninactrl:UnitTextBox
+                            Grid.Row="2"
+                            Grid.Column="2"
+                            MinWidth="80"
+                            Margin="5,0,0,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Text="{Binding MinDepth}"
+                            Unit="ppt" />
+                        <TextBlock
+                            Grid.Row="3"
+                            VerticalAlignment="Center"
                             Text="Exclude transits not within twilight?" />
                         <CheckBox
-                            Grid.Row="2"
+                            Grid.Row="3"
                             Grid.Column="1"
                             MinWidth="80"
                             Margin="5,0,0,0"
@@ -115,11 +129,11 @@
                             VerticalAlignment="Center"
                             IsChecked="{Binding WithinTwilight}" />
                         <TextBlock
-                            Grid.Row="3"
+                            Grid.Row="4"
                             VerticalAlignment="Center"
                             Text="Exclude transits not within nautical?" />
                         <CheckBox
-                            Grid.Row="3"
+                            Grid.Row="4"
                             Grid.Column="1"
                             MinWidth="80"
                             Margin="5,0,0,0"
@@ -127,11 +141,11 @@
                             VerticalAlignment="Center"
                             IsChecked="{Binding WithinNautical}" />
                         <TextBlock
-                            Grid.Row="4"
+                            Grid.Row="5"
                             VerticalAlignment="Center"
                             Text="Allow partial transits?" />
                         <CheckBox
-                            Grid.Row="4"
+                            Grid.Row="5"
                             Grid.Column="1"
                             MinWidth="80"
                             Margin="5,0,0,0"
@@ -139,11 +153,11 @@
                             VerticalAlignment="Center"
                             IsChecked="{Binding PartialTransits}" />
                         <TextBlock
-                            Grid.Row="5"
+                            Grid.Row="6"
                             VerticalAlignment="Center"
                             Text="Exclude transits below horizon?" />
                         <CheckBox
-                            Grid.Row="5"
+                            Grid.Row="6"
                             Grid.Column="1"
                             MinWidth="80"
                             Margin="5,0,0,0"
@@ -151,11 +165,11 @@
                             VerticalAlignment="Center"
                             IsChecked="{Binding AboveHorizon}" />
                         <TextBlock
-                            Grid.Row="6"
+                            Grid.Row="7"
                             VerticalAlignment="Center"
                             Text="Exclude transits that contain a meridian flip?" />
                         <CheckBox
-                            Grid.Row="6"
+                            Grid.Row="7"
                             Grid.Column="1"
                             MinWidth="80"
                             Margin="5,0,0,0"
@@ -163,11 +177,11 @@
                             VerticalAlignment="Center"
                             IsChecked="{Binding WithoutMeridianFlip}" />
                         <TextBlock
-                            Grid.Row="7"
+                            Grid.Row="8"
                             VerticalAlignment="Center"
                             Text="Use predefined exposure times?" />
                         <CheckBox
-                            Grid.Row="7"
+                            Grid.Row="8"
                             Grid.Column="1"
                             MinWidth="80"
                             Margin="5,0,0,0"
@@ -176,12 +190,12 @@
                             IsChecked="{Binding UseExposureTimes}" />
 
                         <TextBlock
-                            Grid.Row="8"
+                            Grid.Row="9"
                             Grid.Column="0"
                             VerticalAlignment="Center"
                             Text="Exposure times (csv)" />
                         <TextBox
-                            Grid.Row="8"
+                            Grid.Row="9"
                             Grid.Column="1"
                             Grid.ColumnSpan="2"
                             MinWidth="100"

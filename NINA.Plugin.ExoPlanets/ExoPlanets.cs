@@ -73,6 +73,15 @@ namespace NINA.Plugin.ExoPlanets {
             }
         }
 
+        public double MinDepth {
+            get => Properties.Settings.Default.MinDepth;
+            set {
+                Properties.Settings.Default.MinDepth = value;
+                CoreUtil.SaveSettings(Properties.Settings.Default);
+                RaisePropertyChanged();
+            }
+        }
+
         public bool WithinTwilight {
             get => Properties.Settings.Default.WithinTwilight;
             set {
