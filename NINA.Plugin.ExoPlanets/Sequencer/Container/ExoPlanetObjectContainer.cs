@@ -83,7 +83,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             this.framingAssistantVM = framingAssistantVM;
             this.planetariumFactory = planetariumFactory;
 
-            Task.Run(() => NighttimeData = nighttimeCalculator.Calculate(DateTime.Now.AddHours(4)));
+            Task.Run(() => NighttimeData = nighttimeCalculator.Calculate(DateTime.Now));
             CoordsToFramingCommand = new AsyncRelayCommand(() => Task.Run(CoordsToFraming));
             exoPlanetsPlugin = new ExoPlanets();
             _pandoraStars = new List<PandoraStar>();
@@ -93,7 +93,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>();
             ExoPlanetTargetsList = new AsyncObservableCollection<ExoPlanet>();
             ExoPlanetDSO = new ExoPlanetDeepSkyObject(string.Empty, new Coordinates(Angle.Zero, Angle.Zero, Epoch.J2000), string.Empty, profileService.ActiveProfile.AstrometrySettings.Horizon);
-            ExoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now.AddHours(4)), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
+            ExoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
 
             profileService.LocationChanged += (object sender, EventArgs e) => {
                 Target?.SetPosition(Angle.ByDegree(profileService.ActiveProfile.AstrometrySettings.Latitude), Angle.ByDegree(profileService.ActiveProfile.AstrometrySettings.Longitude));
@@ -123,13 +123,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
         [JsonProperty]
         public ExoPlanetDeepSkyObject ExoPlanetDSO {
             get {
-                if (exoPlanetDSO != null && exoPlanetDSO.ReferenceDate > DateTime.Now.AddHours(-12)) {
-                    return exoPlanetDSO;
-                } else {
-                    ExoPlanetDSO = new ExoPlanetDeepSkyObject(string.Empty, new Coordinates(Angle.Zero, Angle.Zero, Epoch.J2000), string.Empty, profileService.ActiveProfile.AstrometrySettings.Horizon);
-                    ExoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now.AddHours(4)), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
-                    return exoPlanetDSO;
-                }
+                return exoPlanetDSO;
             }
             set {
                 exoPlanetDSO = value;
@@ -535,7 +529,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             url += "&timezone=UTC";
             url += "&start_date=today";
             url += "&days_to_print=1";
-            url += "&days_in_past=0";
+            url += "&days_in_past=1";
             url += "&minimum_start_elevation=30";
             url += "&and_vs_or=or";
             url += "&minimum_end_elevation=30";
