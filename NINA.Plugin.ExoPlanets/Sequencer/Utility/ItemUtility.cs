@@ -15,12 +15,26 @@
 using NINA.Equipment.Model;
 using NINA.Plugin.ExoPlanets.Interfaces;
 using NINA.Plugin.ExoPlanets.Model;
+using NINA.Plugin.ExoPlanets.Sequencer.Container;
 using NINA.Sequencer.Container;
 using NINA.Sequencer.SequenceItem.Imaging;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
     public class ItemUtility {
+
+        public static ExoPlanetObjectContainer RetrieveExoPlanetContainer(ISequenceContainer parent) {
+            if (parent != null) {
+                var container = parent as ExoPlanetObjectContainer;
+                if (container != null) {
+                    return container;
+                } else {
+                    return RetrieveExoPlanetContainer(parent.Parent);
+                }
+            } else {
+                return null;
+            }
+        }
 
         public static ExoPlanetDeepSkyObject RetrieveExoPlanetDSO(ISequenceContainer parent) {
             if (parent != null) {
