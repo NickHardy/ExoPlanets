@@ -567,7 +567,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                 Notification.ShowInformation("Exposure time calculated to be " + ExposureTime + "s.");
                 Notification.ShowInformation("Annotated image saved: " + saveAnnotationJpg);
                 if (UpdateExposureTime) {
-                    ItemUtility.UpdateTakeExposureItems(this.Parent, ExposureTime);
+                    ItemUtility.UpdateTakeExposureItems(ItemUtility.RetrieveExoPlanetContainer(this.Parent), ExposureTime);
                 }
             } else {
                 throw new SequenceItemSkippedException(string.Join(", ", Issues));
