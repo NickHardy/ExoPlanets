@@ -67,12 +67,12 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                 var items = parent.GetItemsSnapshot();
                 foreach (var item in items) {
                     var listItem = item as TakeExposure;
-                    if (listItem != null && listItem.ImageType == CaptureSequence.ImageTypes.LIGHT) {
+                    if (listItem != null && (listItem.ImageType == CaptureSequence.ImageTypes.LIGHT || listItem.ImageType == CaptureSequence.ImageTypes.DARK)) {
                         listItem.ExposureTime = exposureTime;
                         continue;
                     }
                     var listSubItem = item as TakeSubframeExposure;
-                    if (listSubItem != null && listSubItem.ImageType == CaptureSequence.ImageTypes.LIGHT) {
+                    if (listSubItem != null && (listSubItem.ImageType == CaptureSequence.ImageTypes.LIGHT || listSubItem.ImageType == CaptureSequence.ImageTypes.DARK)) {
                         listSubItem.ExposureTime = exposureTime;
                         continue;
                     }
