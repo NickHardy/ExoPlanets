@@ -93,7 +93,6 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>();
             ExoPlanetTargetsList = new AsyncObservableCollection<ExoPlanet>();
             ExoPlanetDSO = new ExoPlanetDeepSkyObject(string.Empty, new Coordinates(Angle.Zero, Angle.Zero, Epoch.J2000), string.Empty, profileService.ActiveProfile.AstrometrySettings.Horizon);
-            ExoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
 
             profileService.LocationChanged += (object sender, EventArgs e) => {
                 Target?.SetPosition(Angle.ByDegree(profileService.ActiveProfile.AstrometrySettings.Latitude), Angle.ByDegree(profileService.ActiveProfile.AstrometrySettings.Longitude));
@@ -127,6 +126,9 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             }
             set {
                 exoPlanetDSO = value;
+                if (exoPlanetDSO != null && exoPlanetDSO.ReferenceDate < DateTime.Now.AddHours(-12)) {
+                    ExoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
+                }
                 RaisePropertyChanged();
             }
         }
@@ -137,12 +139,10 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             set {
                 if (ExoPlanetInputTarget != null) {
                     WeakEventManager<InputTarget, EventArgs>.RemoveHandler(ExoPlanetInputTarget, nameof(ExoPlanetInputTarget.CoordinatesChanged), Target_OnCoordinatesChanged);
-                    // ExoPlanetInputTarget.CoordinatesChanged -= Target_OnCoordinatesChanged;
                 }
                 _target = (ExoPlanetInputTarget)value;
                 if (ExoPlanetInputTarget != null) {
                     WeakEventManager<InputTarget, EventArgs>.AddHandler(ExoPlanetInputTarget, nameof(ExoPlanetInputTarget.CoordinatesChanged), Target_OnCoordinatesChanged);
-                    // ExoPlanetInputTarget.CoordinatesChanged += Target_OnCoordinatesChanged;
                 }
                 RaisePropertyChanged();
             }
@@ -225,6 +225,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 ExoPlanetDSO.Coordinates = SelectedExoPlanet.coords;
                 ExoPlanetDSO.Magnitude = SelectedExoPlanet.V;
                 ExoPlanetDSO.SetTransit(SelectedExoPlanet.jd_start, SelectedExoPlanet.jd_mid, SelectedExoPlanet.jd_end, SelectedExoPlanet.depth);
+                NighttimeData = nighttimeCalculator.Calculate(SelectedExoPlanet.startTime);
                 RaiseAllPropertiesChanged();
                 AfterParentChanged();
             }
@@ -324,12 +325,17 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
             // check twilight
             if (exoPlanetsPlugin.WithinTwilight) {
+                NighttimeData = nighttimeCalculator.Calculate(DateTime.Now);
                 var rise = NighttimeData.TwilightRiseAndSet.Rise;
                 var set = NighttimeData.TwilightRiseAndSet.Set;
+                var NighttimeDataNext = nighttimeCalculator.Calculate(DateTime.Now.AddDays(1));
+                var riseNext = NighttimeDataNext.TwilightRiseAndSet.Rise;
+                var setNext = NighttimeDataNext.TwilightRiseAndSet.Set;
                 if (exoPlanetsPlugin.PartialTransits) {
                     ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(
-                        ExoPlanetTargets.Where(ep => (ep.startTime > set && ep.startTime < rise)
-                        || (ep.midTime > set && ep.midTime < rise) || (ep.endTime > set && ep.endTime < rise)));
+                        ExoPlanetTargets.Where(ep => ((ep.startTime > set && ep.startTime < rise) || (ep.startTime > setNext && ep.startTime < riseNext))
+                        || (ep.midTime > set && ep.midTime < rise) || (ep.endTime > set && ep.endTime < rise) ||
+                        (ep.midTime > setNext && ep.midTime < riseNext) || (ep.endTime > setNext && ep.endTime < riseNext)));
                 } else {
                     ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.midTime > set && ep.midTime < rise));
                 }
@@ -337,12 +343,17 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
             // check nautical
             if (exoPlanetsPlugin.WithinNautical) {
+                NighttimeData = nighttimeCalculator.Calculate(DateTime.Now);
                 var rise = NighttimeData.NauticalTwilightRiseAndSet.Rise;
                 var set = NighttimeData.NauticalTwilightRiseAndSet.Set;
+                var NighttimeDataNext = nighttimeCalculator.Calculate(DateTime.Now.AddDays(1));
+                var riseNext = NighttimeDataNext.NauticalTwilightRiseAndSet.Rise;
+                var setNext = NighttimeDataNext.NauticalTwilightRiseAndSet.Set;
                 if (exoPlanetsPlugin.PartialTransits) {
                     ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(
-                        ExoPlanetTargets.Where(ep => (ep.startTime > set && ep.startTime < rise)
-                        || (ep.midTime > set && ep.midTime < rise) || (ep.endTime > set && ep.endTime < rise)));
+                        ExoPlanetTargets.Where(ep => ((ep.startTime > set && ep.startTime < rise) || (ep.startTime > setNext && ep.startTime < riseNext))
+                        || (ep.midTime > set && ep.midTime < rise) || (ep.endTime > set && ep.endTime < rise) ||
+                        (ep.midTime > setNext && ep.midTime < riseNext) || (ep.endTime > setNext && ep.endTime < riseNext)));
                 } else {
                     ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.midTime > set && ep.midTime < rise));
                 }
