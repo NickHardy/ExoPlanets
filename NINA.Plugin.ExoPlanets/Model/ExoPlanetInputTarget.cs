@@ -15,11 +15,13 @@
 using Newtonsoft.Json;
 using NINA.Astrometry;
 using NINA.Core.Model;
+using System;
 
 namespace NINA.Plugin.ExoPlanets.Model {
 
     [JsonObject(MemberSerialization.OptIn)]
     public class ExoPlanetInputTarget(Angle latitude, Angle longitude, CustomHorizon horizon) : InputTarget(latitude, longitude, horizon) {
+
         private ExoPlanetDeepSkyObject exoPlanetdeepSkyObject;
 
         public ExoPlanetDeepSkyObject ExoPlanetDeepSkyObject {
