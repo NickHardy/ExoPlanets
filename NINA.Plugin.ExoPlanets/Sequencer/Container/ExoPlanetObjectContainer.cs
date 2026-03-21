@@ -83,7 +83,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             this.framingAssistantVM = framingAssistantVM;
             this.planetariumFactory = planetariumFactory;
 
-            Task.Run(() => NighttimeData = nighttimeCalculator.Calculate(DateTime.Now));
+            Task.Run(() => NighttimeData = nighttimeCalculator.Calculate());
             CoordsToFramingCommand = new AsyncRelayCommand(() => Task.Run(CoordsToFraming));
             exoPlanetsPlugin = new ExoPlanets();
             _pandoraStars = new List<PandoraStar>();
