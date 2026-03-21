@@ -40,7 +40,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             if (parent != null) {
                 var container = parent as IVariableBrightnessTargetContainer;
                 if (container != null) {
-                    return container.ExoPlanetInputTarget.ExoPlanetDeepSkyObject;
+                    return container.ExoPlanetDSO;
                 } else {
                     return RetrieveExoPlanetDSO(parent.Parent);
                 }
