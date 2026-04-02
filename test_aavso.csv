@@ -1,0 +1,4 @@
+Star Name,Max Mag,Min Mag,RA (J2000.0),Dec (J2000.0),Period (d),Filter/Mode,Notes
+AB And,7.5,8.9,00 38 18.86,+38 22 32.4,0.5073,V,RRab; discovery observations
+BD Dra,12.02,13.11,18 17 52.16,+77 17 49.43,0.58898,B,AAVSO test star
+XY Cen,11.5,12.8,14 10 33.22,-59 13 04.3,0.3461,V,Binary eclipse variable
