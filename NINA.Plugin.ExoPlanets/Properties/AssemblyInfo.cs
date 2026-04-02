@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -26,8 +27,8 @@ using System.Runtime.InteropServices;
 
 //The assembly versioning
 //Should be incremented for each new release build of a plugin
-//[assembly: AssemblyVersion("2.0.6.1")]
-//[assembly: AssemblyFileVersion("2.0.6.1")]
+[assembly: AssemblyVersion("2.1.5.0")]
+[assembly: AssemblyFileVersion("2.1.5.0")]
 
 //The minimum Version of N.I.N.A. that this plugin is compatible with
 [assembly: AssemblyMetadata("MinimumApplicationVersion", "3.1.2.9001")]
@@ -80,6 +81,90 @@ using System.Runtime.InteropServices;
   This instruction will also check the image for comparison stars and variable stars and show their locations on the image and save the fov image to your imaging directory.
   Make sure the coordinates for the target star are correct and that the correct pixel size and focal length are used in the Nina options.
 
+=======
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
+
+// General Information about an assembly is controlled through the following
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+[assembly: AssemblyTitle("ExoPlanets")]
+[assembly: AssemblyDescription("A plugin to help get exoplanet or variable star data.")]
+[assembly: AssemblyConfiguration("")]
+
+//Your name
+[assembly: AssemblyCompany("Nick Hardy & Rafa Barbera")]
+//The product name that this plugin is part of
+[assembly: AssemblyProduct("NINA Plugin ExoPlanets")]
+[assembly: AssemblyCopyright("Copyright © 2023")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+
+// Setting ComVisible to false makes the types in this assembly not visible
+// to COM components.  If you need to access a type in this assembly from
+// COM, set the ComVisible attribute to true on that type.
+[assembly: ComVisible(false)]
+
+// The following GUID is for the ID of the typelib if this project is exposed to COM
+[assembly: Guid("6d0e07f2-8773-4229-dc2b-f451e53c677f")]
+
+//The assembly versioning
+//Should be incremented for each new release build of a plugin
+[assembly: AssemblyVersion("2.0.6.0")]
+[assembly: AssemblyFileVersion("2.0.6.0")]
+
+//The minimum Version of N.I.N.A. that this plugin is compatible with
+[assembly: AssemblyMetadata("MinimumApplicationVersion", "3.0.0.9001")]
+
+//Your plugin homepage - omit if not applicaple
+[assembly: AssemblyMetadata("Homepage", "https://nighttime-imaging.eu/")]
+//The license your plugin code is using
+[assembly: AssemblyMetadata("License", "MPL-2.0")]
+//The url to the license
+[assembly: AssemblyMetadata("LicenseURL", "https://www.mozilla.org/en-US/MPL/2.0/")]
+//The repository where your pluggin is hosted
+[assembly: AssemblyMetadata("Repository", "https://bitbucket.org/NickHardy/exoplanets/src/main/")]
+
+//Common tags that quickly describe your plugin
+[assembly: AssemblyMetadata("Tags", "ExoPlanet,VariableStar,Sequencer")]
+
+//The featured logo that will be displayed in the plugin list next to the name
+[assembly: AssemblyMetadata("FeaturedImageURL", "https://bitbucket.org/NickHardy/exoplanets/downloads/FinalLightCurve_TrES-2b.png")]
+//An example screenshot of your plugin in action
+[assembly: AssemblyMetadata("ScreenshotURL", "https://bitbucket.org/NickHardy/exoplanets/downloads/TransitDSOcontainerScreenShot.png")]
+//An additional example screenshot of your plugin in action
+[assembly: AssemblyMetadata("AltScreenshotURL", "https://bitbucket.org/NickHardy/exoplanets/downloads/Tres-1b-fov.png")]
+[assembly: AssemblyMetadata("LongDescription", @"# N.I.N.A. - Nighttime Imaging 'N' Astronomy ExoPlanet and Variable star Plugin#
+
+[https://nighttime-imaging.eu/](https://nighttime-imaging.eu/)
+
+# Plugin Information #
+
+*Instructions*
+* ExoPlanet object container
+  This is similar to the DSO container, but it has an added button to retrieve a list of exoplanet targets
+  You can then select a target from the dropdownlist. They are sorted by observability and depth. The coordinates will be filled out.
+  You can then create your sequence as you wish
+* VariableStar object container
+  This is similar to the DSO container also, but it has an added button to calculate the list of variable stars (from the user defined catalog), thay will be on a defined period phase tonight.
+  You can then select a target from the dropdownlist. They are sorted by the time of the event, so early events go first on the list.
+  When a target is selected, its coordinates will be filled out.
+  You can then create your secuence as you wish.
+* Wait for transit observation time
+  Basically a wait for time instruction where you can choose the observation start time
+* Loop until transit observation time
+  Same as the loop until time, but you can choose the observation end time.
+* Calculate exposure time
+  This instruction can calculate the proper exposure time for the given target and target ADU percentage.
+  Enter the exposure time for the first and second image. It will take the first image and platesolve it. Then it will try to find the star in the image and check the MaxPixelValue.
+  Next it will take the second image and repeat the process.
+  There is also the option to only select exposuretimes from preselected values. That way you will be able to use a dark library.
+  It will then calculate the exposure time to get the star to the given target ADU for the camera and take another image.
+  This process will repeat until the MaxPixelValue for the target star is within 10 percent of the given target ADU
+  This instruction will also check the image for comparison stars and variable stars and show their locations on the image and save the fov image to your imaging directory.
+  Make sure the coordinates for the target star are correct and that the correct pixel size and focal length are used in the Nina options.
+
+>>>>>>> 0aeb4f7 (chore: Bump plugin version to 2.0.6.0)
 *Variable Stars Catalog:*
 
 We support two kind of files
