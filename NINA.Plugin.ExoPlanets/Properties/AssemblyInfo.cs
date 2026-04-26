@@ -26,8 +26,8 @@ using System.Runtime.InteropServices;
 
 //The assembly versioning
 //Should be incremented for each new release build of a plugin
-//[assembly: AssemblyVersion("2.0.6.1")]
-//[assembly: AssemblyFileVersion("2.0.6.1")]
+//[assembly: AssemblyVersion("2.1.5.0")]
+//[assembly: AssemblyFileVersion("2.1.5.0")]
 
 //The minimum Version of N.I.N.A. that this plugin is compatible with
 [assembly: AssemblyMetadata("MinimumApplicationVersion", "3.1.2.9001")]
@@ -82,20 +82,30 @@ using System.Runtime.InteropServices;
 
 *Variable Stars Catalog:*
 
-We support two kind of files
+The plugin supports flexible variable star CSV files with header-based column detection. Columns can be in any order, and the parser automatically recognizes common column name variations (aliases).
 
-* Manual Catalog.
-    - This is a simple [CSV file](https://github.com/NickHardy/ExoPlanets/raw/refs/heads/main/NINA.Plugin.ExoPlanets/resources/geos.csv) with the mandatory columns name,ra,dec,v,epoch and period.
-	- amplitude (optional): if you want to show each variable with different variation height.
-	- ocrange (optional): to compensate for variable O-C like on RRab with Blazhko effect.
-	- phase (optional): use a number between 0 and 1 to observe different portions of the light curve.
+**Required Columns (must be present):**
+* `Name` (aliases: Star Name, Object, Target): The star designation
+* `RA` (aliases: RA (J2000.0), RA_J2000): Right Ascension in HMS format (e.g., 18 17 52.16)
+* `Dec` (aliases: Dec (J2000.0), Dec_J2000, Declination): Declination in DMS format (e.g., +77 17 49.43)
 
-  if you set the epoch to zero, no min or max will be computed and the star will be shown always it meets the observability criteria.
+**Optional Columns (defaults applied if missing):**
+* `Magnitude` / `V` (aliases: Max Mag, Min Mag): Visual magnitude for sorting (default: 12.0)
+* `Period` (aliases: Period (d)): Orbital period in days (default: 0; no events computed if zero)
+* `Epoch` (aliases: Epoch (JD), JD): JD of primary minimum (default: 0; no events computed if zero)
+* `Amplitude` (aliases: Amp, Range): Light curve amplitude in magnitudes (default: 1.0)
+* `Type` (aliases: Var Type, Var. Type): Variable star classification (default: --)
+* `OC Range` (aliases: O-C Range, OCRange): O-C drift compensation for period variations (default: 0)
+* `Phase` (aliases: ObsPhase, StartPhase): Light curve phase for observation planning, 0-1 range (default: 0)
+* `Comments` (aliases: Notes, Remarks, Source): Observation notes or source reference (default: empty)
+* `Filter` (aliases: Mode, Filter/Mode): Observation filter or mode (default: empty)
 
-* AAVSO CSV catalog. [CSV example file](https://bitbucket.org/NickHardy/exoplanets/downloads/aavso.csv)
-    - The expected file format is the one downloaded from AVVSO's [Target Tool](https://targettool.aavso.org/TargetTool)
-    - On this dataset, no epoch is given, so no min or max could be computed.
-    - You have three criteria to sort the stars: Visibility, Culmination and Name.
+**Notes:**
+* If epoch is zero, no event times are computed and the star will be shown when observability criteria are met.
+* If period is zero, no event times are computed regardless of epoch value.
+* The parser logs a summary showing how many stars were successfully loaded and how many rows were skipped.
+* Invalid rows are skipped with detailed error messages logged (row number, column name, error reason).
+* You can now mix Manual catalog and AAVSO catalog formats in the same file.
 
 *Template*
 * [Example exoplanet sequence](https://github.com/NickHardy/ExoPlanets/raw/refs/heads/main/NINA.Plugin.ExoPlanets/resources/TransitPlanetImagingSequence.json)
