@@ -79,7 +79,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             this.framingAssistantVM = framingAssistantVM;
             this.planetariumFactory = planetariumFactory;
 
-            Task.Run(() => NighttimeData = nighttimeCalculator.Calculate(DateTime.Now.AddHours(4)));
+            Task.Run(() => NighttimeData = nighttimeCalculator.Calculate());
             CoordsToFramingCommand = new AsyncRelayCommand(() => Task.Run(CoordsToFraming));
             exoPlanetsPlugin = new ExoPlanets();
 
@@ -89,7 +89,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             VariableStarTargets = new List<VariableStar>();
             VariableStarTargetList = new List<VariableStar>();
             ExoPlanetDSO = new ExoPlanetDeepSkyObject(string.Empty, new Coordinates(Angle.Zero, Angle.Zero, Epoch.J2000), string.Empty, profileService.ActiveProfile.AstrometrySettings.Horizon);
-            ExoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now.AddHours(4)), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
+            ExoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
 
             profileService.LocationChanged += (object sender, EventArgs e) => {
                 Target?.SetPosition(Angle.ByDegree(profileService.ActiveProfile.AstrometrySettings.Latitude), Angle.ByDegree(profileService.ActiveProfile.AstrometrySettings.Longitude));
@@ -100,6 +100,15 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             profileService.HorizonChanged += (object sender, EventArgs e) => {
                 Target?.DeepSkyObject?.SetCustomHorizon(profileService.ActiveProfile.AstrometrySettings.Horizon);
                 ExoPlanetDSO?.SetCustomHorizon(profileService.ActiveProfile.AstrometrySettings.Horizon);
+            };
+
+            nighttimeCalculator.OnReferenceDayChanged += (object sender, EventArgs e) => {
+                // Midnight has passed and the reference day rolled over — refresh altitude data and
+                // nighttime shading so the chart stays correct without replacing the DSO object.
+                Task.Run(() => {
+                    NighttimeData = nighttimeCalculator.Calculate();
+                    exoPlanetDSO?.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
+                });
             };
         }
 
@@ -119,13 +128,14 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
         [JsonProperty]
         public ExoPlanetDeepSkyObject ExoPlanetDSO {
             get {
-                if (exoPlanetDSO != null && exoPlanetDSO.ReferenceDate > DateTime.Now.AddHours(-12)) {
-                    return exoPlanetDSO;
-                } else {
+                if (exoPlanetDSO == null) {
                     ExoPlanetDSO = new ExoPlanetDeepSkyObject(string.Empty, new Coordinates(Angle.Zero, Angle.Zero, Epoch.J2000), string.Empty, profileService.ActiveProfile.AstrometrySettings.Horizon);
-                    ExoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now.AddHours(4)), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
-                    return exoPlanetDSO;
+                    ExoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
+                } else if (exoPlanetDSO.ReferenceDate <= DateTime.Now.AddHours(-12)) {
+                    // Refresh altitude data in-place so coordinates and LightCurve are not lost
+                    exoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
                 }
+                return exoPlanetDSO;
             }
             set {
                 exoPlanetDSO = value;

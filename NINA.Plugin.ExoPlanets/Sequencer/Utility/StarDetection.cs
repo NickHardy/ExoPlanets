@@ -48,6 +48,63 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             public double _inverseResizefactor;
             public int _minStarSize;
             public int _maxStarSize;
+            /// <summary>Luminance pixels extracted from a colour (Rgb48→Gray16) image. When set, use
+            /// instead of _iarr.FlatArray so the raw Bayer mosaic is never used for photometry.</summary>
+            public ushort[] lum16;
+        }
+
+        /// <summary>
+        /// Converts the 16-bit image data to an 8-bit Bitmap using a percentile stretch (p50–p99.9).
+        /// stretchLow = sky median (p50) pushes the background to near-black.
+        /// stretchHigh = p99.9 avoids the narrow range caused by p99.5 (which was too close to the sky
+        /// median) that saturated almost every pixel to 255 and caused Canny to merge stars into giant blobs.
+        /// </summary>
+        private static Bitmap ConvertToPercentileStretched8Bpp(State state) {
+            int width = state.imageProperties.Width;
+            int height = state.imageProperties.Height;
+            int total = width * height;
+
+            // For colour (Rgb48→Gray16) images use the luminance array pre-computed in GetInitialState;
+            // for mono images fall back to the raw FlatArray.
+            var pixels16 = state.lum16 ?? state._iarr.FlatArray;
+            ushort GetPixel(int index) => pixels16[index];
+
+            // Sample every 50th pixel to compute percentiles efficiently
+            int sampleStep = 50;
+            var sample = new List<ushort>(total / sampleStep + 1);
+            for (int i = 0; i < total; i += sampleStep) {
+                sample.Add(GetPixel(i));
+            }
+            sample.Sort();
+
+            int lowIdx  = (int)(sample.Count * 0.50);  // p50 – sky median → background goes near-black
+            int highIdx = (int)(sample.Count * 0.999); // p99.9 – wide enough to not clip faint stars
+            double stretchLow  = sample[lowIdx];
+            double stretchHigh = sample[highIdx];
+            double range = stretchHigh - stretchLow;
+            if (range < 1) range = 1;
+
+            var bmp = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
+
+            // Set greyscale palette
+            var palette = bmp.Palette;
+            for (int i = 0; i < 256; i++) {
+                palette.Entries[i] = System.Drawing.Color.FromArgb(i, i, i);
+            }
+            bmp.Palette = palette;
+
+            var bmpData = bmp.LockBits(new Rectangle(0, 0, width, height), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
+            var rowBytes = new byte[bmpData.Stride];
+            for (int y = 0; y < height; y++) {
+                int rowOffset = y * width;
+                for (int x = 0; x < width; x++) {
+                    double val = (GetPixel(rowOffset + x) - stretchLow) / range * 255.0;
+                    rowBytes[x] = val < 0 ? (byte)0 : val > 255 ? (byte)255 : (byte)val;
+                }
+                System.Runtime.InteropServices.Marshal.Copy(rowBytes, 0, bmpData.Scan0 + y * bmpData.Stride, bmpData.Stride);
+            }
+            bmp.UnlockBits(bmpData);
+            return bmp;
         }
 
         private static State GetInitialState(IRenderedImage renderedImage, System.Windows.Media.PixelFormat pf, StarDetectionParams p) {
@@ -89,6 +146,12 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     using (var img = new Grayscale(0.2125, 0.7154, 0.0721).Apply(source)) {
                         state._originalBitmapSource = ImageUtility.ConvertBitmap(img, System.Windows.Media.PixelFormats.Gray16);
                         state._originalBitmapSource.Freeze();
+                        // Copy luminance pixels once here so ConvertToPercentileStretched8Bpp and
+                        // IdentifyStars both read from the same array without a second CopyPixels call.
+                        int w = state.imageProperties.Width;
+                        int h = state.imageProperties.Height;
+                        state.lum16 = new ushort[w * h];
+                        state._originalBitmapSource.CopyPixels(state.lum16, w * 2, 0);
                     }
                 }
             }
@@ -188,7 +251,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                         progress?.Report(new ApplicationStatus() { Status = "Preparing image for star detection" });
 
                         var state = GetInitialState(image, pf, p);
-                        _bitmapToAnalyze = ImageUtility.Convert16BppTo8Bpp(state._originalBitmapSource);
+                        _bitmapToAnalyze = ConvertToPercentileStretched8Bpp(state);
 
                         token.ThrowIfCancellationRequested();
 
@@ -242,6 +305,21 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             List<Star> starlist = new List<Star>();
             double sumRadius = 0;
             double sumSquares = 0;
+
+            // For colour (Rgb48→Gray16) images use the luminance array pre-computed in GetInitialState;
+            // for mono images fall back to the raw FlatArray.
+            var flatArray = state.lum16 ?? state._iarr.FlatArray;
+
+            // Sample every 100th pixel to estimate the sky background median efficiently.
+            // Used to reject blobs found inside the halos of bright stars.
+            var sample = new List<double>(flatArray.Length / 100 + 1);
+            for (int i = 0; i < flatArray.Length; i += 100) {
+                sample.Add(flatArray[i]);
+            }
+            sample.Sort();
+            double skyMedian = sample[sample.Count / 2];
+            double backgroundRejectionThreshold = skyMedian * 1.5;
+
             foreach (Blob blob in blobs) {
                 token.ThrowIfCancellationRequested();
 
@@ -313,7 +391,9 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                 double largeRectStdev = Math.Sqrt((largeRectPixelSumSquares - (largeRectPixelCount * largeRectMean * largeRectMean)) / largeRectPixelCount);
                 int minimumNumberOfPixels = (int)Math.Ceiling(Math.Max(state._originalBitmapSource.PixelWidth, state._originalBitmapSource.PixelHeight) / 1000d);
 
-                if (s.meanBrightness >= largeRectMean + Math.Min(0.1 * largeRectMean, largeRectStdev) && innerStarPixelValues.Count(pv => pv > largeRectMean + (1.5 * largeRectStdev)) > minimumNumberOfPixels) { //It's a local maximum, and has enough bright pixels, so likely to be a star. Let's add it to our star dictionary.
+                if (s.meanBrightness >= largeRectMean + Math.Min(0.07 * largeRectMean, largeRectStdev)
+                    && innerStarPixelValues.Count(pv => pv > largeRectMean + (1.2 * largeRectStdev)) > minimumNumberOfPixels
+                    && largeRectMean < backgroundRejectionThreshold) { //It's a local maximum, has enough bright pixels, and is not inside a bright star's halo.
                     sumRadius += s.radius;
                     sumSquares += s.radius * s.radius;
                     s.CalculateHfr();
@@ -361,10 +441,10 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             if (p.Sensitivity == StarSensitivityEnum.Normal) {
                 if (p.NoiseReduction == NoiseReductionEnum.None || p.NoiseReduction == NoiseReductionEnum.Median) {
                     //Still need to apply Gaussian blur, using normal Canny
-                    new CannyEdgeDetector(10, 80).ApplyInPlace(bmp);
+                    new CannyEdgeDetector(10, 55).ApplyInPlace(bmp);
                 } else {
                     //Gaussian blur already applied, using no-blur Canny
-                    new NoBlurCannyEdgeDetector(10, 80).ApplyInPlace(bmp);
+                    new NoBlurCannyEdgeDetector(10, 55).ApplyInPlace(bmp);
                 }
             } else {
                 int kernelSize = (int)Math.Max(Math.Floor(Math.Max(state._originalBitmapSource.PixelWidth, state._originalBitmapSource.PixelHeight) * state._resizefactor / 500), 3);
@@ -385,7 +465,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     }
                 }
                 token.ThrowIfCancellationRequested();
-                new NoBlurCannyEdgeDetector(10, 80).ApplyInPlace(bmp);
+                new NoBlurCannyEdgeDetector(10, 55).ApplyInPlace(bmp);
             }
             token.ThrowIfCancellationRequested();
             new SISThreshold().ApplyInPlace(bmp);

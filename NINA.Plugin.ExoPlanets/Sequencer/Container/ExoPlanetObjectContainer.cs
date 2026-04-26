@@ -105,6 +105,15 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 Target?.DeepSkyObject?.SetCustomHorizon(profileService.ActiveProfile.AstrometrySettings.Horizon);
                 ExoPlanetDSO?.SetCustomHorizon(profileService.ActiveProfile.AstrometrySettings.Horizon);
             };
+
+            nighttimeCalculator.OnReferenceDayChanged += (object sender, EventArgs e) => {
+                // Midnight has passed and the reference day rolled over — refresh altitude data and
+                // nighttime shading so the chart stays correct without replacing the DSO object.
+                Task.Run(() => {
+                    NighttimeData = nighttimeCalculator.Calculate();
+                    exoPlanetDSO?.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
+                });
+            };
         }
 
         private ExoPlanet selectedExoPlanet;
@@ -123,13 +132,14 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
         [JsonProperty]
         public ExoPlanetDeepSkyObject ExoPlanetDSO {
             get {
-                if (exoPlanetDSO != null && exoPlanetDSO.ReferenceDate > DateTime.Now.AddHours(-12)) {
-                    return exoPlanetDSO;
-                } else {
+                if (exoPlanetDSO == null) {
                     ExoPlanetDSO = new ExoPlanetDeepSkyObject(string.Empty, new Coordinates(Angle.Zero, Angle.Zero, Epoch.J2000), string.Empty, profileService.ActiveProfile.AstrometrySettings.Horizon);
                     ExoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
-                    return exoPlanetDSO;
+                } else if (exoPlanetDSO.ReferenceDate <= DateTime.Now.AddHours(-12)) {
+                    // Refresh altitude data in-place so coordinates and LightCurve are not lost
+                    exoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
                 }
+                return exoPlanetDSO;
             }
             set {
                 exoPlanetDSO = value;
@@ -328,7 +338,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             }
 
             // Check depth
-            ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.depth > 0 && ep.depth >= exoPlanetsPlugin.MinDepth));
+            ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.depth == 0 || ep.depth >= exoPlanetsPlugin.MinDepth));
 
             // check twilight
             if (exoPlanetsPlugin.WithinTwilight) {

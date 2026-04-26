@@ -404,13 +404,25 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     var center = new Point(width / 2, height / 2);
 
                     //Translate your coordinates to x/y in relation to center coordinates
-                    Point targetPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(plateSolveResult.Coordinates, center, arcsecPerPix, arcsecPerPix, -plateSolveResult.PositionAngle, ProjectionType.Stereographic);
+                    var positionAngle = -plateSolveResult.PositionAngle;
+                    Point targetPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(plateSolveResult.Coordinates, center, arcsecPerPix, arcsecPerPix, positionAngle, ProjectionType.Stereographic);
+                    var maxSearchRadiusArcsec = 15d;
+                    var maxSearchRadiusPx = maxSearchRadiusArcsec / arcsecPerPix;
+                    Logger.Debug("PlateSolveResult: " + JsonConvert.SerializeObject(plateSolveResult));
+                    Logger.Debug("TargetPoint: " + JsonConvert.SerializeObject(targetPoint));
+                    Logger.Debug("StarList: " + JsonConvert.SerializeObject(starDetectionResult.StarList));
                     TargetStar = starDetectionResult.StarList
-                        .GroupBy(p => Math.Pow(targetPoint.X - p.Position.X, 2) + Math.Pow(targetPoint.Y - p.Position.Y, 2))
-                        .OrderBy(p => p.Key)
-                        .FirstOrDefault()?.FirstOrDefault();
+                        .Where(p => Math.Pow(targetPoint.X - p.Position.X, 2) + Math.Pow(targetPoint.Y - p.Position.Y, 2) <= maxSearchRadiusPx * maxSearchRadiusPx)
+                        .OrderBy(p => Math.Pow(targetPoint.X - p.Position.X, 2) + Math.Pow(targetPoint.Y - p.Position.Y, 2))
+                        .FirstOrDefault();
 
                     if (TargetStar == null) {
+                        // Annotate the image so the user can see where the target should be
+                        saveAnnotationJpg = profileService.ActiveProfile.ImageFileSettings.FilePath + "\\" + inputTarget.TargetName + "_fov.jpg";
+                        var missedTargetPoint = new System.Drawing.Point((int)Math.Round(targetPoint.X), (int)Math.Round(targetPoint.Y));
+                        var missedTargetAnnotation = await StarAnnotator.GetAnnotatedImage(null, [], [], [], [], image.Image, saveAnnotationJpg, ExposureTime,
+                            null, null, missedTargetPoint, token);
+                        imagingMediator.SetImage(missedTargetAnnotation);
                         Notification.ShowError("Target star not found.");
                         Issues.Add("Target star not found.");
                         throw new SequenceEntityFailedException(string.Join(", ", Issues));
@@ -427,12 +439,13 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     var VStarList = new List<DetectedStar>();
                     FindVariableStars(progress, token, inputTarget.TargetName, plateSolveResult.Coordinates);
                     foreach (var vStar in VariableStarList) {
-                        Point vStarPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(vStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, plateSolveResult.PositionAngle, ProjectionType.Stereographic);
+                        Point vStarPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(vStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, positionAngle, ProjectionType.Stereographic);
                         if (!CheckPointWithinImage(vStarPoint, image)) continue;
                         DetectedStar dStar = starDetectionResult.StarList
-                            .GroupBy(p => Math.Pow(vStarPoint.X - p.Position.X, 2) + Math.Pow(vStarPoint.Y - p.Position.Y, 2))
-                            .OrderBy(p => p.Key)
-                            .FirstOrDefault()?.FirstOrDefault();
+                            .Where(p => Math.Pow(vStarPoint.X - p.Position.X, 2) + Math.Pow(vStarPoint.Y - p.Position.Y, 2) <= maxSearchRadiusPx * maxSearchRadiusPx)
+                            .OrderBy(p => Math.Pow(vStarPoint.X - p.Position.X, 2) + Math.Pow(vStarPoint.Y - p.Position.Y, 2))
+                            .FirstOrDefault();
+                        if (dStar == null) continue;
                         dStar.Position = dStar.Position.Round();
                         if (dStar.Position != TargetStar.Position) {
                             VStarList.Add(dStar);
@@ -444,16 +457,22 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
                     // Simbad same colour comparison stars
                     var SimbadStarList = new List<DetectedStar>();
+                    var missedSimbadCompStarPositions = new List<System.Drawing.Point>();
                     FindSimbadComparisonStars(progress, token, inputTarget);
 
                     if (SimbadCompStarList?.Count > 0) {
                         foreach (var compStar in SimbadCompStarList) {
-                            Point compPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(compStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, plateSolveResult.PositionAngle, ProjectionType.Stereographic);
+                            Point compPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(compStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, positionAngle, ProjectionType.Stereographic);
                             if (!CheckPointWithinImage(compPoint, image)) continue;
                             DetectedStar cStar = starDetectionResult.StarList
-                                .GroupBy(p => Math.Pow(compPoint.X - p.Position.X, 2) + Math.Pow(compPoint.Y - p.Position.Y, 2))
-                                .OrderBy(p => p.Key)
-                                .FirstOrDefault()?.FirstOrDefault();
+                                .Where(p => Math.Pow(compPoint.X - p.Position.X, 2) + Math.Pow(compPoint.Y - p.Position.Y, 2) <= maxSearchRadiusPx * maxSearchRadiusPx)
+                                .OrderBy(p => Math.Pow(compPoint.X - p.Position.X, 2) + Math.Pow(compPoint.Y - p.Position.Y, 2))
+                                .FirstOrDefault();
+                            if (cStar == null) {
+                                missedSimbadCompStarPositions.Add(new System.Drawing.Point((int)Math.Round(compPoint.X), (int)Math.Round(compPoint.Y)));
+                                Logger.Debug("Missed Simbad CompStar (not found in image): " + JsonConvert.SerializeObject(compStar));
+                                continue;
+                            }
                             cStar.Position = cStar.Position.Round();
                             if (cStar.Position != TargetStar.Position) {
                                 SimbadStarList.Add(cStar);
@@ -468,15 +487,21 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     SimbadStarList.ForEach(i => Logger.Info("Simbad Comparison star: " + JsonConvert.SerializeObject(i)));
 
                     StarList = [];
+                    var missedCompStarPositions = new List<System.Drawing.Point>();
                     FindComparisonStars(progress, token, inputTarget.TargetName, plateSolveResult.Coordinates);
                     if (CompStarChart?.photometry?.Count > 0) {
                         foreach (var compStar in CompStarChart.photometry) {
-                            Point compPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(compStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, plateSolveResult.PositionAngle, ProjectionType.Stereographic);
+                            Point compPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(compStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, positionAngle, ProjectionType.Stereographic);
                             if (!CheckPointWithinImage(compPoint, image)) continue;
                             DetectedStar cStar = starDetectionResult.StarList
-                                .GroupBy(p => Math.Pow(compPoint.X - p.Position.X, 2) + Math.Pow(compPoint.Y - p.Position.Y, 2))
-                                .OrderBy(p => p.Key)
-                                .FirstOrDefault()?.FirstOrDefault();
+                                .Where(p => Math.Pow(compPoint.X - p.Position.X, 2) + Math.Pow(compPoint.Y - p.Position.Y, 2) <= maxSearchRadiusPx * maxSearchRadiusPx)
+                                .OrderBy(p => Math.Pow(compPoint.X - p.Position.X, 2) + Math.Pow(compPoint.Y - p.Position.Y, 2))
+                                .FirstOrDefault();
+                            if (cStar == null) {
+                                missedCompStarPositions.Add(new System.Drawing.Point((int)Math.Round(compPoint.X), (int)Math.Round(compPoint.Y)));
+                                Logger.Debug("Missed CompStar (not found in image): " + JsonConvert.SerializeObject(compStar));
+                                continue;
+                            }
                             cStar.Position = cStar.Position.Round();
                             if (cStar.Position != TargetStar.Position) {
                                 StarList.Add(cStar);
@@ -505,7 +530,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     // Annotate image
                     var starAnnotator = new StarAnnotator();
                     saveAnnotationJpg = profileService.ActiveProfile.ImageFileSettings.FilePath + "\\" + inputTarget.TargetName + "_fov.jpg";
-                    var annotatedImage = await StarAnnotator.GetAnnotatedImage(TargetStar, StarList, VStarList, avgStarList, SimbadStarList, image.Image, saveAnnotationJpg, ExposureTime, token);
+                    var annotatedImage = await StarAnnotator.GetAnnotatedImage(TargetStar, StarList, VStarList, avgStarList, SimbadStarList, image.Image, saveAnnotationJpg, ExposureTime, missedCompStarPositions, missedSimbadCompStarPositions, null, token);
                     imagingMediator.SetImage(annotatedImage);
 
                     // Save comparison and variable star csv

@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using Point = System.Drawing.Point;
 
 namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
@@ -15,10 +16,12 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
         private static readonly Pen COMP_PEN = new Pen(Brushes.LightYellow, 1);
         private static readonly Pen VAR_PEN = new Pen(Brushes.LightBlue, 1);
         private static readonly Pen AVG_PEN = new Pen(Brushes.LightGreen, 1);
+        private static readonly Pen MISSED_PEN = new Pen(Brushes.OrangeRed, 2);
         private static readonly SolidBrush TARGET_TEXTBRUSH = new SolidBrush(Color.Red);
         private static readonly SolidBrush COMP_TEXTBRUSH = new SolidBrush(Color.Yellow);
         private static readonly SolidBrush VAR_TEXTBRUSH = new SolidBrush(Color.Blue);
         private static readonly SolidBrush AVG_TEXTBRUSH = new SolidBrush(Color.Green);
+        private static readonly SolidBrush MISSED_TEXTBRUSH = new SolidBrush(Color.OrangeRed);
         private static readonly FontFamily FONTFAMILY = new FontFamily("Arial");
         private static readonly Font FONT = new Font(FONTFAMILY, 24, FontStyle.Regular, GraphicsUnit.Pixel);
 
@@ -26,7 +29,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
         public string ContentId => this.GetType().FullName;
 
-        public static Task<BitmapSource> GetAnnotatedImage(DetectedStar targetStar, List<DetectedStar> starList, List<DetectedStar> VStarList, List<DetectedStar> avgStarList, List<DetectedStar> simbadStarList, BitmapSource imageToAnnotate, string annotationJpg, double exposuretime, CancellationToken token = default) {
+        public static Task<BitmapSource> GetAnnotatedImage(DetectedStar targetStar, List<DetectedStar> starList, List<DetectedStar> VStarList, List<DetectedStar> avgStarList, List<DetectedStar> simbadStarList, BitmapSource imageToAnnotate, string annotationJpg, double exposuretime, List<Point> missedCompStarPositions = null, List<Point> missedSimbadCompStarPositions = null, Point? missedTargetPoint = null, CancellationToken token = default) {
             return Task.Run(() => {
                 using (MyStopWatch.Measure()) {
                     if (imageToAnnotate.Format == System.Windows.Media.PixelFormats.Rgb48) {
@@ -99,6 +102,68 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                                         graphics.DrawString("A", FONT, AVG_TEXTBRUSH, new PointF(Convert.ToSingle(star.Position.X - offset - (1.0 * offset)), Convert.ToSingle(star.Position.Y + (1.5 * offset))));
                                     }
                                 }
+                            }
+
+                            if (missedCompStarPositions != null) {
+                                int xSize = 12;
+                                foreach (var p in missedCompStarPositions) {
+                                    token.ThrowIfCancellationRequested();
+                                    float px = p.X;
+                                    float py = p.Y;
+                                    graphics.DrawLine(MISSED_PEN, px - xSize, py - xSize, px + xSize, py + xSize);
+                                    graphics.DrawLine(MISSED_PEN, px + xSize, py - xSize, px - xSize, py + xSize);
+                                    graphics.DrawString("C2", FONT, MISSED_TEXTBRUSH, new PointF(px + xSize + 2, py - xSize));
+                                }
+                            }
+
+                            if (missedSimbadCompStarPositions != null) {
+                                int xSize = 12;
+                                foreach (var p in missedSimbadCompStarPositions) {
+                                    token.ThrowIfCancellationRequested();
+                                    float px = p.X;
+                                    float py = p.Y;
+                                    graphics.DrawLine(MISSED_PEN, px - xSize, py - xSize, px + xSize, py + xSize);
+                                    graphics.DrawLine(MISSED_PEN, px + xSize, py - xSize, px - xSize, py + xSize);
+                                    graphics.DrawString("C1", FONT, MISSED_TEXTBRUSH, new PointF(px + xSize + 2, py - xSize));
+                                }
+                            }
+
+                            if (missedTargetPoint.HasValue) {
+                                // Clamp to image edge if the projected point is outside the image bounds
+                                int imgW = newBitmap.Width;
+                                int imgH = newBitmap.Height;
+                                float tx = missedTargetPoint.Value.X;
+                                float ty = missedTargetPoint.Value.Y;
+                                bool outsideImage = tx < 0 || ty < 0 || tx >= imgW || ty >= imgH;
+                                if (outsideImage) {
+                                    // Ray from image center toward the projected point; find where it exits
+                                    float cx = imgW / 2f;
+                                    float cy = imgH / 2f;
+                                    float dx = tx - cx;
+                                    float dy = ty - cy;
+                                    float tMin = float.MaxValue;
+                                    if (dx != 0) {
+                                        tMin = Math.Min(tMin, dx > 0 ? (imgW - 1 - cx) / dx : -cx / dx);
+                                    }
+                                    if (dy != 0) {
+                                        tMin = Math.Min(tMin, dy > 0 ? (imgH - 1 - cy) / dy : -cy / dy);
+                                    }
+                                    tx = cx + dx * tMin;
+                                    ty = cy + dy * tMin;
+                                    tx = Math.Max(0, Math.Min(imgW - 1, tx));
+                                    ty = Math.Max(0, Math.Min(imgH - 1, ty));
+                                }
+                                int xSize = 14;
+                                graphics.DrawLine(TARGET_PEN, tx - xSize, ty - xSize, tx + xSize, ty + xSize);
+                                graphics.DrawLine(TARGET_PEN, tx + xSize, ty - xSize, tx - xSize, ty + xSize);
+                                string label = outsideImage ? "T (off-image →)" : "T (not detected)";
+                                var labelSize = graphics.MeasureString(label, FONT);
+                                float lx = tx + xSize + 2;
+                                float ly = ty - xSize;
+                                // Keep the label inside the image
+                                lx = Math.Max(0, Math.Min(imgW - labelSize.Width, lx));
+                                ly = Math.Max(0, Math.Min(imgH - labelSize.Height, ly));
+                                graphics.DrawString(label, FONT, TARGET_TEXTBRUSH, new PointF(lx, ly));
                             }
 
                             if (targetStar != null) {

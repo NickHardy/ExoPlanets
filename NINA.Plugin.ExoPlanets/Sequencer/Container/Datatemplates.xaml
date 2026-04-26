@@ -481,7 +481,7 @@
                                     VerticalAlignment="Top"
                                     DataContext="{Binding}"
                                     Foreground="{StaticResource PrimaryBrush}"
-                                    Text="{Binding SelectedExoPlanet.Comments}"
+                                    alt:HtmlTextBlock.Html="{Binding SelectedExoPlanet.Comments}"
                                     TextWrapping="Wrap" />
                                 <StackPanel
                                     Grid.Row="4"
