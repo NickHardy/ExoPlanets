@@ -75,5 +75,12 @@ namespace NINA.Plugin.ExoPlanets.View {
             set => SetValue(ShowMoonProperty, value);
         }
 
+        public static DependencyProperty AxisMinimumProperty = DependencyProperty.Register("AxisMinimum", typeof(double), typeof(AltitudeChart), new PropertyMetadata(double.NaN));
+
+        public double AxisMinimum {
+            get => (double)GetValue(AxisMinimumProperty);
+            set => SetValue(AxisMinimumProperty, value);
+        }
+
     }
 }

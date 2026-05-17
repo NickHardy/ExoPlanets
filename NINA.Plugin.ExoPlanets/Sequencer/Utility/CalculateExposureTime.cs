@@ -320,27 +320,31 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             if (Validate()) {
                 var keepTrying = true;
                 var saveAnnotationJpg = string.Empty;
+                var plateSolveFailed = false;
                 ExposureCount = 1;
                 inputs.Clear();
                 outputs.Clear();
                 TargetStar = null;
                 // DetectedStar targetStarTemp = null;
                 while (keepTrying && ExposureCount < 10) {
-                    if (ExposureCount == 1) {
-                        if (exoPlanets.UseExposureTimes) {
-                            ExposureTimesList = exoPlanets.ExposureTimes.Split(',').Select(int.Parse).ToList();
-                            ExposureTime = ExposureTimesList.OrderBy(item => Math.Abs(ExposureTimeFirst - item)).First();
-                        } else {
-                            ExposureTime = ExposureTimeFirst;
+                    if (!plateSolveFailed) {
+                        if (ExposureCount == 1) {
+                            if (exoPlanets.UseExposureTimes) {
+                                ExposureTimesList = exoPlanets.ExposureTimes.Split(',').Select(int.Parse).ToList();
+                                ExposureTime = ExposureTimesList.OrderBy(item => Math.Abs(ExposureTimeFirst - item)).First();
+                            } else {
+                                ExposureTime = ExposureTimeFirst;
+                            }
+                        }
+                        if (ExposureCount == 2) {
+                            if (exoPlanets.UseExposureTimes) {
+                                ExposureTime = ExposureTimesList.Where(x => x != ExposureTime).OrderBy(item => Math.Abs(ExposureTimeSecond - item)).First();
+                            } else {
+                                ExposureTime = ExposureTimeSecond;
+                            }
                         }
                     }
-                    if (ExposureCount == 2) {
-                        if (exoPlanets.UseExposureTimes) {
-                            ExposureTime = ExposureTimesList.Where(x => x != ExposureTime).OrderBy(item => Math.Abs(ExposureTimeSecond - item)).First();
-                        } else {
-                            ExposureTime = ExposureTimeSecond;
-                        }
-                    }
+                    plateSolveFailed = false;
 
                     var exoPlanetDSO = ItemUtility.RetrieveExoPlanetDSO(this.Parent);
                     var inputTarget = ItemUtility.RetrieveInputTarget(this.Parent);
@@ -394,8 +398,30 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
                     var plateSolveResult = await imageSolver.Solve(image.RawImageData, parameter, progress, token);
                     if (!plateSolveResult.Success) {
-                        Issues.Add("Platesolve failed.");
-                        throw new SequenceEntityFailedException(string.Join(", ", Issues));
+                        Notification.ShowWarning("Platesolve failed. Trying with a longer exposure time.");
+                        Logger.Warning("Platesolve failed for exposure time: " + ExposureTime);
+
+                        double nextExposureTime;
+                        if (exoPlanets.UseExposureTimes && ExposureTimesList != null) {
+                            var nextTime = ExposureTimesList.Where(x => x > ExposureTime).OrderBy(x => x).FirstOrDefault();
+                            if (nextTime == 0 || nextTime > ExposureTimeMax) {
+                                Issues.Add("Platesolve failed for all available exposure times.");
+                                throw new SequenceEntityFailedException(string.Join(", ", Issues));
+                            }
+                            nextExposureTime = nextTime;
+                        } else {
+                            var step = Math.Max(ExposureTimeSecond - ExposureTimeFirst, 1d);
+                            nextExposureTime = ExposureTime + step;
+                            if (nextExposureTime > ExposureTimeMax) {
+                                Issues.Add("Platesolve failed for all available exposure times.");
+                                throw new SequenceEntityFailedException(string.Join(", ", Issues));
+                            }
+                        }
+
+                        ExposureTime = nextExposureTime;
+                        plateSolveFailed = true;
+                        ExposureCount++;
+                        continue;
                     }
 
                     var arcsecPerPix = AstroUtil.ArcsecPerPixel(profileService.ActiveProfile.CameraSettings.PixelSize * Binning?.X ?? 1, profileService.ActiveProfile.TelescopeSettings.FocalLength);
@@ -439,7 +465,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     var VStarList = new List<DetectedStar>();
                     FindVariableStars(progress, token, inputTarget.TargetName, plateSolveResult.Coordinates);
                     foreach (var vStar in VariableStarList) {
-                        Point vStarPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(vStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, positionAngle, ProjectionType.Stereographic);
+                        Point vStarPoint = vStar.Coordinates().XYProjection(plateSolveResult.Coordinates, center, arcsecPerPix, arcsecPerPix, positionAngle, ProjectionType.Stereographic);
                         if (!CheckPointWithinImage(vStarPoint, image)) continue;
                         DetectedStar dStar = starDetectionResult.StarList
                             .Where(p => Math.Pow(vStarPoint.X - p.Position.X, 2) + Math.Pow(vStarPoint.Y - p.Position.Y, 2) <= maxSearchRadiusPx * maxSearchRadiusPx)
@@ -462,7 +488,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
 
                     if (SimbadCompStarList?.Count > 0) {
                         foreach (var compStar in SimbadCompStarList) {
-                            Point compPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(compStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, positionAngle, ProjectionType.Stereographic);
+                            Point compPoint = compStar.Coordinates().XYProjection(plateSolveResult.Coordinates, center, arcsecPerPix, arcsecPerPix, positionAngle, ProjectionType.Stereographic);
                             if (!CheckPointWithinImage(compPoint, image)) continue;
                             DetectedStar cStar = starDetectionResult.StarList
                                 .Where(p => Math.Pow(compPoint.X - p.Position.X, 2) + Math.Pow(compPoint.Y - p.Position.Y, 2) <= maxSearchRadiusPx * maxSearchRadiusPx)
@@ -491,7 +517,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                     FindComparisonStars(progress, token, inputTarget.TargetName, plateSolveResult.Coordinates);
                     if (CompStarChart?.photometry?.Count > 0) {
                         foreach (var compStar in CompStarChart.photometry) {
-                            Point compPoint = inputTarget.InputCoordinates.Coordinates.XYProjection(compStar.Coordinates(), center, arcsecPerPix, arcsecPerPix, positionAngle, ProjectionType.Stereographic);
+                            Point compPoint = compStar.Coordinates().XYProjection(plateSolveResult.Coordinates, center, arcsecPerPix, arcsecPerPix, positionAngle, ProjectionType.Stereographic);
                             if (!CheckPointWithinImage(compPoint, image)) continue;
                             DetectedStar cStar = starDetectionResult.StarList
                                 .Where(p => Math.Pow(compPoint.X - p.Position.X, 2) + Math.Pow(compPoint.Y - p.Position.Y, 2) <= maxSearchRadiusPx * maxSearchRadiusPx)
@@ -592,7 +618,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
                 Notification.ShowInformation("Exposure time calculated to be " + ExposureTime + "s.");
                 Notification.ShowInformation("Annotated image saved: " + saveAnnotationJpg);
                 if (UpdateExposureTime) {
-                    ItemUtility.UpdateTakeExposureItems(ItemUtility.RetrieveExoPlanetContainer(this.Parent), ExposureTime);
+                    ItemUtility.UpdateTakeExposureItems(ItemUtility.RetrieveExoPlanetOrVariableContainer(this.Parent), ExposureTime);
                 }
             } else {
                 throw new SequenceItemSkippedException(string.Join(", ", Issues));

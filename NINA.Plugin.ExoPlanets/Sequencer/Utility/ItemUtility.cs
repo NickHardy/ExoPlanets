@@ -36,6 +36,19 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Utility {
             }
         }
 
+        public static SequenceContainer RetrieveExoPlanetOrVariableContainer(ISequenceContainer parent) {
+            if (parent != null) {
+                var container = parent as IVariableBrightnessTargetContainer;
+                if (container != null) {
+                    return parent as SequenceContainer;
+                } else {
+                    return RetrieveExoPlanetOrVariableContainer(parent.Parent);
+                }
+            } else {
+                return null;
+            }
+        }
+
         public static ExoPlanetDeepSkyObject RetrieveExoPlanetDSO(ISequenceContainer parent) {
             if (parent != null) {
                 var container = parent as IVariableBrightnessTargetContainer;

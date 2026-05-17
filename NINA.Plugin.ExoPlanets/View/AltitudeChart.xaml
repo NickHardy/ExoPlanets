@@ -65,6 +65,7 @@
                     IsPanEnabled="False"
                     IsZoomEnabled="False"
                     MajorStep="0.125"
+                    Minimum="{Binding AxisMinimum, ElementName=UC}"
                     MinorStep="0.0208333333333333"
                     Position="Bottom"
                     StringFormat="HH"
@@ -95,15 +96,15 @@
                     Color="Black" />
 
                 <oxy:LineSeries
-                    DataFieldX="Key"
-                    DataFieldY="Value"
+                    DataFieldX="X"
+                    DataFieldY="Y"
                     ItemsSource="{Binding Altitudes}"
                     TrackerFormatString="X: {2:HH:mm}h&#x0a;Y: {4:0.00}&#176;"
                     Color="{Binding Path=Color, Source={StaticResource SecondaryBrush}}" />
 
                 <oxy:AreaSeries
-                    DataFieldX="Key"
-                    DataFieldY="Value"
+                    DataFieldX="X"
+                    DataFieldY="Y"
                     ItemsSource="{Binding Horizon}"
                     TrackerFormatString="X: {2:HH:mm}h&#x0a;Y: {4:0.00}&#176;"
                     Color="{Binding Path=Color, Source={StaticResource ButtonBackgroundBrush}}" />
@@ -116,8 +117,8 @@
                     Color="{Binding Path=Color, Source={StaticResource PrimaryBrush}}" />
 
                 <oxy:AreaSeries
-                    DataFieldX="Key"
-                    DataFieldY="Value"
+                    DataFieldX="X"
+                    DataFieldY="Y"
                     ItemsSource="{Binding Moon.DataPoints}"
                     TrackerFormatString="X: {2:HH:mm}h&#x0a;Y: {4:0.00}&#176;"
                     Visibility="{Binding Moon.DisplayMoon, Converter={StaticResource BooleanToVisibilityHiddenConverter}}"

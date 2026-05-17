@@ -258,10 +258,15 @@ namespace NINA.Plugin.ExoPlanets.Model {
 
         // decimal d = Decimal.Parse("1.2345E-02", System.Globalization.NumberStyles.Float);
 
-        // currently asuming that ephem_period is always in days
+        // currently assuming that ephem_period is always in days
         public double Iterations() {
-            double currentJDate = AstroUtil.GetJulianDate(DateTime.Now);
-            return Math.Round((currentJDate - ephem_mid_time) / ephem_period, 0, MidpointRounding.AwayFromZero);
+            // ephem_mid_time is in BJD_TDB. Convert DateTime.Now to JD_TDB by adding
+            // DeltaT (TDB - UTC, currently ~69 s ≈ 0.0008 days) so the iteration count
+            // is computed in the same time scale as the ephemeris.
+            double jdUtc = AstroUtil.GetJulianDate(DateTime.Now);
+            double deltaTDays = AstroUtil.DeltaT(DateTime.Now) / 86400d;
+            double jdTdb = jdUtc + deltaTDays;
+            return Math.Round((jdTdb - ephem_mid_time) / ephem_period, 0, MidpointRounding.AwayFromZero);
         }
 
         // currently asuming that ephem_period is always in days

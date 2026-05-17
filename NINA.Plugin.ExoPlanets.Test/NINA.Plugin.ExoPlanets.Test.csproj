@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <IsPackable>false</IsPackable>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="NUnit" Version="4.3.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
+    <PackageReference Include="NUnit.Analyzers" Version="4.8.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="NINA.Plugin" Version="3.1.2.9001" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NINA.Plugin.ExoPlanets\NINA.Plugin.ExoPlanets.csproj" />
+  </ItemGroup>
+
+  <!-- Copy the test FITS files to the output directory -->
+  <ItemGroup>
+    <None Update="resources\TOI-1811b_Red_120.00s_17.20C_0000.fits">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+	  <None Update="resources\TrES-3b_Red_100.00s_-10.50C_0000.fits">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="resources\K2-121b_Red_140.00s_-10.00C_0000.fits">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="resources\IR-Qatar-1b-FL1064.fits">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="resources\IR-0000_-14.10_60.00s-Tres-2b.fits">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="resources\StarListTres-3b.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="resources\RealStars.csv">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+  </ItemGroup>
+  <!-- Copy native DLLs required by NINA.Image (cfitsio, FreeImage) to the test output directory. -->
+  <Target Name="CopyNativeDlls" AfterTargets="Build">
+    <ItemGroup>
+      <NativeDll Include="C:\Program Files\N.I.N.A. - Nighttime Imaging 'N' Astronomy\External\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(NativeDll)"
+          DestinationFiles="@(NativeDll->'$(OutputPath)External\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>

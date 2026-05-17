@@ -1,0 +1,1509 @@
+[
+  {
+    "HFR": 1.636744190679275,
+    "Position": {
+      "X": 2095.0,
+      "Y": 2.5
+    },
+    "AverageBrightness": 1450.2,
+    "MaxBrightness": 16097.0,
+    "Background": 12108.729166666666,
+    "BoundingBox": "2093, 0, 5, 6"
+  },
+  {
+    "HFR": 1.2026059824622133,
+    "Position": {
+      "X": 2639.0,
+      "Y": 104.0
+    },
+    "AverageBrightness": 1634.36,
+    "MaxBrightness": 17756.0,
+    "Background": 11564.525,
+    "BoundingBox": "2637, 102, 5, 5"
+  },
+  {
+    "HFR": 1.865211755860623,
+    "Position": {
+      "X": 2792.5,
+      "Y": 104.5
+    },
+    "AverageBrightness": 1025.4857142857143,
+    "MaxBrightness": 15066.0,
+    "Background": 11113.317857142858,
+    "BoundingBox": "2789, 102, 7, 5"
+  },
+  {
+    "HFR": 2.575859290024888,
+    "Position": {
+      "X": 3834.0,
+      "Y": 168.5
+    },
+    "AverageBrightness": 980.7222222222222,
+    "MaxBrightness": 8538.0,
+    "Background": 2309.7291666666665,
+    "BoundingBox": "3831, 164, 6, 9"
+  },
+  {
+    "HFR": 1.0684531175245573,
+    "Position": {
+      "X": 3903.0,
+      "Y": 217.0
+    },
+    "AverageBrightness": 1340.84,
+    "MaxBrightness": 8815.0,
+    "Background": 1772.375,
+    "BoundingBox": "3901, 215, 5, 5"
+  },
+  {
+    "HFR": 1.4963664083369668,
+    "Position": {
+      "X": 3864.0,
+      "Y": 234.5
+    },
+    "AverageBrightness": 1459.1,
+    "MaxBrightness": 7364.0,
+    "Background": 2640.3875,
+    "BoundingBox": "3862, 232, 5, 6"
+  },
+  {
+    "HFR": 1.153406354589167,
+    "Position": {
+      "X": 2227.0,
+      "Y": 239.0
+    },
+    "AverageBrightness": 832.88,
+    "MaxBrightness": 16958.0,
+    "Background": 12812.325,
+    "BoundingBox": "2225, 237, 5, 5"
+  },
+  {
+    "HFR": 3.0288036929937867,
+    "Position": {
+      "X": 9.0,
+      "Y": 243.0
+    },
+    "AverageBrightness": 1610.075,
+    "MaxBrightness": 12479.0,
+    "Background": 5484.6421875,
+    "BoundingBox": "4, 239, 10, 8"
+  },
+  {
+    "HFR": 1.6385866162139926,
+    "Position": {
+      "X": 3915.5,
+      "Y": 296.0
+    },
+    "AverageBrightness": 943.6666666666666,
+    "MaxBrightness": 4561.0,
+    "Background": 1921.8333333333333,
+    "BoundingBox": "3913, 294, 6, 5"
+  },
+  {
+    "HFR": 1.4352511720923078,
+    "Position": {
+      "X": 3232.0,
+      "Y": 307.0
+    },
+    "AverageBrightness": 1972.88,
+    "MaxBrightness": 14404.0,
+    "Background": 9943.055,
+    "BoundingBox": "3230, 305, 5, 5"
+  },
+  {
+    "HFR": 1.3619043519425789,
+    "Position": {
+      "X": 9.0,
+      "Y": 334.0
+    },
+    "AverageBrightness": 2409.92,
+    "MaxBrightness": 11393.0,
+    "Background": 6028.45,
+    "BoundingBox": "7, 332, 5, 5"
+  },
+  {
+    "HFR": 3.678715420811615,
+    "Position": {
+      "X": 10.0,
+      "Y": 371.0
+    },
+    "AverageBrightness": 1955.675,
+    "MaxBrightness": 14343.0,
+    "Background": 6941.390625,
+    "BoundingBox": "5, 365, 10, 12"
+  },
+  {
+    "HFR": 1.6674635054674611,
+    "Position": {
+      "X": 1066.5,
+      "Y": 369.5
+    },
+    "AverageBrightness": 1117.7777777777778,
+    "MaxBrightness": 17687.0,
+    "Background": 13112.440972222223,
+    "BoundingBox": "1064, 367, 6, 6"
+  },
+  {
+    "HFR": 1.459102400333957,
+    "Position": {
+      "X": 9.0,
+      "Y": 490.0
+    },
+    "AverageBrightness": 3866.32,
+    "MaxBrightness": 14796.0,
+    "Background": 5528.61,
+    "BoundingBox": "7, 488, 5, 5"
+  },
+  {
+    "HFR": 4.052422197356913,
+    "Position": {
+      "X": 4000.0,
+      "Y": 496.5
+    },
+    "AverageBrightness": 1081.5230769230768,
+    "MaxBrightness": 8637.0,
+    "Background": 2604.25,
+    "BoundingBox": "3995, 490, 10, 13"
+  },
+  {
+    "HFR": 1.1653298911232413,
+    "Position": {
+      "X": 2343.0,
+      "Y": 493.0
+    },
+    "AverageBrightness": 810.76,
+    "MaxBrightness": 16198.0,
+    "Background": 12366.92,
+    "BoundingBox": "2341, 491, 5, 5"
+  },
+  {
+    "HFR": 1.9970550194856254,
+    "Position": {
+      "X": 4031.0,
+      "Y": 506.5
+    },
+    "AverageBrightness": 992.7619047619048,
+    "MaxBrightness": 4232.0,
+    "Background": 1902.9255952380952,
+    "BoundingBox": "4028, 504, 7, 6"
+  },
+  {
+    "HFR": 1.2036170330940885,
+    "Position": {
+      "X": 4018.0,
+      "Y": 523.0
+    },
+    "AverageBrightness": 1288.92,
+    "MaxBrightness": 6362.0,
+    "Background": 2096.025,
+    "BoundingBox": "4016, 521, 5, 5"
+  },
+  {
+    "HFR": 1.128260537425854,
+    "Position": {
+      "X": 4025.0,
+      "Y": 527.0
+    },
+    "AverageBrightness": 812.52,
+    "MaxBrightness": 6307.0,
+    "Background": 2033.385,
+    "BoundingBox": "4023, 525, 5, 5"
+  },
+  {
+    "HFR": 1.5561348807574713,
+    "Position": {
+      "X": 4010.5,
+      "Y": 548.0
+    },
+    "AverageBrightness": 1436.9666666666667,
+    "MaxBrightness": 8090.0,
+    "Background": 2655.725,
+    "BoundingBox": "4008, 546, 6, 5"
+  },
+  {
+    "HFR": 0.9586356580278176,
+    "Position": {
+      "X": 4103.0,
+      "Y": 549.0
+    },
+    "AverageBrightness": 580.92,
+    "MaxBrightness": 4589.0,
+    "Background": 1636.81,
+    "BoundingBox": "4101, 547, 5, 5"
+  },
+  {
+    "HFR": 1.6760381746122766,
+    "Position": {
+      "X": 4116.0,
+      "Y": 557.5
+    },
+    "AverageBrightness": 1032.6333333333334,
+    "MaxBrightness": 4449.0,
+    "Background": 1615.5916666666667,
+    "BoundingBox": "4114, 555, 5, 6"
+  },
+  {
+    "HFR": 2.6001413389049572,
+    "Position": {
+      "X": 4140.0,
+      "Y": 562.5
+    },
+    "AverageBrightness": 1117.2962962962963,
+    "MaxBrightness": 5230.0,
+    "Background": 1603.8181818181818,
+    "BoundingBox": "4137, 558, 6, 9"
+  },
+  {
+    "HFR": 2.6561797542884498,
+    "Position": {
+      "X": 1582.0,
+      "Y": 568.5
+    },
+    "AverageBrightness": 1041.3214285714287,
+    "MaxBrightness": 17552.0,
+    "Background": 13572.379464285714,
+    "BoundingBox": "1578, 565, 8, 7"
+  },
+  {
+    "HFR": 1.281424526673682,
+    "Position": {
+      "X": 4121.0,
+      "Y": 573.0
+    },
+    "AverageBrightness": 652.4,
+    "MaxBrightness": 3684.0,
+    "Background": 1675.01,
+    "BoundingBox": "4119, 571, 5, 5"
+  },
+  {
+    "HFR": 1.2989717442027282,
+    "Position": {
+      "X": 4123.0,
+      "Y": 601.0
+    },
+    "AverageBrightness": 920.16,
+    "MaxBrightness": 4657.0,
+    "Background": 1816.26,
+    "BoundingBox": "4121, 599, 5, 5"
+  },
+  {
+    "HFR": 5.196818621395342,
+    "Position": {
+      "X": 430.0,
+      "Y": 618.0
+    },
+    "AverageBrightness": 4890.4212962962965,
+    "MaxBrightness": 16699.0,
+    "Background": 5689.488425925926,
+    "BoundingBox": "424, 609, 12, 18"
+  },
+  {
+    "HFR": 1.225019955771596,
+    "Position": {
+      "X": 4105.0,
+      "Y": 617.0
+    },
+    "AverageBrightness": 1573.8,
+    "MaxBrightness": 8616.0,
+    "Background": 2139.885,
+    "BoundingBox": "4103, 615, 5, 5"
+  },
+  {
+    "HFR": 1.994401832832113,
+    "Position": {
+      "X": 2596.5,
+      "Y": 620.0
+    },
+    "AverageBrightness": 1873.1190476190477,
+    "MaxBrightness": 17341.0,
+    "Background": 12580.613095238095,
+    "BoundingBox": "2594, 617, 6, 7"
+  },
+  {
+    "HFR": 1.2723691637508538,
+    "Position": {
+      "X": 4135.0,
+      "Y": 627.0
+    },
+    "AverageBrightness": 762.04,
+    "MaxBrightness": 4589.0,
+    "Background": 2242.48,
+    "BoundingBox": "4133, 625, 5, 5"
+  },
+  {
+    "HFR": 1.6635883030029197,
+    "Position": {
+      "X": 4134.0,
+      "Y": 638.5
+    },
+    "AverageBrightness": 821.7333333333333,
+    "MaxBrightness": 4004.0,
+    "Background": 2123.3333333333335,
+    "BoundingBox": "4132, 636, 5, 6"
+  },
+  {
+    "HFR": 1.2272889193308125,
+    "Position": {
+      "X": 1597.0,
+      "Y": 651.0
+    },
+    "AverageBrightness": 1696.48,
+    "MaxBrightness": 19187.0,
+    "Background": 13139.73,
+    "BoundingBox": "1595, 649, 5, 5"
+  },
+  {
+    "HFR": 1.4574620928738946,
+    "Position": {
+      "X": 4026.5,
+      "Y": 654.5
+    },
+    "AverageBrightness": 1165.611111111111,
+    "MaxBrightness": 9459.0,
+    "Background": 3577.0555555555557,
+    "BoundingBox": "4024, 652, 6, 6"
+  },
+  {
+    "HFR": 1.689107219600155,
+    "Position": {
+      "X": 3171.5,
+      "Y": 657.0
+    },
+    "AverageBrightness": 1206.2142857142858,
+    "MaxBrightness": 16279.0,
+    "Background": 11815.764880952382,
+    "BoundingBox": "3169, 654, 6, 7"
+  },
+  {
+    "HFR": 3.1041779540675845,
+    "Position": {
+      "X": 4138.0,
+      "Y": 705.5
+    },
+    "AverageBrightness": 923.0,
+    "MaxBrightness": 6757.0,
+    "Background": 2537.929919137466,
+    "BoundingBox": "4133, 702, 10, 7"
+  },
+  {
+    "HFR": 2.011910029990116,
+    "Position": {
+      "X": 2364.0,
+      "Y": 725.0
+    },
+    "AverageBrightness": 1692.0,
+    "MaxBrightness": 17993.0,
+    "Background": 13520.505102040815,
+    "BoundingBox": "2361, 722, 7, 7"
+  },
+  {
+    "HFR": 2.438302027777721,
+    "Position": {
+      "X": 4135.0,
+      "Y": 735.0
+    },
+    "AverageBrightness": 898.4375,
+    "MaxBrightness": 7014.0,
+    "Background": 2607.609090909091,
+    "BoundingBox": "4131, 732, 8, 6"
+  },
+  {
+    "HFR": 1.2669092831067503,
+    "Position": {
+      "X": 4120.0,
+      "Y": 755.0
+    },
+    "AverageBrightness": 1031.24,
+    "MaxBrightness": 7259.0,
+    "Background": 2776.54,
+    "BoundingBox": "4118, 753, 5, 5"
+  },
+  {
+    "HFR": 2.3661675887259834,
+    "Position": {
+      "X": 4138.0,
+      "Y": 757.5
+    },
+    "AverageBrightness": 999.0,
+    "MaxBrightness": 7963.0,
+    "Background": 2418.385093167702,
+    "BoundingBox": "4134, 754, 8, 7"
+  },
+  {
+    "HFR": 3.0566595893015713,
+    "Position": {
+      "X": 240.5,
+      "Y": 768.5
+    },
+    "AverageBrightness": 1283.1010101010102,
+    "MaxBrightness": 16338.0,
+    "Background": 10910.593434343435,
+    "BoundingBox": "235, 764, 11, 9"
+  },
+  {
+    "HFR": 1.8051099230257328,
+    "Position": {
+      "X": 4128.5,
+      "Y": 837.0
+    },
+    "AverageBrightness": 1963.0238095238096,
+    "MaxBrightness": 10129.0,
+    "Background": 2416.282738095238,
+    "BoundingBox": "4126, 834, 6, 7"
+  },
+  {
+    "HFR": 1.4876319416723125,
+    "Position": {
+      "X": 4135.0,
+      "Y": 854.0
+    },
+    "AverageBrightness": 2818.28,
+    "MaxBrightness": 8731.0,
+    "Background": 2469.375,
+    "BoundingBox": "4133, 852, 5, 5"
+  },
+  {
+    "HFR": 2.588896638908246,
+    "Position": {
+      "X": 7.0,
+      "Y": 874.5
+    },
+    "AverageBrightness": 1249.142857142857,
+    "MaxBrightness": 15193.0,
+    "Background": 8711.216517857143,
+    "BoundingBox": "3, 871, 8, 7"
+  },
+  {
+    "HFR": 1.2491383555620816,
+    "Position": {
+      "X": 4116.0,
+      "Y": 880.0
+    },
+    "AverageBrightness": 1244.76,
+    "MaxBrightness": 8157.0,
+    "Background": 2446.01,
+    "BoundingBox": "4114, 878, 5, 5"
+  },
+  {
+    "HFR": 1.507780342382823,
+    "Position": {
+      "X": 565.0,
+      "Y": 889.5
+    },
+    "AverageBrightness": 1253.9666666666667,
+    "MaxBrightness": 16260.0,
+    "Background": 12620.179166666667,
+    "BoundingBox": "563, 887, 5, 6"
+  },
+  {
+    "HFR": 1.9198841611774415,
+    "Position": {
+      "X": 4117.5,
+      "Y": 902.0
+    },
+    "AverageBrightness": 1999.2619047619048,
+    "MaxBrightness": 9859.0,
+    "Background": 2615.9315476190477,
+    "BoundingBox": "4114, 899, 7, 6"
+  },
+  {
+    "HFR": 1.3240745739330504,
+    "Position": {
+      "X": 4134.0,
+      "Y": 902.0
+    },
+    "AverageBrightness": 1310.44,
+    "MaxBrightness": 7571.0,
+    "Background": 2503.915,
+    "BoundingBox": "4132, 900, 5, 5"
+  },
+  {
+    "HFR": 1.1758242501364933,
+    "Position": {
+      "X": 4113.0,
+      "Y": 938.0
+    },
+    "AverageBrightness": 1373.68,
+    "MaxBrightness": 7222.0,
+    "Background": 3086.06,
+    "BoundingBox": "4111, 936, 5, 5"
+  },
+  {
+    "HFR": 1.1712823170686864,
+    "Position": {
+      "X": 4135.0,
+      "Y": 956.0
+    },
+    "AverageBrightness": 2780.36,
+    "MaxBrightness": 10829.0,
+    "Background": 2464.82,
+    "BoundingBox": "4133, 954, 5, 5"
+  },
+  {
+    "HFR": 3.4285278116475237,
+    "Position": {
+      "X": 4123.5,
+      "Y": 962.0
+    },
+    "AverageBrightness": 1039.9666666666667,
+    "MaxBrightness": 8075.0,
+    "Background": 3052.5555555555557,
+    "BoundingBox": "4119, 957, 9, 10"
+  },
+  {
+    "HFR": 3.17378722348835,
+    "Position": {
+      "X": 3612.0,
+      "Y": 966.0
+    },
+    "AverageBrightness": 1445.9166666666667,
+    "MaxBrightness": 15884.0,
+    "Background": 10948.45,
+    "BoundingBox": "3609, 961, 6, 10"
+  },
+  {
+    "HFR": 1.6325008059814214,
+    "Position": {
+      "X": 4107.0,
+      "Y": 965.5
+    },
+    "AverageBrightness": 2015.3333333333333,
+    "MaxBrightness": 7642.0,
+    "Background": 2823.420833333333,
+    "BoundingBox": "4105, 963, 5, 6"
+  },
+  {
+    "HFR": 0.9771844801024911,
+    "Position": {
+      "X": 4131.0,
+      "Y": 969.0
+    },
+    "AverageBrightness": 1076.04,
+    "MaxBrightness": 8960.0,
+    "Background": 2839.56,
+    "BoundingBox": "4129, 967, 5, 5"
+  },
+  {
+    "HFR": 3.3820089576946,
+    "Position": {
+      "X": 4103.0,
+      "Y": 977.0
+    },
+    "AverageBrightness": 1070.53,
+    "MaxBrightness": 10393.0,
+    "Background": 3570.3975,
+    "BoundingBox": "4098, 972, 10, 10"
+  },
+  {
+    "HFR": 3.189796664732872,
+    "Position": {
+      "X": 4122.0,
+      "Y": 976.0
+    },
+    "AverageBrightness": 1189.225,
+    "MaxBrightness": 8476.0,
+    "Background": 3145.4765625,
+    "BoundingBox": "4117, 972, 10, 8"
+  },
+  {
+    "HFR": 1.98418981113371,
+    "Position": {
+      "X": 4109.5,
+      "Y": 986.5
+    },
+    "AverageBrightness": 2190.3142857142857,
+    "MaxBrightness": 9125.0,
+    "Background": 3002.1178571428572,
+    "BoundingBox": "4107, 983, 5, 7"
+  },
+  {
+    "HFR": 1.6502131303517895,
+    "Position": {
+      "X": 4133.5,
+      "Y": 1003.5
+    },
+    "AverageBrightness": 1169.5,
+    "MaxBrightness": 7605.0,
+    "Background": 3140.5625,
+    "BoundingBox": "4131, 1001, 6, 6"
+  },
+  {
+    "HFR": 1.1353342982074541,
+    "Position": {
+      "X": 4122.0,
+      "Y": 1014.0
+    },
+    "AverageBrightness": 1209.96,
+    "MaxBrightness": 7806.0,
+    "Background": 2892.775,
+    "BoundingBox": "4120, 1012, 5, 5"
+  },
+  {
+    "HFR": 1.2778007246156597,
+    "Position": {
+      "X": 4132.0,
+      "Y": 1040.0
+    },
+    "AverageBrightness": 1369.04,
+    "MaxBrightness": 8648.0,
+    "Background": 3066.01,
+    "BoundingBox": "4130, 1038, 5, 5"
+  },
+  {
+    "HFR": 3.9922743438627375,
+    "Position": {
+      "X": 4130.5,
+      "Y": 1056.0
+    },
+    "AverageBrightness": 1536.8557692307693,
+    "MaxBrightness": 9483.0,
+    "Background": 2996.640988372093,
+    "BoundingBox": "4124, 1052, 13, 8"
+  },
+  {
+    "HFR": 2.2679941584770686,
+    "Position": {
+      "X": 4132.5,
+      "Y": 1067.0
+    },
+    "AverageBrightness": 1624.525,
+    "MaxBrightness": 8524.0,
+    "Background": 2978.8625,
+    "BoundingBox": "4130, 1063, 5, 8"
+  },
+  {
+    "HFR": 3.7696564846789267,
+    "Position": {
+      "X": 4119.5,
+      "Y": 1073.0
+    },
+    "AverageBrightness": 1734.138888888889,
+    "MaxBrightness": 11063.0,
+    "Background": 3281.8738425925926,
+    "BoundingBox": "4115, 1067, 9, 12"
+  },
+  {
+    "HFR": 1.8897813671229737,
+    "Position": {
+      "X": 4119.5,
+      "Y": 1113.5
+    },
+    "AverageBrightness": 2951.057142857143,
+    "MaxBrightness": 10850.0,
+    "Background": 2928.7535714285714,
+    "BoundingBox": "4117, 1110, 5, 7"
+  },
+  {
+    "HFR": 2.0948259115215535,
+    "Position": {
+      "X": 2502.5,
+      "Y": 1119.5
+    },
+    "AverageBrightness": 1459.8857142857144,
+    "MaxBrightness": 18056.0,
+    "Background": 14408.632142857143,
+    "BoundingBox": "2500, 1116, 5, 7"
+  },
+  {
+    "HFR": 1.5624967595151955,
+    "Position": {
+      "X": 14.0,
+      "Y": 1121.0
+    },
+    "AverageBrightness": 2199.08,
+    "MaxBrightness": 13556.0,
+    "Background": 7872.05,
+    "BoundingBox": "12, 1119, 5, 5"
+  },
+  {
+    "HFR": 1.3885464827002816,
+    "Position": {
+      "X": 2.0,
+      "Y": 1127.0
+    },
+    "AverageBrightness": 2982.72,
+    "MaxBrightness": 13999.0,
+    "Background": 7567.585,
+    "BoundingBox": "0, 1125, 5, 5"
+  },
+  {
+    "HFR": 3.5018125589475697,
+    "Position": {
+      "X": 4116.5,
+      "Y": 1130.5
+    },
+    "AverageBrightness": 1609.0389610389611,
+    "MaxBrightness": 10534.0,
+    "Background": 3520.4204545454545,
+    "BoundingBox": "4111, 1127, 11, 7"
+  },
+  {
+    "HFR": 1.3524386682277003,
+    "Position": {
+      "X": 2379.0,
+      "Y": 1131.0
+    },
+    "AverageBrightness": 1074.04,
+    "MaxBrightness": 16436.0,
+    "Background": 13586.115,
+    "BoundingBox": "2377, 1129, 5, 5"
+  },
+  {
+    "HFR": 1.4353371148311507,
+    "Position": {
+      "X": 2355.5,
+      "Y": 1138.0
+    },
+    "AverageBrightness": 1354.2,
+    "MaxBrightness": 18180.0,
+    "Background": 13447.1,
+    "BoundingBox": "2353, 1136, 6, 5"
+  },
+  {
+    "HFR": 1.8713727248367578,
+    "Position": {
+      "X": 4131.5,
+      "Y": 1145.0
+    },
+    "AverageBrightness": 1781.3095238095239,
+    "MaxBrightness": 8562.0,
+    "Background": 2751.6011904761904,
+    "BoundingBox": "4129, 1142, 6, 7"
+  },
+  {
+    "HFR": 1.2475613084898896,
+    "Position": {
+      "X": 4119.0,
+      "Y": 1175.0
+    },
+    "AverageBrightness": 2619.08,
+    "MaxBrightness": 11898.0,
+    "Background": 3492.05,
+    "BoundingBox": "4117, 1173, 5, 5"
+  },
+  {
+    "HFR": 2.5286319078165387,
+    "Position": {
+      "X": 4131.0,
+      "Y": 1176.0
+    },
+    "AverageBrightness": 2140.6458333333335,
+    "MaxBrightness": 10078.0,
+    "Background": 3339.6614583333335,
+    "BoundingBox": "4127, 1173, 8, 6"
+  },
+  {
+    "HFR": 3.8364817469445796,
+    "Position": {
+      "X": 4129.5,
+      "Y": 1280.0
+    },
+    "AverageBrightness": 1816.173076923077,
+    "MaxBrightness": 12011.0,
+    "Background": 3554.424157303371,
+    "BoundingBox": "4123, 1276, 13, 8"
+  },
+  {
+    "HFR": 1.426746146574956,
+    "Position": {
+      "X": 4120.0,
+      "Y": 1285.0
+    },
+    "AverageBrightness": 2616.64,
+    "MaxBrightness": 9237.0,
+    "Background": 3418.965,
+    "BoundingBox": "4118, 1283, 5, 5"
+  },
+  {
+    "HFR": 2.0797036155996875,
+    "Position": {
+      "X": 4119.5,
+      "Y": 1307.0
+    },
+    "AverageBrightness": 1700.857142857143,
+    "MaxBrightness": 8951.0,
+    "Background": 3786.042410714286,
+    "BoundingBox": "4116, 1304, 8, 7"
+  },
+  {
+    "HFR": 2.6645548615128285,
+    "Position": {
+      "X": 4131.5,
+      "Y": 1309.5
+    },
+    "AverageBrightness": 1374.4444444444443,
+    "MaxBrightness": 8669.0,
+    "Background": 3442.1614906832297,
+    "BoundingBox": "4127, 1306, 9, 7"
+  },
+  {
+    "HFR": 1.1756559078800333,
+    "Position": {
+      "X": 4101.0,
+      "Y": 1333.0
+    },
+    "AverageBrightness": 897.64,
+    "MaxBrightness": 8383.0,
+    "Background": 3955.435,
+    "BoundingBox": "4099, 1331, 5, 5"
+  },
+  {
+    "HFR": 1.4079723739396117,
+    "Position": {
+      "X": 4103.0,
+      "Y": 1340.0
+    },
+    "AverageBrightness": 2818.84,
+    "MaxBrightness": 10235.0,
+    "Background": 3609.965,
+    "BoundingBox": "4101, 1338, 5, 5"
+  },
+  {
+    "HFR": 1.6623391832510859,
+    "Position": {
+      "X": 1183.5,
+      "Y": 1437.0
+    },
+    "AverageBrightness": 2407.8,
+    "MaxBrightness": 18265.0,
+    "Background": 12864.283333333333,
+    "BoundingBox": "1181, 1435, 6, 5"
+  },
+  {
+    "HFR": 1.5504755728863364,
+    "Position": {
+      "X": 4121.5,
+      "Y": 1443.0
+    },
+    "AverageBrightness": 1853.3333333333333,
+    "MaxBrightness": 9582.0,
+    "Background": 3811.295833333333,
+    "BoundingBox": "4119, 1440, 5, 6"
+  },
+  {
+    "HFR": 3.8421370871360097,
+    "Position": {
+      "X": 4127.5,
+      "Y": 1447.5
+    },
+    "AverageBrightness": 1490.9421487603306,
+    "MaxBrightness": 10510.0,
+    "Background": 3700.370867768595,
+    "BoundingBox": "4122, 1442, 11, 11"
+  },
+  {
+    "HFR": 2.140179143785294,
+    "Position": {
+      "X": 4139.5,
+      "Y": 1456.0
+    },
+    "AverageBrightness": 2351.1785714285716,
+    "MaxBrightness": 10839.0,
+    "Background": 3307.7631578947367,
+    "BoundingBox": "4136, 1452, 7, 8"
+  },
+  {
+    "HFR": 1.3479343067747518,
+    "Position": {
+      "X": 4137.0,
+      "Y": 1477.0
+    },
+    "AverageBrightness": 1692.12,
+    "MaxBrightness": 8396.0,
+    "Background": 2944.9621621621623,
+    "BoundingBox": "4135, 1475, 5, 5"
+  },
+  {
+    "HFR": 2.210658076023083,
+    "Position": {
+      "X": 4140.0,
+      "Y": 1502.0
+    },
+    "AverageBrightness": 1155.4375,
+    "MaxBrightness": 7778.0,
+    "Background": 3520.7045454545455,
+    "BoundingBox": "4137, 1498, 6, 8"
+  },
+  {
+    "HFR": 2.900968133171238,
+    "Position": {
+      "X": 4134.0,
+      "Y": 1512.5
+    },
+    "AverageBrightness": 1019.75,
+    "MaxBrightness": 8024.0,
+    "Background": 3150.969348659004,
+    "BoundingBox": "4130, 1508, 8, 9"
+  },
+  {
+    "HFR": 2.250649527592619,
+    "Position": {
+      "X": 2446.5,
+      "Y": 1543.0
+    },
+    "AverageBrightness": 1684.0714285714287,
+    "MaxBrightness": 19129.0,
+    "Background": 14726.676339285714,
+    "BoundingBox": "2443, 1540, 8, 7"
+  },
+  {
+    "HFR": 1.3586792873148184,
+    "Position": {
+      "X": 4129.0,
+      "Y": 1544.0
+    },
+    "AverageBrightness": 3302.68,
+    "MaxBrightness": 11291.0,
+    "Background": 2769.945,
+    "BoundingBox": "4127, 1542, 5, 5"
+  },
+  {
+    "HFR": 1.2014828945706792,
+    "Position": {
+      "X": 4121.0,
+      "Y": 1584.0
+    },
+    "AverageBrightness": 1499.16,
+    "MaxBrightness": 9673.0,
+    "Background": 2919.535,
+    "BoundingBox": "4119, 1582, 5, 5"
+  },
+  {
+    "HFR": 1.2418709952010352,
+    "Position": {
+      "X": 4139.0,
+      "Y": 1591.0
+    },
+    "AverageBrightness": 1185.24,
+    "MaxBrightness": 7052.0,
+    "Background": 2240.6451612903224,
+    "BoundingBox": "4137, 1589, 5, 5"
+  },
+  {
+    "HFR": 1.3712803000616414,
+    "Position": {
+      "X": 4135.0,
+      "Y": 1601.0
+    },
+    "AverageBrightness": 2283.72,
+    "MaxBrightness": 8471.0,
+    "Background": 2293.565,
+    "BoundingBox": "4133, 1599, 5, 5"
+  },
+  {
+    "HFR": 1.1950318492356016,
+    "Position": {
+      "X": 4136.0,
+      "Y": 1628.0
+    },
+    "AverageBrightness": 1870.96,
+    "MaxBrightness": 9382.0,
+    "Background": 2413.135,
+    "BoundingBox": "4134, 1626, 5, 5"
+  },
+  {
+    "HFR": 1.440206867106581,
+    "Position": {
+      "X": 1157.5,
+      "Y": 1655.0
+    },
+    "AverageBrightness": 1050.2,
+    "MaxBrightness": 17676.0,
+    "Background": 14019.9375,
+    "BoundingBox": "1155, 1653, 6, 5"
+  },
+  {
+    "HFR": 2.087684735023251,
+    "Position": {
+      "X": 4129.5,
+      "Y": 1658.0
+    },
+    "AverageBrightness": 2469.125,
+    "MaxBrightness": 9652.0,
+    "Background": 2273.8258928571427,
+    "BoundingBox": "4126, 1655, 8, 7"
+  },
+  {
+    "HFR": 1.2553260563909159,
+    "Position": {
+      "X": 909.0,
+      "Y": 1685.0
+    },
+    "AverageBrightness": 1714.92,
+    "MaxBrightness": 17107.0,
+    "Background": 12070.2,
+    "BoundingBox": "907, 1683, 5, 5"
+  },
+  {
+    "HFR": 2.064284674306743,
+    "Position": {
+      "X": 552.5,
+      "Y": 1694.5
+    },
+    "AverageBrightness": 1317.0285714285715,
+    "MaxBrightness": 16692.0,
+    "Background": 12140.346428571429,
+    "BoundingBox": "550, 1691, 5, 7"
+  },
+  {
+    "HFR": 1.8686793805398343,
+    "Position": {
+      "X": 4131.5,
+      "Y": 1697.5
+    },
+    "AverageBrightness": 2268.1428571428573,
+    "MaxBrightness": 8930.0,
+    "Background": 2255.7571428571428,
+    "BoundingBox": "4129, 1694, 5, 7"
+  },
+  {
+    "HFR": 2.4973365116370463,
+    "Position": {
+      "X": 4107.5,
+      "Y": 1707.0
+    },
+    "AverageBrightness": 2069.0,
+    "MaxBrightness": 8074.0,
+    "Background": 2858.1111111111113,
+    "BoundingBox": "4103, 1704, 9, 6"
+  },
+  {
+    "HFR": 1.1555466827737557,
+    "Position": {
+      "X": 4113.0,
+      "Y": 1714.0
+    },
+    "AverageBrightness": 1212.16,
+    "MaxBrightness": 6714.0,
+    "Background": 2667.23,
+    "BoundingBox": "4111, 1712, 5, 5"
+  },
+  {
+    "HFR": 1.301536797965589,
+    "Position": {
+      "X": 4118.0,
+      "Y": 1721.0
+    },
+    "AverageBrightness": 1782.36,
+    "MaxBrightness": 7739.0,
+    "Background": 2436.255,
+    "BoundingBox": "4116, 1719, 5, 5"
+  },
+  {
+    "HFR": 1.5319398131819983,
+    "Position": {
+      "X": 4126.0,
+      "Y": 1729.5
+    },
+    "AverageBrightness": 1856.7333333333333,
+    "MaxBrightness": 7727.0,
+    "Background": 2025.5166666666667,
+    "BoundingBox": "4124, 1727, 5, 6"
+  },
+  {
+    "HFR": 5.026083545927757,
+    "Position": {
+      "X": 4136.0,
+      "Y": 1746.5
+    },
+    "AverageBrightness": 3718.3909774436092,
+    "MaxBrightness": 17331.0,
+    "Background": 2112.7909156452774,
+    "BoundingBox": "4129, 1737, 14, 19"
+  },
+  {
+    "HFR": 1.188203917908067,
+    "Position": {
+      "X": 389.0,
+      "Y": 1755.0
+    },
+    "AverageBrightness": 1528.16,
+    "MaxBrightness": 16182.0,
+    "Background": 10690.74,
+    "BoundingBox": "387, 1753, 5, 5"
+  },
+  {
+    "HFR": 1.6299616272920114,
+    "Position": {
+      "X": 2.0,
+      "Y": 1783.5
+    },
+    "AverageBrightness": 1162.9,
+    "MaxBrightness": 12037.0,
+    "Background": 8179.108333333334,
+    "BoundingBox": "0, 1781, 5, 6"
+  },
+  {
+    "HFR": 1.7474112241571496,
+    "Position": {
+      "X": 4103.5,
+      "Y": 1789.5
+    },
+    "AverageBrightness": 1877.6571428571428,
+    "MaxBrightness": 8683.0,
+    "Background": 2147.1178571428572,
+    "BoundingBox": "4100, 1787, 7, 5"
+  },
+  {
+    "HFR": 1.8154269891043469,
+    "Position": {
+      "X": 8.5,
+      "Y": 1794.5
+    },
+    "AverageBrightness": 2113.6388888888887,
+    "MaxBrightness": 15583.0,
+    "Background": 7813.784722222223,
+    "BoundingBox": "6, 1792, 6, 6"
+  },
+  {
+    "HFR": 4.959538743364387,
+    "Position": {
+      "X": 4112.0,
+      "Y": 1829.5
+    },
+    "AverageBrightness": 987.3095238095239,
+    "MaxBrightness": 8425.0,
+    "Background": 2214.526785714286,
+    "BoundingBox": "4105, 1822, 14, 15"
+  },
+  {
+    "HFR": 1.8768069338390954,
+    "Position": {
+      "X": 4128.5,
+      "Y": 1835.5
+    },
+    "AverageBrightness": 1063.4,
+    "MaxBrightness": 6707.0,
+    "Background": 1814.1321428571428,
+    "BoundingBox": "4126, 1832, 5, 7"
+  },
+  {
+    "HFR": 1.5340473792664922,
+    "Position": {
+      "X": 2665.0,
+      "Y": 1842.5
+    },
+    "AverageBrightness": 1361.2666666666667,
+    "MaxBrightness": 19433.0,
+    "Background": 14862.279166666667,
+    "BoundingBox": "2663, 1840, 5, 6"
+  },
+  {
+    "HFR": 2.0635385409441778,
+    "Position": {
+      "X": 2705.5,
+      "Y": 1908.5
+    },
+    "AverageBrightness": 1257.1666666666667,
+    "MaxBrightness": 18697.0,
+    "Background": 14734.783854166666,
+    "BoundingBox": "2703, 1905, 6, 8"
+  },
+  {
+    "HFR": 2.681867721884318,
+    "Position": {
+      "X": 4132.5,
+      "Y": 1975.0
+    },
+    "AverageBrightness": 838.0357142857143,
+    "MaxBrightness": 3766.0,
+    "Background": 1543.5245535714287,
+    "BoundingBox": "4129, 1971, 7, 8"
+  },
+  {
+    "HFR": 1.4462659590595648,
+    "Position": {
+      "X": 4124.0,
+      "Y": 1993.0
+    },
+    "AverageBrightness": 872.84,
+    "MaxBrightness": 4004.0,
+    "Background": 1399.355,
+    "BoundingBox": "4122, 1991, 5, 5"
+  },
+  {
+    "HFR": 1.8588752611355472,
+    "Position": {
+      "X": 4075.5,
+      "Y": 2012.5
+    },
+    "AverageBrightness": 1662.7714285714285,
+    "MaxBrightness": 8443.0,
+    "Background": 2176.0142857142855,
+    "BoundingBox": "4073, 2009, 5, 7"
+  },
+  {
+    "HFR": 2.144530515397939,
+    "Position": {
+      "X": 4093.0,
+      "Y": 2017.0
+    },
+    "AverageBrightness": 1017.1458333333334,
+    "MaxBrightness": 4949.0,
+    "Background": 1657.5625,
+    "BoundingBox": "4089, 2014, 8, 6"
+  },
+  {
+    "HFR": 1.4908589193004702,
+    "Position": {
+      "X": 4130.0,
+      "Y": 2016.0
+    },
+    "AverageBrightness": 902.52,
+    "MaxBrightness": 4332.0,
+    "Background": 1529.11,
+    "BoundingBox": "4128, 2014, 5, 5"
+  },
+  {
+    "HFR": 1.5922777584200478,
+    "Position": {
+      "X": 4104.0,
+      "Y": 2025.5
+    },
+    "AverageBrightness": 709.5333333333333,
+    "MaxBrightness": 3766.0,
+    "Background": 1568.5125,
+    "BoundingBox": "4102, 2023, 5, 6"
+  },
+  {
+    "HFR": 1.1970460259111386,
+    "Position": {
+      "X": 4121.0,
+      "Y": 2031.0
+    },
+    "AverageBrightness": 930.48,
+    "MaxBrightness": 4725.0,
+    "Background": 1399.32,
+    "BoundingBox": "4119, 2029, 5, 5"
+  },
+  {
+    "HFR": 1.4963170075363568,
+    "Position": {
+      "X": 7.0,
+      "Y": 2088.0
+    },
+    "AverageBrightness": 2806.64,
+    "MaxBrightness": 12241.0,
+    "Background": 6713.64,
+    "BoundingBox": "5, 2086, 5, 5"
+  },
+  {
+    "HFR": 1.2989045267077504,
+    "Position": {
+      "X": 4023.0,
+      "Y": 2173.0
+    },
+    "AverageBrightness": 1167.28,
+    "MaxBrightness": 7033.0,
+    "Background": 2057.65,
+    "BoundingBox": "4021, 2171, 5, 5"
+  },
+  {
+    "HFR": 1.2474290697193897,
+    "Position": {
+      "X": 2671.0,
+      "Y": 2177.0
+    },
+    "AverageBrightness": 1077.0,
+    "MaxBrightness": 18385.0,
+    "Background": 14298.14,
+    "BoundingBox": "2669, 2175, 5, 5"
+  },
+  {
+    "HFR": 2.195791314087053,
+    "Position": {
+      "X": 2738.5,
+      "Y": 2262.0
+    },
+    "AverageBrightness": 1069.75,
+    "MaxBrightness": 18969.0,
+    "Background": 14281.465625,
+    "BoundingBox": "2736, 2258, 5, 8"
+  },
+  {
+    "HFR": 2.5198955313443636,
+    "Position": {
+      "X": 9.5,
+      "Y": 2293.0
+    },
+    "AverageBrightness": 1448.925,
+    "MaxBrightness": 10232.0,
+    "Background": 4756.76875,
+    "BoundingBox": "7, 2289, 5, 8"
+  },
+  {
+    "HFR": 5.785347573362311,
+    "Position": {
+      "X": 14.0,
+      "Y": 2348.0
+    },
+    "AverageBrightness": 1534.781746031746,
+    "MaxBrightness": 12245.0,
+    "Background": 5181.881944444444,
+    "BoundingBox": "7, 2339, 14, 18"
+  },
+  {
+    "HFR": 2.255454267005855,
+    "Position": {
+      "X": 9.0,
+      "Y": 2372.0
+    },
+    "AverageBrightness": 1941.9166666666667,
+    "MaxBrightness": 11711.0,
+    "Background": 4260.03125,
+    "BoundingBox": "5, 2369, 8, 6"
+  },
+  {
+    "HFR": 1.593655869002626,
+    "Position": {
+      "X": 8.5,
+      "Y": 2400.5
+    },
+    "AverageBrightness": 1860.638888888889,
+    "MaxBrightness": 10186.0,
+    "Background": 3707.4166666666665,
+    "BoundingBox": "6, 2398, 6, 6"
+  },
+  {
+    "HFR": 1.3438117232560411,
+    "Position": {
+      "X": 7.0,
+      "Y": 2439.0
+    },
+    "AverageBrightness": 2239.88,
+    "MaxBrightness": 9434.0,
+    "Background": 2671.115,
+    "BoundingBox": "5, 2437, 5, 5"
+  },
+  {
+    "HFR": 2.9893338849983246,
+    "Position": {
+      "X": 12.5,
+      "Y": 2482.5
+    },
+    "AverageBrightness": 1508.5238095238096,
+    "MaxBrightness": 10046.0,
+    "Background": 2840.1646825396824,
+    "BoundingBox": "8, 2479, 9, 7"
+  },
+  {
+    "HFR": 2.7258512846329976,
+    "Position": {
+      "X": 9.5,
+      "Y": 2495.5
+    },
+    "AverageBrightness": 1399.1904761904761,
+    "MaxBrightness": 7994.0,
+    "Background": 2291.84126984127,
+    "BoundingBox": "6, 2491, 7, 9"
+  },
+  {
+    "HFR": 1.288329095167079,
+    "Position": {
+      "X": 13.0,
+      "Y": 2505.0
+    },
+    "AverageBrightness": 2568.48,
+    "MaxBrightness": 10648.0,
+    "Background": 2378.11,
+    "BoundingBox": "11, 2503, 5, 5"
+  },
+  {
+    "HFR": 2.5348963357236296,
+    "Position": {
+      "X": 8.0,
+      "Y": 2526.0
+    },
+    "AverageBrightness": 1225.9791666666667,
+    "MaxBrightness": 6516.0,
+    "Background": 2005.8151041666667,
+    "BoundingBox": "5, 2522, 6, 8"
+  },
+  {
+    "HFR": 1.1426746187672163,
+    "Position": {
+      "X": 3785.0,
+      "Y": 2642.0
+    },
+    "AverageBrightness": 870.88,
+    "MaxBrightness": 5351.0,
+    "Background": 1819.99,
+    "BoundingBox": "3783, 2640, 5, 5"
+  },
+  {
+    "HFR": 2.3350381629363404,
+    "Position": {
+      "X": 760.5,
+      "Y": 2768.0
+    },
+    "AverageBrightness": 1664.0,
+    "MaxBrightness": 13783.0,
+    "Background": 9275.565625,
+    "BoundingBox": "758, 2764, 5, 8"
+  },
+  {
+    "HFR": 4.6774972610353664,
+    "Position": {
+      "X": 2316.5,
+      "Y": 2792.0
+    },
+    "AverageBrightness": 5361.2555555555555,
+    "MaxBrightness": 20428.0,
+    "Background": 7493.975,
+    "BoundingBox": "2309, 2786, 15, 12"
+  },
+  {
+    "HFR": 1.5942567995016812,
+    "Position": {
+      "X": 3663.0,
+      "Y": 2793.5
+    },
+    "AverageBrightness": 960.9666666666667,
+    "MaxBrightness": 5789.0,
+    "Background": 1811.7541666666666,
+    "BoundingBox": "3661, 2791, 5, 6"
+  },
+  {
+    "HFR": 1.3732034104368407,
+    "Position": {
+      "X": 2824.0,
+      "Y": 2796.0
+    },
+    "AverageBrightness": 2651.96,
+    "MaxBrightness": 18388.0,
+    "Background": 10796.825,
+    "BoundingBox": "2822, 2794, 5, 5"
+  },
+  {
+    "HFR": 1.254628120590776,
+    "Position": {
+      "X": 1432.0,
+      "Y": 2813.0
+    },
+    "AverageBrightness": 1442.32,
+    "MaxBrightness": 16914.0,
+    "Background": 11996.27,
+    "BoundingBox": "1430, 2811, 5, 5"
+  },
+  {
+    "HFR": 1.5330763239981253,
+    "Position": {
+      "X": 3636.5,
+      "Y": 2814.0
+    },
+    "AverageBrightness": 1318.5333333333333,
+    "MaxBrightness": 7029.0,
+    "Background": 1844.0166666666667,
+    "BoundingBox": "3634, 2812, 6, 5"
+  },
+  {
+    "HFR": 2.097284129788014,
+    "Position": {
+      "X": 3573.5,
+      "Y": 2817.5
+    },
+    "AverageBrightness": 914.0612244897959,
+    "MaxBrightness": 9701.0,
+    "Background": 3658.6954887218044,
+    "BoundingBox": "3570, 2814, 7, 7"
+  }
+]

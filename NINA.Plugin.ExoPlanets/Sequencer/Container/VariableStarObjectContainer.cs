@@ -104,10 +104,25 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
             nighttimeCalculator.OnReferenceDayChanged += (object sender, EventArgs e) => {
                 // Midnight has passed and the reference day rolled over — refresh altitude data and
-                // nighttime shading so the chart stays correct without replacing the DSO object.
+                // nighttime shading so the chart stays correct.
                 Task.Run(() => {
                     NighttimeData = nighttimeCalculator.Calculate();
-                    exoPlanetDSO?.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
+                    if (exoPlanetDSO != null) {
+                        var refDate = NighttimeCalculator.GetReferenceDate(DateTime.Now);
+                        var lat = profileService.ActiveProfile.AstrometrySettings.Latitude;
+                        var lon = profileService.ActiveProfile.AstrometrySettings.Longitude;
+                        var horizon = profileService.ActiveProfile.AstrometrySettings.Horizon;
+                        var newDso = new ExoPlanetDeepSkyObject(exoPlanetDSO.Name, exoPlanetDSO.Coordinates, string.Empty, horizon);
+                        newDso.Magnitude = exoPlanetDSO.Magnitude;
+                        newDso.SetDateAndPosition(refDate, lat, lon);
+                        if (exoPlanetDSO.LightCurve?.Count > 0) {
+                            newDso.LightCurve = exoPlanetDSO.LightCurve;
+                            newDso.ObservationStart = exoPlanetDSO.ObservationStart;
+                            newDso.ObservationEnd = exoPlanetDSO.ObservationEnd;
+                        }
+                        ExoPlanetDSO = newDso;
+                    }
+                    RaisePropertyChanged(nameof(NighttimeData));
                 });
             };
         }
@@ -131,9 +146,6 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 if (exoPlanetDSO == null) {
                     ExoPlanetDSO = new ExoPlanetDeepSkyObject(string.Empty, new Coordinates(Angle.Zero, Angle.Zero, Epoch.J2000), string.Empty, profileService.ActiveProfile.AstrometrySettings.Horizon);
                     ExoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
-                } else if (exoPlanetDSO.ReferenceDate <= DateTime.Now.AddHours(-12)) {
-                    // Refresh altitude data in-place so coordinates and LightCurve are not lost
-                    exoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
                 }
                 return exoPlanetDSO;
             }
@@ -216,18 +228,36 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
         [RelayCommand]
         private void LoadSingleTarget(object obj) {
             if (SelectedVariableStar != null && SelectedVariableStar?.Name != null) {
-                Target.TargetName = SelectedVariableStar.Name;
-                Target.InputCoordinates.Coordinates = SelectedVariableStar.Coordinates();
-                Target.DeepSkyObject.Coordinates = SelectedVariableStar.Coordinates();
+                var star = SelectedVariableStar;
+                var referenceDate = NighttimeCalculator.GetReferenceDate(star.HasEvents ? star.midTime : star.startTime);
+                var lat = profileService.ActiveProfile.AstrometrySettings.Latitude;
+                var lon = profileService.ActiveProfile.AstrometrySettings.Longitude;
+                var horizon = profileService.ActiveProfile.AstrometrySettings.Horizon;
 
-                ExoPlanetDSO.Coordinates = SelectedVariableStar.Coordinates();
-                ExoPlanetDSO.Magnitude = SelectedVariableStar.V;
-                if (SelectedVariableStar.HasEvents) {
-                    ExoPlanetDSO.SetMaximum(SelectedVariableStar.jd_start, SelectedVariableStar.jd_mid, SelectedVariableStar.jd_end, SelectedVariableStar.OCRange, SelectedVariableStar.amplitude);
-                } else {
-                    ExoPlanetDSO.SetAllNight(SelectedVariableStar.startTime, SelectedVariableStar.endTime);
-                }
+                Target.TargetName = star.Name;
 
+                Task.Run(() => {
+                    NighttimeData = nighttimeCalculator.Calculate(referenceDate);
+
+                    var newDso = new ExoPlanetDeepSkyObject(star.Name, star.Coordinates(), string.Empty, horizon);
+                    newDso.Magnitude = star.V;
+                    newDso.SetDateAndPosition(referenceDate, lat, lon);
+                    if (star.HasEvents) {
+                        newDso.SetMaximum(star.jd_start, star.jd_mid, star.jd_end, star.OCRange, star.amplitude);
+                    } else {
+                        newDso.SetAllNight(star.startTime, star.endTime);
+                    }
+
+                    ExoPlanetDSO = newDso;
+
+                    System.Windows.Application.Current.Dispatcher.Invoke(() => {
+                        Target.InputCoordinates.Coordinates = star.Coordinates();
+                    });
+
+                    RaisePropertyChanged(nameof(NighttimeData));
+                });
+
+                RaiseAllPropertiesChanged();
                 AfterParentChanged();
             }
         }
@@ -268,6 +298,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             VariableStarTargetList.Clear();
 
             return Task.Run(async () => {
+                NighttimeData = nighttimeCalculator.Calculate(NighttimeCalculator.GetReferenceDate(DateTime.Now));
                 try {
                     switch (exoPlanetsPlugin.VarStarCatalogTypeIndex) {
                         case 0:

@@ -108,10 +108,25 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
 
             nighttimeCalculator.OnReferenceDayChanged += (object sender, EventArgs e) => {
                 // Midnight has passed and the reference day rolled over — refresh altitude data and
-                // nighttime shading so the chart stays correct without replacing the DSO object.
+                // nighttime shading so the chart stays correct.
                 Task.Run(() => {
                     NighttimeData = nighttimeCalculator.Calculate();
-                    exoPlanetDSO?.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
+                    if (exoPlanetDSO != null) {
+                        var refDate = NighttimeCalculator.GetReferenceDate(DateTime.Now);
+                        var lat = profileService.ActiveProfile.AstrometrySettings.Latitude;
+                        var lon = profileService.ActiveProfile.AstrometrySettings.Longitude;
+                        var horizon = profileService.ActiveProfile.AstrometrySettings.Horizon;
+                        var newDso = new ExoPlanetDeepSkyObject(exoPlanetDSO.Name, exoPlanetDSO.Coordinates, string.Empty, horizon);
+                        newDso.Magnitude = exoPlanetDSO.Magnitude;
+                        newDso.SetDateAndPosition(refDate, lat, lon);
+                        if (exoPlanetDSO.LightCurve?.Count > 0) {
+                            newDso.LightCurve = exoPlanetDSO.LightCurve;
+                            newDso.ObservationStart = exoPlanetDSO.ObservationStart;
+                            newDso.ObservationEnd = exoPlanetDSO.ObservationEnd;
+                        }
+                        ExoPlanetDSO = newDso;
+                    }
+                    RaisePropertyChanged(nameof(NighttimeData));
                 });
             };
         }
@@ -135,9 +150,6 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 if (exoPlanetDSO == null) {
                     ExoPlanetDSO = new ExoPlanetDeepSkyObject(string.Empty, new Coordinates(Angle.Zero, Angle.Zero, Epoch.J2000), string.Empty, profileService.ActiveProfile.AstrometrySettings.Horizon);
                     ExoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
-                } else if (exoPlanetDSO.ReferenceDate <= DateTime.Now.AddHours(-12)) {
-                    // Refresh altitude data in-place so coordinates and LightCurve are not lost
-                    exoPlanetDSO.SetDateAndPosition(NighttimeCalculator.GetReferenceDate(DateTime.Now), profileService.ActiveProfile.AstrometrySettings.Latitude, profileService.ActiveProfile.AstrometrySettings.Longitude);
                 }
                 return exoPlanetDSO;
             }
@@ -234,13 +246,47 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
         [RelayCommand]
         private void LoadSingleTarget(object obj) {
             if (SelectedExoPlanet != null && SelectedExoPlanet?.Name != null) {
-                Target.TargetName = SelectedExoPlanet.Name;
-                Target.InputCoordinates.Coordinates = SelectedExoPlanet.coords;
-                Target.DeepSkyObject.Coordinates = SelectedExoPlanet.coords;
+                // Capture values for the background task to avoid closure over a mutable property.
+                var planet = SelectedExoPlanet;
+                var transitReferenceDate = NighttimeCalculator.GetReferenceDate(planet.midTime);
+                var lat = profileService.ActiveProfile.AstrometrySettings.Latitude;
+                var lon = profileService.ActiveProfile.AstrometrySettings.Longitude;
+                var horizon = profileService.ActiveProfile.AstrometrySettings.Horizon;
 
-                ExoPlanetDSO.Coordinates = SelectedExoPlanet.coords;
-                ExoPlanetDSO.Magnitude = SelectedExoPlanet.V;
-                ExoPlanetDSO.SetTransit(SelectedExoPlanet.jd_start, SelectedExoPlanet.jd_mid, SelectedExoPlanet.jd_end, SelectedExoPlanet.depth);
+                // Set target name on the UI thread (safe — no altitude computation triggered).
+                Target.TargetName = planet.Name;
+
+                // Build a brand-new DSO on a background thread so SetDateAndPosition (240 trig
+                // iterations) doesn't block the UI. Assigning a new object to ExoPlanetDSO raises
+                // PropertyChanged, which causes the chart DataContext to swap to the new instance
+                // and OxyPlot re-reads every series from scratch — fixing the stale-altitude issue
+                // that occurs when the same List<DataPoint> is mutated in-place.
+                //
+                // IMPORTANT: Target.InputCoordinates.Coordinates is also set here (not before
+                // Task.Run) to prevent a race condition: setting it on the UI thread chains
+                // synchronously into DeepSkyObject.UpdateHorizonAndTransit, which enumerates
+                // Altitudes — while the DeepSkyObjectDailyRefresher timer may simultaneously
+                // call Refresh() on the same object from a pool thread, mutating Altitudes and
+                // causing an InvalidOperationException ("Collection was modified").
+                Task.Run(() => {
+                    NighttimeData = nighttimeCalculator.Calculate(transitReferenceDate);
+
+                    var newDso = new ExoPlanetDeepSkyObject(planet.Name, planet.coords, string.Empty, horizon);
+                    newDso.Magnitude = planet.V;
+                    newDso.SetDateAndPosition(transitReferenceDate, lat, lon);
+                    newDso.SetTransit(planet.jd_start, planet.jd_mid, planet.jd_end, planet.depth);
+
+                    ExoPlanetDSO = newDso;
+
+                    // Update the InputTarget coordinates on the UI thread so WPF bindings are
+                    // satisfied from the correct dispatcher context.
+                    System.Windows.Application.Current.Dispatcher.Invoke(() => {
+                        Target.InputCoordinates.Coordinates = planet.coords;
+                    });
+
+                    RaisePropertyChanged(nameof(NighttimeData));
+                });
+
                 RaiseAllPropertiesChanged();
                 AfterParentChanged();
             }
@@ -265,6 +311,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
         private void SearchExoPlanetTargets(object obj) {
             ExoPlanetTargetsList = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.Name.ToLower().Contains(FilterTargets.ToLower())).OrderBy(x => x.startTime));
             SelectedExoPlanet = ExoPlanetTargetsList.FirstOrDefault();
+            this.LoadSingleTarget(null);
         }
 
         private async Task<bool> CoordsToFraming() {
@@ -283,8 +330,7 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             return Task.Run(async () => {
                 LoadingTargets = true;
                 ExoPlanetTargets.Clear();
-                if (DateTime.Now > DateTime.Today.AddHours(6) && DateTime.Now <= DateTime.Today.AddHours(12))
-                    NighttimeData = nighttimeCalculator.Calculate(DateTime.Now.AddHours(6));
+                NighttimeData = nighttimeCalculator.Calculate(NighttimeCalculator.GetReferenceDate(DateTime.Now));
 
                 switch (exoPlanetsPlugin.TargetList) {
                     case 0:
@@ -325,9 +371,21 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             });
         }
 
+        private readonly Dictionary<DateTime, NighttimeData> _nighttimeDataCache = new Dictionary<DateTime, NighttimeData>();
+
+        private NighttimeData GetNighttimeDataForTransit(ExoPlanet ep) {
+            var refDate = NighttimeCalculator.GetReferenceDate(ep.midTime);
+            if (!_nighttimeDataCache.TryGetValue(refDate, out var data)) {
+                data = nighttimeCalculator.Calculate(refDate);
+                _nighttimeDataCache[refDate] = data;
+            }
+            return data;
+        }
+
         private void PreFilterTargets() {
             // start with 0 filtered targets
             FilteredTargets = 0;
+            _nighttimeDataCache.Clear();
 
             // Check if transit has already finished
             ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.endTime > DateTime.Now));
@@ -340,29 +398,45 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             // Check depth
             ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.depth == 0 || ep.depth >= exoPlanetsPlugin.MinDepth));
 
-            // check twilight
+            // check twilight — use the nighttime data for each transit's own night
             if (exoPlanetsPlugin.WithinTwilight) {
-                var rise = NighttimeData.TwilightRiseAndSet.Rise;
-                var set = NighttimeData.TwilightRiseAndSet.Set;
                 if (exoPlanetsPlugin.PartialTransits) {
                     ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(
-                        ExoPlanetTargets.Where(ep => (ep.startTime > set && ep.startTime < rise)
-                        || (ep.midTime > set && ep.midTime < rise) || (ep.endTime > set && ep.endTime < rise)));
+                        ExoPlanetTargets.Where(ep => {
+                            var nd = GetNighttimeDataForTransit(ep);
+                            var rise = nd.TwilightRiseAndSet.Rise;
+                            var set = nd.TwilightRiseAndSet.Set;
+                            return (ep.startTime > set && ep.startTime < rise)
+                                || (ep.midTime > set && ep.midTime < rise)
+                                || (ep.endTime > set && ep.endTime < rise);
+                        }));
                 } else {
-                    ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.midTime > set && ep.midTime < rise));
+                    ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(
+                        ExoPlanetTargets.Where(ep => {
+                            var nd = GetNighttimeDataForTransit(ep);
+                            return ep.midTime > nd.TwilightRiseAndSet.Set && ep.midTime < nd.TwilightRiseAndSet.Rise;
+                        }));
                 }
             }
 
-            // check nautical
+            // check nautical — use the nighttime data for each transit's own night
             if (exoPlanetsPlugin.WithinNautical) {
-                var rise = NighttimeData.NauticalTwilightRiseAndSet.Rise;
-                var set = NighttimeData.NauticalTwilightRiseAndSet.Set;
                 if (exoPlanetsPlugin.PartialTransits) {
                     ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(
-                        ExoPlanetTargets.Where(ep => (ep.startTime > set && ep.startTime < rise)
-                        || (ep.midTime > set && ep.midTime < rise) || (ep.endTime > set && ep.endTime < rise)));
+                        ExoPlanetTargets.Where(ep => {
+                            var nd = GetNighttimeDataForTransit(ep);
+                            var rise = nd.NauticalTwilightRiseAndSet.Rise;
+                            var set = nd.NauticalTwilightRiseAndSet.Set;
+                            return (ep.startTime > set && ep.startTime < rise)
+                                || (ep.midTime > set && ep.midTime < rise)
+                                || (ep.endTime > set && ep.endTime < rise);
+                        }));
                 } else {
-                    ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(ExoPlanetTargets.Where(ep => ep.midTime > set && ep.midTime < rise));
+                    ExoPlanetTargets = new AsyncObservableCollection<ExoPlanet>(
+                        ExoPlanetTargets.Where(ep => {
+                            var nd = GetNighttimeDataForTransit(ep);
+                            return ep.midTime > nd.NauticalTwilightRiseAndSet.Set && ep.midTime < nd.NauticalTwilightRiseAndSet.Rise;
+                        }));
                 }
             }
 
@@ -460,9 +534,13 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
             Logger.Debug($"Retrieved {targets.Count} targets from ExoClock");
 
             var exoplanets = new AsyncObservableCollection<ExoPlanet>();
+            var cutoff = DateTime.Now.AddDays(2);
 
             foreach (ExoClockTarget target in targets) {
-                exoplanets.Add(ExoClock2ExoPlanet(target));
+                var exoPlanet = ExoClock2ExoPlanet(target);
+                if (exoPlanet.midTime <= cutoff) {
+                    exoplanets.Add(exoPlanet);
+                }
             }
 
             ExoPlanetTargets = exoplanets;
