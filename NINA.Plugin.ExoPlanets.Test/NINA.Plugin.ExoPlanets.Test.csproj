@@ -49,13 +49,18 @@
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
   </ItemGroup>
-  <!-- Copy native DLLs required by NINA.Image (cfitsio, FreeImage) to the test output directory. -->
+  <!-- Copy native DLLs required by NINA.Image (cfitsio, FreeImage) and the astrometry database
+       required by NINA.Astrometry (delta T / UT1-UTC lookups) to the test output directory. -->
   <Target Name="CopyNativeDlls" AfterTargets="Build">
     <ItemGroup>
       <NativeDll Include="C:\Program Files\N.I.N.A. - Nighttime Imaging 'N' Astronomy\External\**\*" />
+      <NinaDatabase Include="C:\Program Files\N.I.N.A. - Nighttime Imaging 'N' Astronomy\Database\**\*" />
     </ItemGroup>
     <Copy SourceFiles="@(NativeDll)"
           DestinationFiles="@(NativeDll->'$(OutputPath)External\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(NinaDatabase)"
+          DestinationFiles="@(NinaDatabase->'$(OutputPath)Database\%(RecursiveDir)%(Filename)%(Extension)')"
           SkipUnchangedFiles="true" />
   </Target>
 </Project>

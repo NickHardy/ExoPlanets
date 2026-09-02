@@ -44,6 +44,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -107,24 +108,52 @@ namespace NINA.Plugin.ExoPlanets.Sequencer.Container {
                 // nighttime shading so the chart stays correct.
                 Task.Run(() => {
                     NighttimeData = nighttimeCalculator.Calculate();
-                    if (exoPlanetDSO != null) {
-                        var refDate = NighttimeCalculator.GetReferenceDate(DateTime.Now);
-                        var lat = profileService.ActiveProfile.AstrometrySettings.Latitude;
-                        var lon = profileService.ActiveProfile.AstrometrySettings.Longitude;
-                        var horizon = profileService.ActiveProfile.AstrometrySettings.Horizon;
-                        var newDso = new ExoPlanetDeepSkyObject(exoPlanetDSO.Name, exoPlanetDSO.Coordinates, string.Empty, horizon);
-                        newDso.Magnitude = exoPlanetDSO.Magnitude;
-                        newDso.SetDateAndPosition(refDate, lat, lon);
-                        if (exoPlanetDSO.LightCurve?.Count > 0) {
-                            newDso.LightCurve = exoPlanetDSO.LightCurve;
-                            newDso.ObservationStart = exoPlanetDSO.ObservationStart;
-                            newDso.ObservationEnd = exoPlanetDSO.ObservationEnd;
-                        }
-                        ExoPlanetDSO = newDso;
-                    }
+                    RebuildDsoForCurrentNight();
                     RaisePropertyChanged(nameof(NighttimeData));
                 });
             };
+        }
+
+        /// <summary>
+        /// A saved sequence carries the chart object with the reference date of the night it was
+        /// created on, the altitudes that were calculated for that night, and no observer position
+        /// at all - latitude and longitude are protected fields of the deep sky object that are
+        /// never serialized. Reopening the sequence on a later night would therefore leave the chart
+        /// plotting a curve the time axis never shows, which is what makes it look empty.
+        /// </summary>
+        [OnDeserialized]
+        public void OnDeserialized(StreamingContext context) {
+            RebuildDsoForCurrentNight();
+        }
+
+        /// <summary>
+        /// Rebuilds <see cref="ExoPlanetDSO"/> for the night that is starting now, as seen from the
+        /// location in the active profile, keeping the target identity and the plotted light curve.
+        /// </summary>
+        /// <remarks>
+        /// A new instance is assigned rather than the current one refreshed on purpose: the observer
+        /// position can only be filled in through SetDateAndPosition, and swapping the instance
+        /// raises PropertyChanged, which makes the chart re-read every series instead of holding on
+        /// to the previous altitude list.
+        /// </remarks>
+        private void RebuildDsoForCurrentNight() {
+            var currentDso = exoPlanetDSO;
+            if (currentDso == null) { return; }
+
+            var refDate = NighttimeCalculator.GetReferenceDate(DateTime.Now);
+            var lat = profileService.ActiveProfile.AstrometrySettings.Latitude;
+            var lon = profileService.ActiveProfile.AstrometrySettings.Longitude;
+            var horizon = profileService.ActiveProfile.AstrometrySettings.Horizon;
+
+            var newDso = new ExoPlanetDeepSkyObject(currentDso.Name, currentDso.Coordinates, string.Empty, horizon);
+            newDso.Magnitude = currentDso.Magnitude;
+            newDso.SetDateAndPosition(refDate, lat, lon);
+            if (currentDso.LightCurve?.Count > 0) {
+                newDso.LightCurve = currentDso.LightCurve;
+                newDso.ObservationStart = currentDso.ObservationStart;
+                newDso.ObservationEnd = currentDso.ObservationEnd;
+            }
+            ExoPlanetDSO = newDso;
         }
 
         private VariableStar selectedVariableStar;
